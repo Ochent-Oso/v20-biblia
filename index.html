@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg: #0d0608;
@@ -27,6 +28,7 @@
   --text: #e8ddd5;
   --text2: #b8a89e;
   --text3: #7a6a62;
+  --green: #27ae60;
   --font-title: 'Cinzel', serif;
   --font-body: 'Crimson Text', serif;
 }
@@ -41,151 +43,231 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
   z-index: 9999; transition: opacity .6s ease;
 }
 #splash.hide { opacity: 0; pointer-events: none; }
-.splash-symbol {
-  font-size: 64px; margin-bottom: 1rem;
-  animation: pulse 2s ease-in-out infinite;
-}
+.splash-symbol { font-size: 64px; margin-bottom: 1rem; animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
 .splash-title { font-family: var(--font-title); font-size: 22px; color: var(--gold); letter-spacing: .1em; margin-bottom: .3rem; }
 .splash-sub { font-size: 13px; color: var(--text3); letter-spacing: .2em; text-transform: uppercase; }
+.splash-loading { font-size: 12px; color: var(--text3); margin-top: 1.5rem; animation: pulse 1.5s ease-in-out infinite; }
 
 /* HEADER */
 header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border2);
-  padding: .75rem 1rem;
-  display: flex; align-items: center; gap: .75rem;
+  background: var(--surface); border-bottom: 1px solid var(--border2);
+  padding: .75rem 1rem; display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 100;
 }
+.header-left { display: flex; align-items: center; gap: .75rem; }
 .header-symbol { font-size: 22px; flex-shrink: 0; }
 .header-text h1 { font-family: var(--font-title); font-size: 15px; color: var(--gold); letter-spacing: .05em; }
 .header-text p { font-size: 11px; color: var(--text3); letter-spacing: .15em; text-transform: uppercase; margin-top: 1px; }
+.admin-btn {
+  font-size: 11px; padding: 5px 10px; border-radius: 4px;
+  border: 1px solid var(--border2); background: none; color: var(--text3);
+  font-family: var(--font-title); letter-spacing: .05em; cursor: pointer;
+}
+.admin-btn.active { color: var(--gold); border-color: var(--gold-dim); }
 
 /* NAV */
 nav {
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto; display: flex; gap: 0;
-  scrollbar-width: none;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  overflow-x: auto; display: flex; scrollbar-width: none;
 }
 nav::-webkit-scrollbar { display: none; }
 .nav-btn {
-  flex-shrink: 0;
-  padding: .65rem 1rem;
-  font-family: var(--font-title);
-  font-size: 11px; letter-spacing: .08em;
-  color: var(--text3);
-  background: none; border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer; transition: all .2s;
-  white-space: nowrap;
+  flex-shrink: 0; padding: .65rem 1rem;
+  font-family: var(--font-title); font-size: 11px; letter-spacing: .08em;
+  color: var(--text3); background: none; border: none;
+  border-bottom: 2px solid transparent; cursor: pointer; transition: all .2s; white-space: nowrap;
 }
 .nav-btn.active { color: var(--gold); border-bottom-color: var(--red); }
-.nav-btn:active { background: var(--surface3); }
 
-/* CONTENT */
-main { flex: 1; overflow-y: auto; padding: 1rem; max-width: 800px; margin: 0 auto; width: 100%; }
-
-/* SECTIONS */
+/* MAIN */
+main { flex: 1; padding: 1rem; max-width: 800px; margin: 0 auto; width: 100%; }
 .section { display: none; animation: fadeIn .3s ease; }
 .section.active { display: block; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
+/* TYPOGRAPHY */
 h2 { font-family: var(--font-title); font-size: 18px; color: var(--gold); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border2); letter-spacing: .06em; }
 h3 { font-family: var(--font-title); font-size: 14px; color: var(--red-light); margin: 1.2rem 0 .6rem; letter-spacing: .05em; }
 h4 { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .12em; margin: .8rem 0 .3rem; }
 p { color: var(--text2); line-height: 1.7; margin-bottom: .6rem; font-size: 15px; }
 
-.card {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: .9rem 1rem;
-  margin-bottom: .75rem;
-}
+/* CARDS */
+.card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: .9rem 1rem; margin-bottom: .75rem; }
 .card-red { border-color: var(--red-dim); }
-
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: .75rem; margin-bottom: .75rem; }
 .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: .75rem; margin-bottom: .75rem; }
 
+/* TABLES */
 table { width: 100%; border-collapse: collapse; font-size: 14px; margin: .4rem 0; }
 th { text-align: left; padding: 5px 8px; font-family: var(--font-title); font-size: 10px; letter-spacing: .1em; color: var(--gold-dim); border-bottom: 1px solid var(--border); }
 td { padding: 6px 8px; color: var(--text2); border-bottom: 1px solid rgba(180,60,60,0.08); vertical-align: top; font-size: 14px; }
 tr:last-child td { border-bottom: none; }
 td:first-child { color: var(--text); }
 
-.badge {
-  display: inline-block; font-size: 10px; letter-spacing: .08em;
-  padding: 2px 8px; border-radius: 10px; margin: 2px;
-  font-family: var(--font-title);
-}
+/* BADGES */
+.badge { display: inline-block; font-size: 10px; letter-spacing: .08em; padding: 2px 8px; border-radius: 10px; margin: 2px; font-family: var(--font-title); }
 .b-red { background: rgba(192,57,43,.25); color: #e88; border: 1px solid rgba(192,57,43,.4); }
 .b-gold { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid rgba(201,168,76,.3); }
 .b-gray { background: rgba(120,100,90,.2); color: #bbb; border: 1px solid rgba(120,100,90,.3); }
 .b-teal { background: rgba(22,160,133,.2); color: #7ed; border: 1px solid rgba(22,160,133,.3); }
 .b-purple { background: rgba(142,68,173,.2); color: #ccf; border: 1px solid rgba(142,68,173,.3); }
+.b-green { background: rgba(39,174,96,.2); color: #7f7; border: 1px solid rgba(39,174,96,.3); }
 
-.rule-box {
-  background: var(--surface3);
-  border-left: 3px solid var(--red-dim);
-  border-radius: 0 6px 6px 0;
-  padding: .75rem 1rem;
-  font-size: 14px; color: var(--text2); line-height: 1.7;
-  margin: .5rem 0;
-}
-.warn-box {
-  background: rgba(201,168,76,.08);
-  border: 1px solid rgba(201,168,76,.25);
-  border-radius: 6px;
-  padding: .6rem .9rem;
-  font-size: 13px; color: var(--gold-dim);
-  margin: .5rem 0;
-}
+/* MISC */
+.rule-box { background: var(--surface3); border-left: 3px solid var(--red-dim); border-radius: 0 6px 6px 0; padding: .75rem 1rem; font-size: 14px; color: var(--text2); line-height: 1.7; margin: .5rem 0; }
+.warn-box { background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.25); border-radius: 6px; padding: .6rem .9rem; font-size: 13px; color: var(--gold-dim); margin: .5rem 0; }
 .pool-line { font-size: 14px; color: var(--text2); padding: 2px 0; }
 .pool-line span { color: #e88; font-style: italic; }
+.diff-grid { display: grid; grid-template-columns: 30px 1fr; gap: 4px 10px; font-size: 14px; margin: .5rem 0; }
+.diff-num { color: var(--red-light); font-family: var(--font-title); font-size: 15px; }
+.steps { display: flex; flex-direction: column; gap: 10px; margin: .75rem 0; }
+.step { display: flex; gap: 10px; align-items: flex-start; }
+.step-num { min-width: 26px; height: 26px; border-radius: 50%; background: var(--red-dim); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--font-title); font-size: 12px; flex-shrink: 0; }
+.step-text { font-size: 14px; color: var(--text2); line-height: 1.6; padding-top: 3px; }
 
 /* COLLAPSIBLE */
-.coll-header {
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; padding: .5rem 0;
-  border-bottom: 1px solid var(--border);
-  user-select: none;
-}
+.coll-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: .5rem 0; border-bottom: 1px solid var(--border); user-select: none; }
 .coll-header h3 { margin: 0; }
 .coll-arrow { font-size: 11px; color: var(--text3); transition: transform .2s; flex-shrink: 0; margin-left: .5rem; }
 .coll-header.open .coll-arrow { transform: rotate(180deg); }
 .coll-body { display: none; padding-top: .75rem; }
 .coll-body.open { display: block; }
 
-/* DIFF TABLE */
-.diff-grid { display: grid; grid-template-columns: 30px 1fr; gap: 4px 10px; font-size: 14px; margin: .5rem 0; }
-.diff-num { color: var(--red-light); font-family: var(--font-title); font-size: 15px; }
-
-/* SEQUENCE STEPS */
-.steps { display: flex; flex-direction: column; gap: 10px; margin: .75rem 0; }
-.step { display: flex; gap: 10px; align-items: flex-start; }
-.step-num {
-  min-width: 26px; height: 26px; border-radius: 50%;
-  background: var(--red-dim); color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-title); font-size: 12px; flex-shrink: 0;
-}
-.step-text { font-size: 14px; color: var(--text2); line-height: 1.6; padding-top: 3px; }
-.step-text strong { color: var(--text); }
-
 /* SEARCH */
 .search-wrap { position: relative; margin-bottom: 1rem; }
-.search-wrap input {
-  width: 100%; padding: .6rem .9rem .6rem 2.2rem;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 14px;
-  outline: none;
-}
+.search-wrap input { width: 100%; padding: .6rem .9rem .6rem 2.2rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; }
 .search-wrap input:focus { border-color: var(--border2); }
 .search-icon { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; }
 .search-wrap input::placeholder { color: var(--text3); }
 
-/* FOOTER */
+/* PHOTO CARDS */
+.photo-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; margin-bottom: .75rem;
+}
+.photo-card-img {
+  width: 100%; height: 200px; object-fit: cover; object-position: top;
+  background: var(--surface3); display: block;
+}
+.photo-card-img-placeholder {
+  width: 100%; height: 200px; background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px; color: var(--text3);
+}
+.photo-card-body { padding: .9rem 1rem; }
+.photo-card-name { font-family: var(--font-title); font-size: 16px; color: var(--text); margin-bottom: .2rem; }
+.photo-card-sub { font-size: 12px; color: var(--text3); margin-bottom: .6rem; }
+
+/* PJ CARD */
+.pj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: .75rem; margin-bottom: 1rem; }
+.pj-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; cursor: pointer; transition: border-color .2s; }
+.pj-card:active { border-color: var(--red-dim); }
+.pj-card img, .pj-card .pj-placeholder { width: 100%; height: 140px; object-fit: cover; object-position: top; display: block; }
+.pj-placeholder { background: var(--surface3); display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--text3); }
+.pj-card-info { padding: .6rem .75rem; }
+.pj-card-name { font-family: var(--font-title); font-size: 13px; color: var(--text); }
+.pj-card-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* WIKI */
+.wiki-cat { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+.wiki-cat button { font-size: 11px; padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); background: none; color: var(--text3); cursor: pointer; font-family: var(--font-title); letter-spacing: .05em; }
+.wiki-cat button.active { background: var(--red-dim); color: var(--text); border-color: var(--red-dim); }
+.wiki-entry { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: .75rem; overflow: hidden; }
+.wiki-entry-header { padding: .75rem 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.wiki-entry-title { font-family: var(--font-title); font-size: 14px; color: var(--text); }
+.wiki-entry-cat { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.wiki-entry-body { padding: 0 1rem .75rem; border-top: 1px solid var(--border); padding-top: .75rem; display: none; }
+.wiki-entry-body.open { display: block; }
+.wiki-entry-body img { width: 100%; border-radius: 6px; margin-bottom: .75rem; }
+.wiki-content { font-size: 14px; color: var(--text2); line-height: 1.8; white-space: pre-wrap; }
+
+/* DIARIO */
+.diario-entry { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: .75rem; overflow: hidden; }
+.diario-header { padding: .75rem 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.diario-sesion { font-family: var(--font-title); font-size: 11px; color: var(--red-light); letter-spacing: .1em; }
+.diario-titulo { font-family: var(--font-title); font-size: 14px; color: var(--text); margin-top: 2px; }
+.diario-fecha { font-size: 11px; color: var(--text3); }
+.diario-body { padding: 0 1rem .75rem; border-top: 1px solid var(--border); padding-top: .75rem; display: none; }
+.diario-body.open { display: block; }
+.diario-content { font-size: 15px; color: var(--text2); line-height: 1.9; white-space: pre-wrap; font-style: italic; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 1000; display: none; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px 12px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 1.5rem 1rem 2rem; animation: slideUp .3s ease; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-title { font-family: var(--font-title); font-size: 16px; color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+.modal-close { font-size: 20px; color: var(--text3); cursor: pointer; background: none; border: none; }
+
+/* ADMIN PANEL */
+.admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 500; display: none; overflow-y: auto; }
+.admin-overlay.open { display: block; }
+.admin-panel { max-width: 600px; margin: 0 auto; padding: 1rem; }
+.admin-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid var(--border2); margin-bottom: 1rem; }
+.admin-header h2 { margin-bottom: 0; border: none; padding: 0; }
+
+/* FORMS */
+.form-group { margin-bottom: .9rem; }
+.form-label { display: block; font-size: 12px; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; font-family: var(--font-title); margin-bottom: .3rem; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: .6rem .75rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 14px;
+  outline: none; transition: border-color .2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--red-dim); }
+.form-textarea { min-height: 100px; resize: vertical; }
+.form-select option { background: var(--surface2); }
+.btn { padding: .65rem 1.2rem; border-radius: 6px; font-family: var(--font-title); font-size: 12px; letter-spacing: .08em; cursor: pointer; border: none; transition: all .2s; }
+.btn-primary { background: var(--red-dim); color: var(--text); }
+.btn-primary:active { background: var(--red); }
+.btn-secondary { background: none; border: 1px solid var(--border2); color: var(--text2); }
+.btn-danger { background: none; border: 1px solid rgba(192,57,43,.4); color: #e88; }
+.btn-full { width: 100%; }
+.btn-sm { padding: .4rem .8rem; font-size: 11px; }
+
+/* TABS (admin) */
+.admin-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1rem; overflow-x: auto; }
+.admin-tab { padding: .5rem .9rem; font-family: var(--font-title); font-size: 11px; letter-spacing: .06em; color: var(--text3); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+.admin-tab.active { color: var(--gold); border-bottom-color: var(--red); }
+.admin-section { display: none; }
+.admin-section.active { display: block; }
+
+/* IMAGE UPLOAD */
+.img-upload-area {
+  border: 2px dashed var(--border2); border-radius: 8px;
+  padding: 1.5rem; text-align: center; cursor: pointer;
+  transition: border-color .2s; margin-bottom: .5rem;
+}
+.img-upload-area:hover { border-color: var(--red-dim); }
+.img-upload-area input { display: none; }
+.img-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 6px; margin-top: .5rem; }
+
+/* LOADING */
+.loading { text-align: center; padding: 2rem; color: var(--text3); font-size: 14px; animation: pulse 1.5s ease-in-out infinite; }
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+.empty-state .empty-icon { font-size: 36px; margin-bottom: .75rem; opacity: .4; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; padding: .75rem 1.25rem; font-size: 13px; color: var(--text); z-index: 9999; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+.toast.success { border-color: rgba(39,174,96,.4); color: #7f7; }
+.toast.error { border-color: rgba(192,57,43,.4); color: #e88; }
+
+/* PIN MODAL */
+.pin-modal { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 800; display: none; align-items: center; justify-content: center; }
+.pin-modal.open { display: flex; }
+.pin-box { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 2rem; width: 280px; text-align: center; }
+.pin-title { font-family: var(--font-title); font-size: 16px; color: var(--gold); margin-bottom: 1.5rem; }
+.pin-dots { display: flex; gap: 12px; justify-content: center; margin-bottom: 1.5rem; }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border2); background: none; transition: background .2s; }
+.pin-dot.filled { background: var(--red); border-color: var(--red); }
+.pin-pad { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.pin-key { padding: .9rem; font-family: var(--font-title); font-size: 18px; color: var(--text); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: background .15s; }
+.pin-key:active { background: var(--surface3); }
+.pin-error { font-size: 12px; color: #e88; margin-top: .5rem; min-height: 18px; }
+
 footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3); letter-spacing: .1em; }
 </style>
 </head>
@@ -196,15 +278,142 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
   <div class="splash-symbol">🩸</div>
   <div class="splash-title">Vampiro: La Mascarada</div>
   <div class="splash-sub">Biblia del Narrador · V20</div>
+  <div class="splash-loading">Cargando crónica...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- PIN MODAL -->
+<div class="pin-modal" id="pin-modal">
+  <div class="pin-box">
+    <div class="pin-title">Acceso Narrador</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key" onclick="pinCancel()" style="font-size:13px;color:var(--text3)">✕</button>
+      <button class="pin-key" onclick="pinInput('0')">0</button>
+      <button class="pin-key" onclick="pinDelete()" style="font-size:13px">⌫</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <h2>Panel del Narrador</h2>
+      <button class="btn btn-secondary btn-sm" onclick="closeAdmin()">Cerrar</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="adminTab('directorio',this)">Directorio</button>
+      <button class="admin-tab" onclick="adminTab('pjs',this)">Personajes</button>
+      <button class="admin-tab" onclick="adminTab('wiki-admin',this)">Wiki</button>
+      <button class="admin-tab" onclick="adminTab('diario-admin',this)">Diario</button>
+    </div>
+
+    <!-- ADMIN: DIRECTORIO -->
+    <div class="admin-section active" id="admin-directorio">
+      <p style="font-size:13px;margin-bottom:.75rem">Seleccioná un miembro para editarlo o subirle foto.</p>
+      <div id="admin-dir-list"></div>
+    </div>
+
+    <!-- ADMIN: PJS -->
+    <div class="admin-section" id="admin-pjs">
+      <button class="btn btn-primary btn-full" onclick="openPJForm(null)" style="margin-bottom:1rem">+ Nuevo personaje</button>
+      <div id="admin-pj-list"></div>
+    </div>
+
+    <!-- ADMIN: WIKI -->
+    <div class="admin-section" id="admin-wiki-admin">
+      <button class="btn btn-primary btn-full" onclick="openWikiForm(null)" style="margin-bottom:1rem">+ Nueva entrada</button>
+      <div id="admin-wiki-list"></div>
+    </div>
+
+    <!-- ADMIN: DIARIO -->
+    <div class="admin-section" id="admin-diario-admin">
+      <button class="btn btn-primary btn-full" onclick="openDiarioForm(null)" style="margin-bottom:1rem">+ Nueva sesión</button>
+      <div id="admin-diario-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-dir">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-dir-title">Editar miembro</span>
+      <button class="modal-close" onclick="closeModal('modal-dir')">✕</button>
+    </div>
+    <div id="modal-dir-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-pj">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-pj-title">Personaje</span>
+      <button class="modal-close" onclick="closeModal('modal-pj')">✕</button>
+    </div>
+    <div id="modal-pj-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-wiki">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-wiki-title">Wiki</span>
+      <button class="modal-close" onclick="closeModal('modal-wiki')">✕</button>
+    </div>
+    <div id="modal-wiki-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-diario">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-diario-title">Sesión</span>
+      <button class="modal-close" onclick="closeModal('modal-diario')">✕</button>
+    </div>
+    <div id="modal-diario-body"></div>
+  </div>
+</div>
+
+<!-- PJ DETAIL MODAL -->
+<div class="modal-overlay" id="modal-pj-detail">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-pj-detail-title">Personaje</span>
+      <button class="modal-close" onclick="closeModal('modal-pj-detail')">✕</button>
+    </div>
+    <div id="modal-pj-detail-body"></div>
+  </div>
 </div>
 
 <!-- HEADER -->
 <header>
-  <div class="header-symbol">🩸</div>
-  <div class="header-text">
-    <h1>Vampiro: La Mascarada</h1>
-    <p>Biblia del Narrador · Ed. 20° Aniversario</p>
+  <div class="header-left">
+    <div class="header-symbol">🩸</div>
+    <div class="header-text">
+      <h1>Vampiro: La Mascarada</h1>
+      <p>Biblia · V20 · Chicago</p>
+    </div>
   </div>
+  <button class="admin-btn" id="admin-toggle" onclick="toggleAdmin()">Narrador</button>
 </header>
 
 <!-- NAV -->
@@ -215,17 +424,22 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
   <button class="nav-btn" onclick="show('combate',this)">Combate</button>
   <button class="nav-btn" onclick="show('disciplinas',this)">Disciplinas</button>
   <button class="nav-btn" onclick="show('sistemas',this)">Sistemas</button>
-  <button class="nav-btn" onclick="show('chicago',this)">Chicago</button>
+  <button class="nav-btn" onclick="show('tiradas',this)">Tiradas</button>
+  <button class="nav-btn" onclick="show('meritos',this)">Méritos</button>
+  <button class="nav-btn" onclick="show('trasfondos',this)">Trasfondos</button>
+  <button class="nav-btn" onclick="show('directorio-sec',this)">Directorio</button>
+  <button class="nav-btn" onclick="show('pjs-sec',this)">Personajes</button>
+  <button class="nav-btn" onclick="show('wiki-sec',this)">Wiki</button>
+  <button class="nav-btn" onclick="show('diario-sec',this)">Diario</button>
   <button class="nav-btn" onclick="show('refrapida',this)">Ref. Rápida</button>
 </nav>
 
 <main>
 
-<!-- ═══ LORE ═══ -->
+<!-- LORE -->
 <div id="lore" class="section active">
   <h2>Mundo de Tinieblas</h2>
   <p>El mundo de Vampiro es el nuestro, pero más oscuro y antiguo. Los vampiros llevan milenios ocultos entre los humanos, manipulando la historia desde las sombras.</p>
-
   <div class="grid2">
     <div class="card">
       <h4>Glosario esencial</h4>
@@ -239,7 +453,7 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
         <tr><td>Anciano</td><td>Vampiro de 300+ años</td></tr>
         <tr><td>Matusalén</td><td>Vampiro de 1000+ años</td></tr>
         <tr><td>Antediluviano</td><td>3ª generación, fundadores de clanes</td></tr>
-        <tr><td>Caín</td><td>El primer vampiro, según el mito</td></tr>
+        <tr><td>Ghoul</td><td>Humano que bebió sangre vampírica</td></tr>
       </table>
     </div>
     <div class="card">
@@ -254,11 +468,10 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
         <tr><td>Diablerie</td><td>Devorar el alma de otro vampiro</td></tr>
         <tr><td>Torpor</td><td>Sueño profundo vampírico</td></tr>
         <tr><td>Muerte Definitiva</td><td>Destrucción permanente</td></tr>
-        <tr><td>Ghoul</td><td>Humano que bebió sangre vampírica</td></tr>
+        <tr><td>Vínculo de Sangre</td><td>Esclavitud emocional por sangre</td></tr>
       </table>
     </div>
   </div>
-
   <h3>Las Sectas</h3>
   <div class="card card-red">
     <span class="badge b-gold">Camarilla</span> <span style="font-size:13px;color:var(--text3)">La Torre de Marfil</span>
@@ -275,26 +488,12 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
   </div>
   <div class="card card-red">
     <span class="badge b-red">Sabbat</span> <span style="font-size:13px;color:var(--text3)">La Espada de Caín</span>
-    <p style="margin-top:.5rem">Rechazan la Mascarada y la humanidad. Se organizan en manadas con ferviente credo religioso. Clanes principales: Lasombra y Tzimisce.</p>
-    <table>
-      <tr><th>Cargo</th><th>Rol</th></tr>
-      <tr><td>Arzobispo</td><td>Gobernante de ciudad/diócesis</td></tr>
-      <tr><td>Obispo</td><td>Asistente del Arzobispo</td></tr>
-      <tr><td>Sacerdote</td><td>Líder de manada</td></tr>
-      <tr><td>Mano Negra</td><td>Milicia secreta de élite</td></tr>
-    </table>
+    <p style="margin-top:.5rem">Rechazan la Mascarada y la humanidad. Se organizan en manadas. Clanes principales: Lasombra y Tzimisce.</p>
   </div>
   <div class="grid2">
-    <div class="card">
-      <span class="badge b-gray">Anarquistas</span>
-      <p style="margin-top:.4rem;font-size:14px">Rechazan la tiranía de Príncipes y Antediluvianos. Se organizan en baronías lideradas por Barones.</p>
-    </div>
-    <div class="card">
-      <span class="badge b-purple">Independientes</span>
-      <p style="margin-top:.4rem;font-size:14px">Clanes sin alineación formal: Assamitas, Giovanni, Ravnos, Seguidores de Set. Sus propias agendas.</p>
-    </div>
+    <div class="card"><span class="badge b-gray">Anarquistas</span><p style="margin-top:.4rem;font-size:14px">Rechazan la tiranía de Príncipes. Se organizan en baronías.</p></div>
+    <div class="card"><span class="badge b-purple">Independientes</span><p style="margin-top:.4rem;font-size:14px">Assamitas, Giovanni, Ravnos, Seg. de Set. Sus propias agendas.</p></div>
   </div>
-
   <h3>Las 6 Tradiciones</h3>
   <div class="card">
     <table>
@@ -309,56 +508,49 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
   </div>
 </div>
 
-<!-- ═══ CLANES ═══ -->
+<!-- CLANES -->
 <div id="clanes" class="section">
   <h2>Los 13 Clanes</h2>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
-    <input type="text" id="clan-search" placeholder="Buscar clan..." oninput="filterClanes(this.value)">
+    <input type="text" placeholder="Buscar clan..." oninput="filterClanes(this.value)">
   </div>
   <div id="clan-list"></div>
 </div>
 
-<!-- ═══ REGLAS ═══ -->
+<!-- REGLAS -->
 <div id="reglas" class="section">
   <h2>Reglas Base</h2>
-
   <h3>Sistema de Dados</h3>
-  <div class="rule-box">Vampiro usa <strong>dados de 10 caras (d10)</strong>. Se forma una <strong>reserva</strong> = Atributo + Habilidad. Se tiran todos y se cuentan los que igualen o superen la <strong>dificultad</strong>. Los "1" restan éxitos obtenidos.</div>
-
+  <div class="rule-box">Vampiro usa <strong>dados de 10 caras (d10)</strong>. Reserva = Atributo + Habilidad. Se tiran todos y se cuentan los que igualen o superen la <strong>dificultad</strong>. Los "1" restan éxitos.</div>
   <h3>Dificultades</h3>
   <div class="card">
     <div class="diff-grid">
-      <span class="diff-num">3</span><span>Trivial — examinar una multitud</span>
-      <span class="diff-num">4</span><span>Fácil — seguir un rastro de sangre</span>
-      <span class="diff-num">5</span><span>Sencillo — seducir a alguien receptivo</span>
-      <span class="diff-num">6</span><span style="color:var(--gold)">Normal — disparar un revólver (estándar)</span>
-      <span class="diff-num">7</span><span>Complicado — localizar el origen de un sonido</span>
-      <span class="diff-num">8</span><span>Difícil — convencer a un policía escéptico</span>
-      <span class="diff-num">9</span><span>Extremo — caminar con heridas graves</span>
+      <span class="diff-num">3</span><span>Trivial</span>
+      <span class="diff-num">4</span><span>Fácil</span>
+      <span class="diff-num">5</span><span>Sencillo</span>
+      <span class="diff-num">6</span><span style="color:var(--gold)">Normal (estándar)</span>
+      <span class="diff-num">7</span><span>Complicado</span>
+      <span class="diff-num">8</span><span>Difícil</span>
+      <span class="diff-num">9</span><span>Extremo</span>
       <span class="diff-num">10</span><span>Casi imposible</span>
     </div>
   </div>
-
   <h3>Grados de Éxito</h3>
   <div class="card">
     <table>
-      <tr><th>Éxitos</th><th>Grado</th><th>Descripción</th></tr>
-      <tr><td>1</td><td>Marginal</td><td>Apenas el mínimo</td></tr>
-      <tr><td>2</td><td>Moderado</td><td>Resultado funcional</td></tr>
-      <tr><td>3</td><td>Completo</td><td>Objetivo logrado limpiamente</td></tr>
-      <tr><td>4</td><td>Excepcional</td><td>Superas las expectativas</td></tr>
-      <tr><td>5+</td><td>Fenomenal</td><td>Resultado perfecto</td></tr>
+      <tr><th>Éxitos</th><th>Grado</th></tr>
+      <tr><td>1</td><td>Marginal</td></tr>
+      <tr><td>2</td><td>Moderado</td></tr>
+      <tr><td>3</td><td>Completo</td></tr>
+      <tr><td>4</td><td>Excepcional</td></tr>
+      <tr><td>5+</td><td>Fenomenal</td></tr>
     </table>
   </div>
-
   <h3>Fracasos</h3>
-  <div class="rule-box">Si hay <strong>más "1" que éxitos</strong> → <strong>Fracaso</strong>. Algo sale muy mal dramáticamente. Sin éxitos pero sin "1" → Fallo simple (nada ocurre). Sin "1" en la tirada → imposible fracasar.</div>
-  <div class="warn-box">Usar los fracasos con moderación. Son dramáticos, no rutinarios.</div>
-
+  <div class="rule-box">Más "1" que éxitos → <strong>Fracaso</strong> (algo sale muy mal). Sin éxitos pero sin "1" → Fallo simple. Sin "1" → imposible fracasar.</div>
   <h3>Acciones Múltiples</h3>
-  <div class="rule-box">Determinar la reserva más pequeña de todas las acciones. Dividir ese número entre todas las acciones. Cada acción usa su porción de dados.<br><br>Ejemplo: Reserva A=5, Reserva B=7 → más pequeña=5 → entre 2 acciones → 2 dados cada una.</div>
-
+  <div class="rule-box">Determinar la reserva más pequeña de todas las acciones. Dividir ese número entre la cantidad de acciones. Cada acción usa su porción.</div>
   <h3>Generación y Sangre</h3>
   <div class="card">
     <table>
@@ -367,182 +559,102 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <tr><td>8ª</td><td>5</td><td>15</td><td>2</td></tr>
       <tr><td>9ª</td><td>5</td><td>14</td><td>2</td></tr>
       <tr><td>10ª</td><td>5</td><td>13</td><td>1</td></tr>
-      <tr><td>11ª</td><td>5</td><td>12</td><td>1</td></tr>
-      <tr><td>12ª</td><td>5</td><td>11</td><td>1</td></tr>
-      <tr><td>13ª+</td><td>5</td><td>10</td><td>1</td></tr>
+      <tr><td>11ª-13ª</td><td>5</td><td>10-12</td><td>1</td></tr>
     </table>
   </div>
-
-  <h3>Éxitos Automáticos</h3>
-  <div class="rule-box">Si reserva &gt; doble de la dificultad → se puede asumir 1 éxito automático sin tirar.<br>Gastar 1 Fuerza de Voluntad → 1 éxito automático (una vez por turno).</div>
-
-  <h3>Frenesí — Tiradas de Control</h3>
+  <h3>Frenesí</h3>
   <div class="card">
     <table>
       <tr><th>Disparador</th><th>Pool</th><th>Dif.</th></tr>
-      <tr><td>Insulto / provocación grave</td><td>Humanidad</td><td>6</td></tr>
-      <tr><td>Sangre presente (hambre)</td><td>Humanidad</td><td>7</td></tr>
+      <tr><td>Provocación grave</td><td>Humanidad</td><td>6</td></tr>
+      <tr><td>Sangre presente</td><td>Humanidad</td><td>7</td></tr>
       <tr><td>Ver fuego</td><td>Coraje</td><td>6</td></tr>
       <tr><td>Luz solar</td><td>Coraje</td><td>8</td></tr>
-      <tr><td>Vampiro en frenesí ataca al PJ</td><td>Coraje</td><td>5</td></tr>
     </table>
   </div>
 </div>
 
-<!-- ═══ COMBATE ═══ -->
+<!-- COMBATE -->
 <div id="combate" class="section">
   <h2>Combate</h2>
-
   <div class="card card-red">
-    <h4>Secuencia de combate</h4>
+    <h4>Secuencia</h4>
     <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text"><strong>Iniciativa</strong> — Todos tiran Destreza + Astucia + 1d10. Mayor va primero. Se declaran acciones y activaciones de Disciplinas.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text"><strong>Ataque</strong> — Se resuelven según orden. Pueden interrumpirse para defensas (tirar FV dif.6 o gastar 1 punto de FV).</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text"><strong>Resolución</strong> — Calcular daño, absorber, actualizar niveles de salud. Repetir hasta fin del turno.</div>
-      </div>
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Iniciativa</strong> — Destreza + Astucia + 1d10. Mayor va primero. Declarar acciones.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Ataque</strong> — Resolver según orden. Interrumpir para defender: tirar FV dif.6 o gastar 1 FV.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Resolución</strong> — Calcular daño, absorber, actualizar salud.</div></div>
     </div>
   </div>
-
   <h3>Pools de Ataque</h3>
   <div class="grid2">
-    <div class="card">
-      <h4>Sin arma</h4>
-      <div class="pool-line"><span>Destreza + Pelea</span> dif. 6</div>
-      <div class="pool-line">Daño: Fuerza (contundente)</div>
-    </div>
-    <div class="card">
-      <h4>Arma C.C.</h4>
-      <div class="pool-line"><span>Destreza + Armas C.C.</span> dif. 6</div>
-      <div class="pool-line">Daño: según arma (letal)</div>
-    </div>
-    <div class="card">
-      <h4>Arma de fuego</h4>
-      <div class="pool-line"><span>Destreza + Armas de Fuego</span> dif. 6</div>
-      <div class="pool-line">Daño: según arma (letal)</div>
-    </div>
-    <div class="card">
-      <h4>Arrojadiza</h4>
-      <div class="pool-line"><span>Destreza + Atletismo</span> dif. 6</div>
-      <div class="pool-line">Daño: según arma</div>
-    </div>
+    <div class="card"><h4>Sin arma</h4><div class="pool-line"><span>Destreza + Pelea</span> dif.6</div><div class="pool-line">Daño: Fuerza (C)</div></div>
+    <div class="card"><h4>Arma C.C.</h4><div class="pool-line"><span>Destreza + Armas C.C.</span> dif.6</div><div class="pool-line">Daño: según arma (L)</div></div>
+    <div class="card"><h4>Arma de fuego</h4><div class="pool-line"><span>Destreza + Armas de Fuego</span> dif.6</div></div>
+    <div class="card"><h4>Arrojadiza</h4><div class="pool-line"><span>Destreza + Atletismo</span> dif.6</div></div>
   </div>
-
-  <h3>Defensas (acciones enfrentadas)</h3>
+  <h3>Defensas</h3>
   <div class="grid3">
-    <div class="card">
-      <h4>Bloqueo</h4>
-      <div class="pool-line"><span>Destreza + Pelea</span></div>
-      <p style="font-size:13px">Solo daño contundente. Necesita Fortaleza para letal/agravado.</p>
-    </div>
-    <div class="card">
-      <h4>Esquiva</h4>
-      <div class="pool-line"><span>Destreza + Atletismo</span></div>
-      <p style="font-size:13px">Sirve contra cualquier ataque.</p>
-    </div>
-    <div class="card">
-      <h4>Parada</h4>
-      <div class="pool-line"><span>Destreza + Armas C.C.</span></div>
-      <p style="font-size:13px">Con arma. Si supera al atacante puede contraatacar.</p>
-    </div>
+    <div class="card"><h4>Bloqueo</h4><div class="pool-line"><span>Des+Pelea</span></div><p style="font-size:13px">Solo contundente.</p></div>
+    <div class="card"><h4>Esquiva</h4><div class="pool-line"><span>Des+Atletismo</span></div><p style="font-size:13px">Cualquier ataque.</p></div>
+    <div class="card"><h4>Parada</h4><div class="pool-line"><span>Des+Armas C.C.</span></div><p style="font-size:13px">Con arma.</p></div>
   </div>
-
-  <h3>Tipos de Daño</h3>
+  <h3>Daño y Absorción</h3>
   <div class="card">
     <table>
-      <tr><th>Tipo</th><th>Símbolo</th><th>Causado por</th><th>Absorción</th></tr>
-      <tr><td>Contundente</td><td style="color:var(--text3)">/</td><td>Puñetazos, golpes romos</td><td>Resistencia</td></tr>
-      <tr><td>Letal</td><td style="color:var(--red-light)">X</td><td>Armas, disparos</td><td>Resistencia (vamp.)</td></tr>
-      <tr><td>Agravado</td><td style="color:var(--gold)">*</td><td>Fuego, sol, garras sobrenaturales</td><td>Solo Fortaleza</td></tr>
+      <tr><th>Tipo</th><th>Símbolo</th><th>Absorción</th></tr>
+      <tr><td>Contundente</td><td style="color:var(--text3)">/</td><td>Resistencia</td></tr>
+      <tr><td>Letal</td><td style="color:var(--red-light)">X</td><td>Resistencia (vamp.)</td></tr>
+      <tr><td>Agravado</td><td style="color:var(--gold)">*</td><td>Solo Fortaleza</td></tr>
     </table>
   </div>
-
-  <h3>Absorción</h3>
-  <div class="rule-box"><strong>Pool = Resistencia</strong> (+ Fortaleza contra letal y agravado).<br>Tirada dif. 6. Cada éxito resta 1 nivel de daño.<br>Las tiradas de absorción <strong>no pueden fracasar</strong>.</div>
-
+  <div class="rule-box">Pool absorción = Resistencia (+Fortaleza). Tirada dif.6. Éxito = -1 nivel de daño. No puede fracasar.</div>
   <h3>Maniobras C.C.</h3>
   <div class="card">
     <table>
       <tr><th>Maniobra</th><th>Pool</th><th>Dif.</th><th>Daño</th></tr>
-      <tr><td>Puñetazo</td><td>Des+Pelea</td><td>6</td><td>Fuerza (C)</td></tr>
+      <tr><td>Puñetazo</td><td>Des+Pelea</td><td>6</td><td>Fue (C)</td></tr>
       <tr><td>Patada</td><td>Des+Pelea</td><td>7</td><td>Fue+1 (C)</td></tr>
       <tr><td>Mordisco</td><td>Des+Pelea</td><td>6</td><td>Fue+1 (A)</td></tr>
       <tr><td>Garra</td><td>Des+Pelea</td><td>6</td><td>Fue+1 (A)</td></tr>
-      <tr><td>Agarrón</td><td>Fue+Pelea</td><td>6</td><td>Fuerza (ext.)</td></tr>
-      <tr><td>Placaje</td><td>Fue+Pelea</td><td>7</td><td>Fue+1 + derribo</td></tr>
-      <tr><td>Barrido</td><td>Des+Pelea</td><td>7</td><td>Fue + derribo</td></tr>
-      <tr><td>Desarmar</td><td>Des+Armas</td><td>7</td><td>Especial</td></tr>
-    </table>
-    <p style="font-size:12px;color:var(--text3);margin-top:.4rem">(C) Contundente · (A) Agravado · ext. Daño extendido</p>
-  </div>
-
-  <h3>Modificadores a Distancia</h3>
-  <div class="card">
-    <table>
-      <tr><th>Situación</th><th>Mod.</th></tr>
-      <tr><td>Bocajarro (&lt;2m)</td><td>Dif. 4</td></tr>
-      <tr><td>Alcance corto</td><td>Dif. 6</td></tr>
-      <tr><td>Alcance largo (x2)</td><td>Dif. 8</td></tr>
-      <tr><td>Apuntar (por turno)</td><td>+1 dado (máx. Percepción)</td></tr>
-      <tr><td>Ráfaga de 3 balas</td><td>+2 dados, dif. +1</td></tr>
-      <tr><td>Fuego automático</td><td>+10 dados, dif. +2</td></tr>
-      <tr><td>Cobertura ligera</td><td>Dif. +1 para atacar</td></tr>
-      <tr><td>Cobertura buena</td><td>Dif. +2 para atacar</td></tr>
-      <tr><td>Flanco</td><td>+1 dado atacante</td></tr>
-      <tr><td>Espalda</td><td>+2 dados atacante</td></tr>
-      <tr><td>Múltiples oponentes</td><td>+1 dif. por oponente tras el 1° (máx. +4)</td></tr>
+      <tr><td>Agarrón</td><td>Fue+Pelea</td><td>6</td><td>Fue (ext.)</td></tr>
+      <tr><td>Placaje</td><td>Fue+Pelea</td><td>7</td><td>Fue+1+derribo</td></tr>
     </table>
   </div>
-
-  <h3>Niveles de Salud</h3>
+  <h3>Salud</h3>
   <div class="card">
     <table>
-      <tr><th>Nivel</th><th>Penalización en dados</th></tr>
-      <tr><td>Magullado</td><td>Ninguna</td></tr>
-      <tr><td>Lastimado</td><td>Ninguna</td></tr>
-      <tr><td>Lesionado</td><td>-1 dado</td></tr>
-      <tr><td>Herido</td><td>-1 dado, vel. reducida</td></tr>
-      <tr><td>Malherido</td><td>-2 dados</td></tr>
-      <tr><td>Tullido</td><td>-2 dados, solo arrastrarse</td></tr>
+      <tr><th>Nivel</th><th>Penalización</th></tr>
+      <tr><td>Magullado / Lastimado</td><td>Ninguna</td></tr>
+      <tr><td>Lesionado / Herido</td><td>-1 dado</td></tr>
+      <tr><td>Malherido / Tullido</td><td>-2 dados</td></tr>
       <tr><td>Incapacitado</td><td>Sin conciencia</td></tr>
     </table>
   </div>
-
-  <h3>Curación Vampírica</h3>
+  <h3>Curación</h3>
   <div class="card">
     <table>
       <tr><th>Daño</th><th>Coste</th></tr>
-      <tr><td>Contundente (1 nivel)</td><td>1 sangre / turno</td></tr>
+      <tr><td>Contundente (1 nivel)</td><td>1 sangre/turno</td></tr>
       <tr><td>Letal (1 nivel)</td><td>2 sangre</td></tr>
-      <tr><td>Agravado (1 nivel)</td><td>5 sangre + 1 día en torpor</td></tr>
+      <tr><td>Agravado (1 nivel)</td><td>5 sangre + 1 día torpor</td></tr>
     </table>
   </div>
 </div>
 
-<!-- ═══ DISCIPLINAS ═══ -->
+<!-- DISCIPLINAS -->
 <div id="disciplinas" class="section">
   <h2>Disciplinas</h2>
-  <p>Poderes sobrenaturales del vampiro. Se activan sin coste salvo indicación. Niveles 6+ solo para Generación 7ª o menor.</p>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
-    <input type="text" id="disc-search" placeholder="Buscar disciplina o poder..." oninput="filterDiscs(this.value)">
+    <input type="text" placeholder="Buscar disciplina o poder..." oninput="filterDiscs(this.value)">
   </div>
   <div id="disc-list"></div>
 </div>
 
-<!-- ═══ SISTEMAS ═══ -->
+<!-- SISTEMAS -->
 <div id="sistemas" class="section">
   <h2>Sistemas Dramáticos</h2>
-
   <h3>Caza</h3>
-  <div class="rule-box">1 hora de búsqueda = 1 tirada de Percepción + Habilidad acorde al método.</div>
   <div class="card">
     <table>
       <tr><th>Zona</th><th>Dif.</th></tr>
@@ -552,23 +664,17 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <tr><td>Suburbios</td><td>7</td></tr>
       <tr><td>Zona muy vigilada</td><td>8</td></tr>
     </table>
-    <p style="font-size:12px;color:var(--text3);margin-top:.4rem">Métodos: Apariencia+Subterfugio (seducción), Resistencia+Atletismo (persecución), Astucia+Callejeo (emboscada)</p>
   </div>
-
   <h3>Acciones Físicas</h3>
   <div class="card">
     <table>
       <tr><th>Acción</th><th>Pool</th><th>Dif.</th></tr>
-      <tr><td>Derribar puerta interior</td><td>Fuerza</td><td>6 (1 éx.)</td></tr>
-      <tr><td>Derribar puerta blindada</td><td>Fuerza</td><td>8 (5 éx.)</td></tr>
+      <tr><td>Derribar puerta interior</td><td>Fuerza</td><td>6</td></tr>
+      <tr><td>Derribar puerta blindada</td><td>Fuerza</td><td>8</td></tr>
       <tr><td>Escalar</td><td>Des+Atletismo</td><td>6</td></tr>
-      <tr><td>Salto horizontal</td><td>Des+Atletismo</td><td>3</td></tr>
-      <tr><td>Salto vertical</td><td>Fue+Atletismo</td><td>3</td></tr>
-      <tr><td>Conducir (normal)</td><td>Des+Conducir</td><td>5</td></tr>
       <tr><td>Conducir (persecución)</td><td>Des+Conducir</td><td>6-8</td></tr>
     </table>
   </div>
-
   <h3>Acciones Sociales</h3>
   <div class="card">
     <table>
@@ -576,59 +682,186 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <tr><td>Intimidar</td><td>Ap/Fue+Intimidación</td><td>6</td></tr>
       <tr><td>Persuadir</td><td>Man+Subterfugio</td><td>6-8</td></tr>
       <tr><td>Seducir</td><td>Ap+Subterfugio</td><td>6</td></tr>
-      <tr><td>Liderazgo / Arenga</td><td>Car+Liderazgo</td><td>6</td></tr>
       <tr><td>Detectar mentira</td><td>Per+Empatía</td><td>6</td></tr>
-      <tr><td>Mentir / Engañar</td><td>Man+Subterfugio</td><td>6</td></tr>
     </table>
   </div>
+  <h3>Vínculo de Sangre</h3>
+  <div class="rule-box"><strong>1 dosis:</strong> leve fascinación · <strong>2 dosis:</strong> obsesión · <strong>3 dosis:</strong> esclavitud emocional<br>Para romper: 1 año sin beber por cada dosis.</div>
+</div>
 
-  <h3>Acciones Mentales</h3>
+<!-- TIRADAS RAPIDAS -->
+<div id="tiradas" class="section">
+  <h2>Glosario de Tiradas</h2>
+  <p>Referencia rápida de las tiradas más frecuentes en el juego. Dificultad base 6 salvo indicación.</p>
+
+  <h3>Combate</h3>
   <div class="card">
     <table>
-      <tr><th>Acción</th><th>Pool</th><th>Dif.</th></tr>
-      <tr><td>Investigar</td><td>As+Investigación</td><td>6</td></tr>
-      <tr><td>Hackear</td><td>Int+Tecnología</td><td>6-9</td></tr>
-      <tr><td>Primeros auxilios</td><td>Int+Medicina</td><td>6</td></tr>
-      <tr><td>Percepción activa</td><td>Per+Alerta</td><td>6</td></tr>
-      <tr><td>Sigilo</td><td>Des+Sigilo</td><td>6</td></tr>
-      <tr><td>Detectar emboscada</td><td>Per+Alerta vs Des+Sigilo</td><td>Enf.</td></tr>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th><th>Notas</th></tr>
+      <tr><td>Puñetazo</td><td>Destreza + Pelea</td><td>6</td><td>Daño: Fuerza (contundente)</td></tr>
+      <tr><td>Patada</td><td>Destreza + Pelea</td><td>7</td><td>Daño: Fuerza+1 (contundente)</td></tr>
+      <tr><td>Agarrón / Presa</td><td>Fuerza + Pelea</td><td>6</td><td>Inmoviliza. Daño continuo Fuerza</td></tr>
+      <tr><td>Mordisco de combate</td><td>Destreza + Pelea</td><td>6</td><td>Requiere presa previa. Daño agravado</td></tr>
+      <tr><td>Atacar con arma C.C.</td><td>Destreza + Armas C.C.</td><td>6</td><td>Daño según arma</td></tr>
+      <tr><td>Disparar arma de fuego</td><td>Destreza + Armas de Fuego</td><td>6</td><td>Dif. varía por distancia</td></tr>
+      <tr><td>Lanzar objeto</td><td>Destreza + Atletismo</td><td>6</td><td>Daño según objeto</td></tr>
+      <tr><td>Bloquear golpe</td><td>Destreza + Pelea</td><td>6</td><td>Acción enfrentada. Solo contundente</td></tr>
+      <tr><td>Esquivar</td><td>Destreza + Atletismo</td><td>6</td><td>Acción enfrentada. Cualquier ataque</td></tr>
+      <tr><td>Iniciativa</td><td>Destreza + Astucia + 1d10</td><td>—</td><td>Mayor resultado actúa primero</td></tr>
     </table>
   </div>
 
-  <h3>Vínculo de Sangre</h3>
-  <div class="rule-box"><strong>1 dosis:</strong> leve fascinación<br><strong>2 dosis:</strong> obsesión marcada<br><strong>3 dosis:</strong> esclavitud emocional total<br><br>Para romperlo: no beber la sangre del regente durante 1 año por cada dosis bebida.</div>
+  <h3>Movimiento y Físico</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th><th>Notas</th></tr>
+      <tr><td>Escalar superficie normal</td><td>Destreza + Atletismo</td><td>6</td><td>+1 dif. por condiciones adversas</td></tr>
+      <tr><td>Escalar superficie difícil</td><td>Destreza + Atletismo</td><td>8</td><td>Acantilado, muro liso</td></tr>
+      <tr><td>Saltar (horizontal)</td><td>Destreza + Atletismo</td><td>3</td><td>Éxitos = metros extras</td></tr>
+      <tr><td>Saltar (vertical)</td><td>Fuerza + Atletismo</td><td>3</td><td>Éxitos = metros extras</td></tr>
+      <tr><td>Derribar puerta interior</td><td>Fuerza</td><td>6</td><td>1 éxito suficiente</td></tr>
+      <tr><td>Derribar puerta blindada</td><td>Fuerza</td><td>8</td><td>5+ éxitos (acción extendida)</td></tr>
+      <tr><td>Forzar cerradura</td><td>Destreza + Latrocinio</td><td>6-8</td><td>Varía por tipo de cerradura</td></tr>
+      <tr><td>Ocultarse / Sigilo</td><td>Destreza + Sigilo</td><td>6</td><td>Enfrentado a Per+Alerta</td></tr>
+      <tr><td>Seguir a alguien</td><td>Destreza + Sigilo</td><td>6</td><td>Enfrentado a Per+Alerta</td></tr>
+      <tr><td>Resistir agotamiento</td><td>Resistencia</td><td>6</td><td>Actividad extenuante prolongada</td></tr>
+    </table>
+  </div>
+
+  <h3>Conducción y Vehículos</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th><th>Notas</th></tr>
+      <tr><td>Conducir (normal)</td><td>Destreza + Conducir</td><td>5</td><td>Rara vez se tira</td></tr>
+      <tr><td>Persecución vehicular</td><td>Destreza + Conducir</td><td>6-8</td><td>Acción extendida enfrentada</td></tr>
+      <tr><td>Maniobra peligrosa</td><td>Destreza + Conducir</td><td>7</td><td>Giro brusco, derrape, etc.</td></tr>
+      <tr><td>Conducir bajo presión</td><td>Destreza + Conducir</td><td>8</td><td>Lluvia, bala, frenesí</td></tr>
+      <tr><td>Pilotear nave/avión</td><td>Destreza + Pilotaje</td><td>6-8</td><td>Varía por condiciones</td></tr>
+    </table>
+  </div>
+
+  <h3>Social e Interacción</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th><th>Notas</th></tr>
+      <tr><td>Mentir / Engañar</td><td>Manipulación + Subterfugio</td><td>6</td><td>Enfrentado a Per+Empatía</td></tr>
+      <tr><td>Detectar mentira</td><td>Percepción + Empatía</td><td>6</td><td>Enfrentado a Man+Subterfugio</td></tr>
+      <tr><td>Persuadir (argumento)</td><td>Manipulación + Liderazgo</td><td>6-8</td><td>Dif. según receptividad</td></tr>
+      <tr><td>Seducir</td><td>Apariencia + Subterfugio</td><td>6</td><td>Más fácil si el objetivo está predispuesto</td></tr>
+      <tr><td>Intimidar</td><td>Fuerza/Apariencia + Intimidación</td><td>6</td><td>Física o psicológica</td></tr>
+      <tr><td>Arenga / Discurso</td><td>Carisma + Liderazgo</td><td>6</td><td>Éxitos = impacto en la audiencia</td></tr>
+      <tr><td>Negociar</td><td>Manipulación + Liderazgo</td><td>6</td><td>Acción extendida en disputas largas</td></tr>
+      <tr><td>Actuar / Disfrazarse</td><td>Apariencia + Actuación</td><td>6</td><td>Dif. +1 si es rol muy diferente al propio</td></tr>
+      <tr><td>Etiqueta vampírica</td><td>Apariencia + Etiqueta</td><td>6</td><td>Corte, Elíseo, presentaciones</td></tr>
+      <tr><td>Ganarse confianza</td><td>Carisma + Empatía</td><td>6</td><td>Proceso extendido</td></tr>
+    </table>
+  </div>
+
+  <h3>Mental e Investigación</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th><th>Notas</th></tr>
+      <tr><td>Buscar pistas</td><td>Percepción + Investigación</td><td>6</td><td>Acción extendida para casos complejos</td></tr>
+      <tr><td>Notar algo sospechoso</td><td>Percepción + Alerta</td><td>6</td><td>Pasiva: el Narrador tira en secreto</td></tr>
+      <tr><td>Recordar información</td><td>Inteligencia + conocimiento relevante</td><td>4-7</td><td>Varía por especificidad del dato</td></tr>
+      <tr><td>Investigar (ocultismo)</td><td>Inteligencia + Ocultismo</td><td>6</td><td>Rituales, entidades, historia vampírica</td></tr>
+      <tr><td>Hackear sistema</td><td>Inteligencia + Tecnología</td><td>6-9</td><td>Varía por seguridad del sistema</td></tr>
+      <tr><td>Vigilar / Escuchar</td><td>Percepción + Sigilo</td><td>6</td><td>Espiar sin ser notado</td></tr>
+      <tr><td>Descifrar código / idioma</td><td>Inteligencia + Lingüística</td><td>6-8</td><td>Dif. según complejidad</td></tr>
+      <tr><td>Primeros auxilios</td><td>Inteligencia + Medicina</td><td>6</td><td>Estabilizar: 1 éxito. Curar: extendida</td></tr>
+      <tr><td>Fabricar / Reparar</td><td>Destreza/Int + Técnica relevante</td><td>6</td><td>Electrónica, mecánica, explosivos, etc.</td></tr>
+      <tr><td>Rastrear en ciudad</td><td>Astucia + Callejeo</td><td>6</td><td>Encontrar a alguien en zonas urbanas</td></tr>
+    </table>
+  </div>
+
+  <h3>Vampírico / Sobrenatural</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th><th>Notas</th></tr>
+      <tr><td>Cazar presa (ciudad)</td><td>Percepción + método</td><td>5-8</td><td>Varía por zona. Ver sección Sistemas</td></tr>
+      <tr><td>Beber sangre (Beso)</td><td>—</td><td>—</td><td>Automático tras mordisco exitoso</td></tr>
+      <tr><td>Resistir frenesí</td><td>Humanidad o Senda</td><td>6-8</td><td>Varía por disparador</td></tr>
+      <tr><td>Resistir Rötschreck (miedo)</td><td>Coraje</td><td>6-8</td><td>Ante fuego o luz solar</td></tr>
+      <tr><td>Curar con sangre</td><td>—</td><td>—</td><td>Automático. Cuesta puntos de sangre</td></tr>
+      <tr><td>Resistir Dominación</td><td>Fuerza de Voluntad</td><td>—</td><td>Éxitos superan los del dominador</td></tr>
+      <tr><td>Detectar vampiro</td><td>Percepción + Ocultismo</td><td>7</td><td>Notar aura vampírica sin Auspex</td></tr>
+      <tr><td>Mantener forma animal</td><td>Manipulación + Supervivencia</td><td>6</td><td>Protean. Ante estrés o daño</td></tr>
+      <tr><td>Ritual de Taumaturgia</td><td>Inteligencia + Ocultismo</td><td>varía</td><td>Nivel del ritual = dificultad base</td></tr>
+      <tr><td>Llamar a animal</td><td>Carisma + Trato c/Animales</td><td>6</td><td>Animalismo. Depende del tipo de animal</td></tr>
+    </table>
+  </div>
 </div>
 
-<!-- ═══ CHICAGO ═══ -->
-<div id="chicago" class="section">
-  <h2>Chicago — Mapa de la Crónica</h2>
+<!-- MERITOS Y DEFECTOS -->
+<div id="meritos" class="section">
+  <h2>Méritos y Defectos</h2>
+  <p>Los Méritos cuestan puntos gratuitos en creación (1 punto por valor). Los Defectos otorgan puntos extra (hasta 7 puntos en defectos). El Narrador puede limitar la selección.</p>
 
-  <h3>El Directorio</h3>
-  <p>Mesa de 13 asientos que gobierna Chicago, con representación por clan. Estructura corporativa.</p>
-  <div id="directorio-list"></div>
-
-  <h3>Macro-Áreas de Chicago</h3>
-  <div id="chicago-areas"></div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem" id="merit-cat-btns">
+    <button class="nav-btn active" style="border-radius:12px;padding:4px 12px" onclick="filterMeritos('todos',this)">Todos</button>
+    <button class="nav-btn" style="border-radius:12px;padding:4px 12px" onclick="filterMeritos('fisico',this)">Físicos</button>
+    <button class="nav-btn" style="border-radius:12px;padding:4px 12px" onclick="filterMeritos('mental',this)">Mentales</button>
+    <button class="nav-btn" style="border-radius:12px;padding:4px 12px" onclick="filterMeritos('social',this)">Sociales</button>
+    <button class="nav-btn" style="border-radius:12px;padding:4px 12px" onclick="filterMeritos('sobrenatural',this)">Sobrenaturales</button>
+    <button class="nav-btn" style="border-radius:12px;padding:4px 12px" onclick="filterMeritos('defecto',this)">Defectos</button>
+  </div>
+  <div id="meritos-list"></div>
 </div>
 
-<!-- ═══ REF RÁPIDA ═══ -->
+<!-- TRASFONDOS -->
+<div id="trasfondos" class="section">
+  <h2>Trasfondos</h2>
+  <p>Los Trasfondos representan recursos, conexiones e influencias fuera del personaje. Se compran con puntos gratuitos o experiencia. Cada nivel (1-5) indica la magnitud del recurso.</p>
+  <div id="trasfondos-list"></div>
+</div>
+
+<!-- DIRECTORIO -->
+<div id="directorio-sec" class="section">
+  <h2>El Directorio</h2>
+  <p>Mesa de 13 asientos que gobierna Chicago. Estructura corporativa vampírica.</p>
+  <div id="directorio-list"><div class="loading">Cargando directorio...</div></div>
+</div>
+
+<!-- PERSONAJES -->
+<div id="pjs-sec" class="section">
+  <h2>Personajes</h2>
+  <div id="pjs-list"><div class="loading">Cargando personajes...</div></div>
+</div>
+
+<!-- WIKI -->
+<div id="wiki-sec" class="section">
+  <h2>Wiki de la Crónica</h2>
+  <div class="wiki-cat" id="wiki-cats">
+    <button class="active" onclick="filterWiki('',this)">Todos</button>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="wiki-search" placeholder="Buscar en la wiki..." oninput="searchWiki(this.value)">
+  </div>
+  <div id="wiki-list"><div class="loading">Cargando wiki...</div></div>
+</div>
+
+<!-- DIARIO -->
+<div id="diario-sec" class="section">
+  <h2>Diario de Campaña</h2>
+  <div id="diario-list"><div class="loading">Cargando diario...</div></div>
+</div>
+
+<!-- REF RAPIDA -->
 <div id="refrapida" class="section">
   <h2>Referencia Rápida</h2>
-
   <h3>Armas de Fuego</h3>
   <div class="card">
     <table>
-      <tr><th>Arma</th><th>Daño</th><th>Cad.</th><th>Carg.</th><th>Alcance</th></tr>
-      <tr><td>Pistola ligera</td><td>4</td><td>4</td><td>17+1</td><td>20m</td></tr>
-      <tr><td>Pistola pesada</td><td>5</td><td>3</td><td>7+1</td><td>35m</td></tr>
-      <tr><td>Revólver ligero</td><td>4</td><td>3</td><td>6</td><td>20m</td></tr>
-      <tr><td>Revólver pesado</td><td>6</td><td>2</td><td>6</td><td>35m</td></tr>
-      <tr><td>Subfusil</td><td>4</td><td>3</td><td>30+1</td><td>20m</td></tr>
-      <tr><td>Fusil asalto</td><td>8</td><td>4</td><td>30+1</td><td>150m</td></tr>
-      <tr><td>Escopeta</td><td>8</td><td>1</td><td>5+1</td><td>20m</td></tr>
+      <tr><th>Arma</th><th>Daño</th><th>Cad.</th><th>Alcance</th></tr>
+      <tr><td>Pistola ligera</td><td>4</td><td>4</td><td>20m</td></tr>
+      <tr><td>Pistola pesada</td><td>5</td><td>3</td><td>35m</td></tr>
+      <tr><td>Revólver pesado</td><td>6</td><td>2</td><td>35m</td></tr>
+      <tr><td>Subfusil</td><td>4</td><td>3</td><td>20m</td></tr>
+      <tr><td>Fusil asalto</td><td>8</td><td>4</td><td>150m</td></tr>
+      <tr><td>Escopeta</td><td>8</td><td>1</td><td>20m</td></tr>
     </table>
   </div>
-
   <h3>Armas C.C.</h3>
   <div class="card">
     <table>
@@ -636,23 +869,10 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <tr><td>Cuchillo</td><td>Fue+1</td><td>Letal</td></tr>
       <tr><td>Espada corta</td><td>Fue+2</td><td>Letal</td></tr>
       <tr><td>Espada</td><td>Fue+3</td><td>Letal</td></tr>
-      <tr><td>Hacha de mano</td><td>Fue+3</td><td>Letal</td></tr>
-      <tr><td>Garrote / Palo</td><td>Fue+2</td><td>Contundente</td></tr>
+      <tr><td>Garrote</td><td>Fue+2</td><td>Contundente</td></tr>
       <tr><td>Estaca (corazón)</td><td>—</td><td>Parálisis vamp.</td></tr>
     </table>
   </div>
-
-  <h3>Armaduras</h3>
-  <div class="card">
-    <table>
-      <tr><th>Tipo</th><th>+Absorción</th><th>Penalización</th></tr>
-      <tr><td>Cuero reforzado</td><td>+1</td><td>Ninguna</td></tr>
-      <tr><td>Chaleco Clase 1</td><td>+2</td><td>Ninguna</td></tr>
-      <tr><td>Chaleco Clase 2</td><td>+3</td><td>-1 dado físico</td></tr>
-      <tr><td>Armadura táctica</td><td>+4</td><td>-2 dados físicos</td></tr>
-    </table>
-  </div>
-
   <h3>Costes de Sangre</h3>
   <div class="card">
     <table>
@@ -660,22 +880,18 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <tr><td>Despertar cada noche</td><td>1</td></tr>
       <tr><td>Curar contundente (1 nivel)</td><td>1</td></tr>
       <tr><td>Curar letal (1 nivel)</td><td>2</td></tr>
-      <tr><td>Subir Atributo físico +1 (turno)</td><td>1</td></tr>
-      <tr><td>Alimentar a ghoul</td><td>1</td></tr>
+      <tr><td>Subir Atributo físico +1</td><td>1</td></tr>
     </table>
   </div>
-
-  <h3>Costes de Experiencia</h3>
+  <h3>Costes de XP</h3>
   <div class="card">
     <table>
       <tr><th>Rasgo</th><th>Coste</th></tr>
       <tr><td>Nueva Habilidad</td><td>3 xp</td></tr>
       <tr><td>Habilidad existente</td><td>2 × nivel</td></tr>
-      <tr><td>Nuevo Atributo</td><td>4 xp</td></tr>
       <tr><td>Atributo existente</td><td>5 × nivel</td></tr>
       <tr><td>Disciplina de clan</td><td>5 × nivel</td></tr>
-      <tr><td>Disciplina fuera de clan</td><td>7 × nivel</td></tr>
-      <tr><td>Nueva Disciplina (fuera clan)</td><td>10 xp</td></tr>
+      <tr><td>Disciplina fuera clan</td><td>7 × nivel</td></tr>
       <tr><td>Humanidad / Senda</td><td>2 × nivel</td></tr>
       <tr><td>Fuerza de Voluntad</td><td>1 × nivel</td></tr>
     </table>
@@ -683,249 +899,1050 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
 </div>
 
 </main>
-
 <footer>Vientos de Sombra y Sangre · Chicago · V20</footer>
 
 <script>
-// DATA
+// ═══════════════════════════════
+// SUPABASE CONFIG
+// ═══════════════════════════════
+const SUPABASE_URL = 'https://kwncfqvoyicdwffbqhpg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_dR1zFDy4gx74LGADPdvAQw_myejUGQ8';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ═══════════════════════════════
+// PIN / ADMIN AUTH
+// ═══════════════════════════════
+const ADMIN_PIN = '1349'; // Cambiá este PIN
+let pinBuffer = '';
+let isAdmin = false;
+
+function toggleAdmin() {
+  if (isAdmin) { closeAdmin(); return; }
+  document.getElementById('pin-modal').classList.add('open');
+  pinBuffer = '';
+  updatePinDots();
+}
+
+function pinInput(d) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(() => {
+      if (pinBuffer === ADMIN_PIN) {
+        isAdmin = true;
+        document.getElementById('pin-modal').classList.remove('open');
+        document.getElementById('pin-error').textContent = '';
+        document.getElementById('admin-toggle').classList.add('active');
+        openAdmin();
+      } else {
+        document.getElementById('pin-error').textContent = 'PIN incorrecto';
+        pinBuffer = '';
+        updatePinDots();
+      }
+    }, 200);
+  }
+}
+
+function pinDelete() { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); }
+function pinCancel() { document.getElementById('pin-modal').classList.remove('open'); pinBuffer=''; updatePinDots(); }
+function updatePinDots() {
+  for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('filled', i<pinBuffer.length);
+}
+
+function openAdmin() {
+  document.getElementById('admin-overlay').classList.add('open');
+  loadAdminDir(); loadAdminPJs(); loadAdminWiki(); loadAdminDiario();
+}
+
+function closeAdmin() {
+  isAdmin = false;
+  document.getElementById('admin-overlay').classList.remove('open');
+  document.getElementById('admin-toggle').classList.remove('active');
+}
+
+function adminTab(id, btn) {
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('admin-'+id).classList.add('active');
+}
+
+// ═══════════════════════════════
+// TOAST
+// ═══════════════════════════════
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='directorio-sec') loadDirectorio();
+  if(id==='pjs-sec') loadPJs();
+  if(id==='wiki-sec') loadWiki();
+  if(id==='diario-sec') loadDiario();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function toggleColl(id, header) {
+  const body = document.getElementById(id);
+  if(!body) return;
+  const open = body.classList.toggle('open');
+  if(header) header.classList.toggle('open', open);
+}
+
+// ═══════════════════════════════
+// IMAGE UPLOAD
+// ═══════════════════════════════
+async function uploadImage(file, path) {
+  const { data, error } = await sb.storage.from('imagenes').upload(path, file, { upsert: true });
+  if(error) throw error;
+  const { data: urlData } = sb.storage.from('imagenes').getPublicUrl(path);
+  return urlData.publicUrl;
+}
+
+function imgUploadWidget(onUrl, currentUrl='') {
+  const id = 'img-'+Math.random().toString(36).slice(2);
+  return `
+    <div class="form-group">
+      <label class="form-label">Foto</label>
+      <div class="img-upload-area" onclick="document.getElementById('${id}').click()">
+        ${currentUrl ? `<img src="${currentUrl}" class="img-preview" id="prev-${id}">` : `<div style="color:var(--text3);font-size:13px">Tocar para subir imagen</div>`}
+        <input type="file" id="${id}" accept="image/*" onchange="handleImgChange(event,'${id}',uploadCallback_${id})">
+      </div>
+    </div>`;
+}
+
+async function handleImgChange(event, inputId, callback) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    let prev = document.getElementById('prev-'+inputId);
+    if(!prev) {
+      prev = document.createElement('img');
+      prev.id = 'prev-'+inputId;
+      prev.className = 'img-preview';
+      event.target.parentNode.innerHTML = '';
+      event.target.parentNode.appendChild(prev);
+    }
+    prev.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  if(callback) callback(file);
+}
+
+// ═══════════════════════════════
+// DIRECTORIO
+// ═══════════════════════════════
+let dirData = [];
+
+async function loadDirectorio() {
+  const el = document.getElementById('directorio-list');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  const { data, error } = await sb.from('directorio').select('*').order('id');
+  if(error) { el.innerHTML = '<div class="empty-state">Error cargando directorio</div>'; return; }
+  dirData = data;
+  renderDirectorio(data);
+}
+
+function renderDirectorio(data) {
+  const el = document.getElementById('directorio-list');
+  if(!data.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">🩸</div>Sin datos</div>'; return; }
+  el.innerHTML = data.map((m,i) => `
+    <div class="photo-card">
+      ${m.foto_url
+        ? `<img src="${m.foto_url}" class="photo-card-img" loading="lazy">`
+        : `<div class="photo-card-img-placeholder">🧛</div>`}
+      <div class="photo-card-body">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <div class="photo-card-name">${m.nombre}</div>
+            <div class="photo-card-sub">${m.clan} · ${m.rol}</div>
+          </div>
+          <span class="badge b-gold">${m.generacion} Gen.</span>
+        </div>
+        <div class="coll-header" onclick="toggleColl('dir${i}',this)" style="margin-top:.5rem">
+          <span style="font-size:12px;color:var(--text3)">Ver dossier</span>
+          <span class="coll-arrow">▼</span>
+        </div>
+        <div class="coll-body" id="dir${i}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;margin:.4rem 0">
+            <span style="color:var(--text3)">Edad</span><span>${m.edad} años</span>
+            <span style="color:var(--text3)">Nature</span><span>${m.nature}</span>
+            <span style="color:var(--text3)">Demeanor</span><span>${m.demeanor}</span>
+          </div>
+          <p style="font-size:13px;margin-top:.4rem">${m.descripcion||''}</p>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function loadAdminDir() {
+  const { data } = await sb.from('directorio').select('*').order('id');
+  const el = document.getElementById('admin-dir-list');
+  if(!data) return;
+  el.innerHTML = data.map(m => `
+    <div class="card" style="margin-bottom:.5rem;display:flex;align-items:center;gap:.75rem">
+      ${m.foto_url ? `<img src="${m.foto_url}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0">` : `<div style="width:44px;height:44px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🧛</div>`}
+      <div style="flex:1">
+        <div style="font-size:14px;color:var(--text)">${m.nombre}</div>
+        <div style="font-size:12px;color:var(--text3)">${m.rol}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="openDirEdit(${m.id})">Editar</button>
+    </div>`).join('');
+}
+
+function openDirEdit(id) {
+  const m = dirData.find(x=>x.id===id) || {};
+  document.getElementById('modal-dir-title').textContent = m.nombre || 'Editar';
+  let pendingFile = null;
+  document.getElementById('modal-dir-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Foto actual</label>
+      <div class="img-upload-area" onclick="document.getElementById('dir-img-input').click()" style="height:160px;overflow:hidden">
+        ${m.foto_url ? `<img src="${m.foto_url}" style="width:100%;height:100%;object-fit:cover;object-position:top" id="dir-img-preview">` : `<div style="color:var(--text3);font-size:13px" id="dir-img-preview">Tocar para subir foto</div>`}
+        <input type="file" id="dir-img-input" accept="image/*" style="display:none">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas secretas (solo Narrador)</label>
+      <textarea class="form-textarea" id="dir-notas">${m.notas_secretas||''}</textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción pública</label>
+      <textarea class="form-textarea" id="dir-desc">${m.descripcion||''}</textarea>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="saveDirEdit(${id})">Guardar</button>`;
+
+  document.getElementById('dir-img-input').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    pendingFile = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const prev = document.getElementById('dir-img-preview');
+      if(prev.tagName === 'IMG') prev.src = ev.target.result;
+      else { prev.outerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover" id="dir-img-preview">`; }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  window._dirPendingFile = () => pendingFile;
+  openModal('modal-dir');
+}
+
+async function saveDirEdit(id) {
+  const updates = {
+    descripcion: document.getElementById('dir-desc').value,
+    notas_secretas: document.getElementById('dir-notas').value
+  };
+  const file = window._dirPendingFile && window._dirPendingFile();
+  if(file) {
+    try {
+      toast('Subiendo imagen...');
+      updates.foto_url = await uploadImage(file, `directorio/${id}_${Date.now()}`);
+    } catch(e) { toast('Error subiendo imagen', 'error'); return; }
+  }
+  const { error } = await sb.from('directorio').update(updates).eq('id', id);
+  if(error) { toast('Error guardando', 'error'); return; }
+  toast('Guardado ✓', 'success');
+  closeModal('modal-dir');
+  loadDirectorio();
+  loadAdminDir();
+}
+
+// ═══════════════════════════════
+// PERSONAJES PJ
+// ═══════════════════════════════
+async function loadPJs() {
+  const el = document.getElementById('pjs-list');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  const { data, error } = await sb.from('personajes_pj').select('*').eq('activo',true).order('id');
+  if(error||!data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚔️</div>No hay personajes aún.<br>El Narrador puede agregarlos desde el panel.</div>';
+    return;
+  }
+  el.innerHTML = `<div class="pj-grid">${data.map(pj=>`
+    <div class="pj-card" onclick="openPJDetail(${pj.id})">
+      ${pj.foto_url ? `<img src="${pj.foto_url}" loading="lazy">` : `<div class="pj-placeholder">🧛</div>`}
+      <div class="pj-card-info">
+        <div class="pj-card-name">${pj.nombre}</div>
+        <div class="pj-card-sub">${pj.clan||''} ${pj.generacion ? '· '+pj.generacion : ''}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+async function openPJDetail(id) {
+  const { data } = await sb.from('personajes_pj').select('*').eq('id',id).single();
+  if(!data) return;
+  document.getElementById('modal-pj-detail-title').textContent = data.nombre;
+  const ficha = data.ficha || {};
+  document.getElementById('modal-pj-detail-body').innerHTML = `
+    ${data.foto_url ? `<img src="${data.foto_url}" style="width:100%;max-height:260px;object-fit:cover;object-position:top;border-radius:8px;margin-bottom:1rem">` : ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem">
+      ${data.clan ? `<span class="badge b-red">${data.clan}</span>` : ''}
+      ${data.generacion ? `<span class="badge b-gold">${data.generacion} Gen.</span>` : ''}
+      ${data.jugador ? `<span class="badge b-gray">Jugador: ${data.jugador}</span>` : ''}
+    </div>
+    ${data.descripcion ? `<p style="margin-bottom:1rem">${data.descripcion}</p>` : ''}
+    ${Object.keys(ficha).length ? `
+      <h3 style="margin-top:.5rem">Ficha</h3>
+      <div class="card">
+        <table>${Object.entries(ficha).map(([k,v])=>`<tr><td style="font-weight:500">${k}</td><td>${v}</td></tr>`).join('')}</table>
+      </div>` : ''}`;
+  openModal('modal-pj-detail');
+}
+
+async function loadAdminPJs() {
+  const { data } = await sb.from('personajes_pj').select('*').order('id');
+  const el = document.getElementById('admin-pj-list');
+  if(!data||!data.length) { el.innerHTML = '<div class="empty-state" style="padding:1rem">No hay personajes</div>'; return; }
+  el.innerHTML = data.map(pj=>`
+    <div class="card" style="margin-bottom:.5rem;display:flex;align-items:center;gap:.75rem">
+      ${pj.foto_url ? `<img src="${pj.foto_url}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0">` : `<div style="width:44px;height:44px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🧛</div>`}
+      <div style="flex:1">
+        <div style="font-size:14px;color:var(--text)">${pj.nombre}</div>
+        <div style="font-size:12px;color:var(--text3)">${pj.clan||''} · ${pj.jugador||''}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="openPJForm(${pj.id})">Editar</button>
+    </div>`).join('');
+}
+
+async function openPJForm(id) {
+  let pj = {};
+  if(id) { const { data } = await sb.from('personajes_pj').select('*').eq('id',id).single(); pj = data||{}; }
+  document.getElementById('modal-pj-title').textContent = id ? 'Editar personaje' : 'Nuevo personaje';
+  let pendingFile = null;
+  const ficha = pj.ficha || {};
+
+  document.getElementById('modal-pj-body').innerHTML = `
+    <div class="form-group">
+      <div class="img-upload-area" onclick="document.getElementById('pj-img').click()" style="height:140px;overflow:hidden">
+        ${pj.foto_url ? `<img src="${pj.foto_url}" style="width:100%;height:100%;object-fit:cover;object-position:top" id="pj-img-prev">` : `<div style="color:var(--text3);font-size:13px" id="pj-img-prev">Tocar para subir foto</div>`}
+        <input type="file" id="pj-img" accept="image/*" style="display:none">
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="pj-nombre" value="${pj.nombre||''}"></div>
+    <div class="form-group"><label class="form-label">Jugador</label><input class="form-input" id="pj-jugador" value="${pj.jugador||''}"></div>
+    <div class="form-group"><label class="form-label">Clan</label><input class="form-input" id="pj-clan" value="${pj.clan||''}"></div>
+    <div class="form-group"><label class="form-label">Generación</label><input class="form-input" id="pj-gen" value="${pj.generacion||''}"></div>
+    <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-textarea" id="pj-desc">${pj.descripcion||''}</textarea></div>
+    <h4 style="margin:.75rem 0 .5rem">Ficha (rasgos clave)</h4>
+    <div class="form-group"><label class="form-label">Humanidad</label><input class="form-input" id="f-hum" value="${ficha.Humanidad||''}"></div>
+    <div class="form-group"><label class="form-label">Fuerza de Voluntad</label><input class="form-input" id="f-fv" value="${ficha['Fuerza de Voluntad']||''}"></div>
+    <div class="form-group"><label class="form-label">Puntos de Sangre</label><input class="form-input" id="f-sangre" value="${ficha['Puntos de Sangre']||''}"></div>
+    <div class="form-group"><label class="form-label">Disciplinas</label><input class="form-input" id="f-disc" value="${ficha.Disciplinas||''}"></div>
+    <div class="form-group"><label class="form-label">Trasfondos</label><input class="form-input" id="f-tras" value="${ficha.Trasfondos||''}"></div>
+    <div class="form-group"><label class="form-label">Notas</label><textarea class="form-textarea" id="f-notas">${ficha.Notas||''}</textarea></div>
+    <button class="btn btn-primary btn-full" onclick="savePJ(${id||'null'})">Guardar</button>
+    ${id ? `<button class="btn btn-danger btn-full" style="margin-top:.5rem" onclick="deletePJ(${id})">Eliminar personaje</button>` : ''}`;
+
+  document.getElementById('pj-img').addEventListener('change', e => {
+    const file = e.target.files[0]; if(!file) return;
+    pendingFile = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const prev = document.getElementById('pj-img-prev');
+      if(prev.tagName==='IMG') prev.src=ev.target.result;
+      else prev.outerHTML=`<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;object-position:top" id="pj-img-prev">`;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  window._pjPendingFile = () => pendingFile;
+  openModal('modal-pj');
+}
+
+async function savePJ(id) {
+  const record = {
+    nombre: document.getElementById('pj-nombre').value,
+    jugador: document.getElementById('pj-jugador').value,
+    clan: document.getElementById('pj-clan').value,
+    generacion: document.getElementById('pj-gen').value,
+    descripcion: document.getElementById('pj-desc').value,
+    ficha: {
+      'Humanidad': document.getElementById('f-hum').value,
+      'Fuerza de Voluntad': document.getElementById('f-fv').value,
+      'Puntos de Sangre': document.getElementById('f-sangre').value,
+      'Disciplinas': document.getElementById('f-disc').value,
+      'Trasfondos': document.getElementById('f-tras').value,
+      'Notas': document.getElementById('f-notas').value,
+    }
+  };
+  const file = window._pjPendingFile && window._pjPendingFile();
+  if(file) {
+    try { toast('Subiendo imagen...'); record.foto_url = await uploadImage(file, `pjs/${record.nombre}_${Date.now()}`); }
+    catch(e) { toast('Error subiendo imagen','error'); return; }
+  }
+  let error;
+  if(id) ({ error } = await sb.from('personajes_pj').update(record).eq('id',id));
+  else ({ error } = await sb.from('personajes_pj').insert(record));
+  if(error) { toast('Error guardando','error'); return; }
+  toast('Guardado ✓','success');
+  closeModal('modal-pj');
+  loadPJs(); loadAdminPJs();
+}
+
+async function deletePJ(id) {
+  if(!confirm('¿Eliminar este personaje?')) return;
+  await sb.from('personajes_pj').delete().eq('id',id);
+  toast('Eliminado','success');
+  closeModal('modal-pj');
+  loadPJs(); loadAdminPJs();
+}
+
+// ═══════════════════════════════
+// WIKI
+// ═══════════════════════════════
+let wikiData = [];
+let wikiFilter = '';
+
+async function loadWiki() {
+  const el = document.getElementById('wiki-list');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  const { data, error } = await sb.from('wiki').select('*').order('categoria').order('titulo');
+  if(error) { el.innerHTML = '<div class="empty-state">Error</div>'; return; }
+  wikiData = data||[];
+  buildWikiCats();
+  renderWiki('', '');
+}
+
+function buildWikiCats() {
+  const cats = [...new Set(wikiData.map(e=>e.categoria).filter(Boolean))];
+  const el = document.getElementById('wiki-cats');
+  el.innerHTML = `<button class="active" onclick="filterWiki('',this)">Todos</button>` +
+    cats.map(c=>`<button onclick="filterWiki('${c}',this)">${c}</button>`).join('');
+}
+
+function filterWiki(cat, btn) {
+  document.querySelectorAll('.wiki-cat button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  wikiFilter = cat;
+  renderWiki(cat, document.getElementById('wiki-search').value);
+}
+
+function searchWiki(q) { renderWiki(wikiFilter, q); }
+
+function renderWiki(cat, q) {
+  const el = document.getElementById('wiki-list');
+  let filtered = wikiData;
+  if(cat) filtered = filtered.filter(e=>e.categoria===cat);
+  if(q) filtered = filtered.filter(e=>e.titulo.toLowerCase().includes(q.toLowerCase())||e.contenido.toLowerCase().includes(q.toLowerCase()));
+  if(!filtered.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div>Sin entradas aún</div>'; return; }
+  el.innerHTML = filtered.map((e,i)=>`
+    <div class="wiki-entry">
+      <div class="wiki-entry-header" onclick="toggleWiki('we${i}',this)">
+        <div>
+          <div class="wiki-entry-title">${e.titulo}</div>
+          <div class="wiki-entry-cat">${e.categoria||''}</div>
+        </div>
+        <span class="coll-arrow" style="font-size:11px;color:var(--text3)">▼</span>
+      </div>
+      <div class="wiki-entry-body" id="we${i}">
+        ${e.foto_url ? `<img src="${e.foto_url}" loading="lazy">` : ''}
+        <div class="wiki-content">${e.contenido||''}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:.75rem">Actualizado: ${new Date(e.actualizado_en).toLocaleDateString('es-AR')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleWiki(id, header) {
+  const body = document.getElementById(id);
+  if(!body) return;
+  const open = body.classList.toggle('open');
+  const arr = header.querySelector('.coll-arrow');
+  if(arr) arr.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+async function loadAdminWiki() {
+  const { data } = await sb.from('wiki').select('*').order('titulo');
+  const el = document.getElementById('admin-wiki-list');
+  if(!data||!data.length) { el.innerHTML = '<div class="empty-state" style="padding:1rem">Sin entradas</div>'; return; }
+  el.innerHTML = data.map(e=>`
+    <div class="card" style="margin-bottom:.5rem;display:flex;align-items:center;gap:.75rem">
+      <div style="flex:1">
+        <div style="font-size:14px;color:var(--text)">${e.titulo}</div>
+        <div style="font-size:12px;color:var(--text3)">${e.categoria||''}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="openWikiForm(${e.id})">Editar</button>
+    </div>`).join('');
+}
+
+async function openWikiForm(id) {
+  let e = {};
+  if(id) { const { data } = await sb.from('wiki').select('*').eq('id',id).single(); e = data||{}; }
+  document.getElementById('modal-wiki-title').textContent = id ? 'Editar entrada' : 'Nueva entrada';
+  let pendingFile = null;
+
+  document.getElementById('modal-wiki-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Título</label><input class="form-input" id="wiki-titulo" value="${e.titulo||''}"></div>
+    <div class="form-group">
+      <label class="form-label">Categoría</label>
+      <input class="form-input" id="wiki-cat" value="${e.categoria||''}" placeholder="Lugar, Facción, Personaje, Evento...">
+    </div>
+    <div class="form-group">
+      <div class="img-upload-area" onclick="document.getElementById('wiki-img').click()">
+        ${e.foto_url ? `<img src="${e.foto_url}" class="img-preview" id="wiki-img-prev">` : `<div style="color:var(--text3);font-size:13px" id="wiki-img-prev">Foto opcional</div>`}
+        <input type="file" id="wiki-img" accept="image/*" style="display:none">
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Contenido</label><textarea class="form-textarea" id="wiki-contenido" style="min-height:160px">${e.contenido||''}</textarea></div>
+    <button class="btn btn-primary btn-full" onclick="saveWiki(${id||'null'})">Guardar</button>
+    ${id ? `<button class="btn btn-danger btn-full" style="margin-top:.5rem" onclick="deleteWiki(${id})">Eliminar</button>` : ''}`;
+
+  document.getElementById('wiki-img').addEventListener('change', ev => {
+    const file = ev.target.files[0]; if(!file) return;
+    pendingFile = file;
+    const reader = new FileReader();
+    reader.onload = r => {
+      const prev = document.getElementById('wiki-img-prev');
+      if(prev.tagName==='IMG') prev.src=r.target.result;
+      else prev.outerHTML=`<img src="${r.target.result}" class="img-preview" id="wiki-img-prev">`;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  window._wikiPendingFile = () => pendingFile;
+  openModal('modal-wiki');
+}
+
+async function saveWiki(id) {
+  const record = {
+    titulo: document.getElementById('wiki-titulo').value,
+    categoria: document.getElementById('wiki-cat').value,
+    contenido: document.getElementById('wiki-contenido').value,
+    actualizado_en: new Date().toISOString()
+  };
+  const file = window._wikiPendingFile && window._wikiPendingFile();
+  if(file) {
+    try { toast('Subiendo imagen...'); record.foto_url = await uploadImage(file, `wiki/${record.titulo}_${Date.now()}`); }
+    catch(e) { toast('Error subiendo imagen','error'); return; }
+  }
+  let error;
+  if(id) ({ error } = await sb.from('wiki').update(record).eq('id',id));
+  else ({ error } = await sb.from('wiki').insert(record));
+  if(error) { toast('Error guardando','error'); return; }
+  toast('Guardado ✓','success');
+  closeModal('modal-wiki');
+  loadWiki(); loadAdminWiki();
+}
+
+async function deleteWiki(id) {
+  if(!confirm('¿Eliminar esta entrada?')) return;
+  await sb.from('wiki').delete().eq('id',id);
+  toast('Eliminado','success');
+  closeModal('modal-wiki');
+  loadWiki(); loadAdminWiki();
+}
+
+// ═══════════════════════════════
+// DIARIO
+// ═══════════════════════════════
+async function loadDiario() {
+  const el = document.getElementById('diario-list');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  const { data, error } = await sb.from('diario').select('*').order('sesion', { ascending: false });
+  if(error) { el.innerHTML = '<div class="empty-state">Error</div>'; return; }
+  if(!data||!data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📜</div>El diario está vacío.<br>La primera sesión queda por escribirse.</div>';
+    return;
+  }
+  el.innerHTML = data.map((e,i)=>`
+    <div class="diario-entry">
+      <div class="diario-header" onclick="toggleDiario('de${i}',this)">
+        <div>
+          <div class="diario-sesion">Sesión ${e.sesion}</div>
+          <div class="diario-titulo">${e.titulo||''}</div>
+          <div class="diario-fecha">${e.fecha_real ? new Date(e.fecha_real+'T12:00:00').toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}) : ''} ${e.fecha_ficticia ? '· '+e.fecha_ficticia : ''}</div>
+        </div>
+        <span class="coll-arrow" style="font-size:11px;color:var(--text3)">▼</span>
+      </div>
+      <div class="diario-body" id="de${i}">
+        <div class="diario-content">${e.contenido||''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleDiario(id, header) {
+  const body = document.getElementById(id);
+  if(!body) return;
+  const open = body.classList.toggle('open');
+  const arr = header.querySelector('.coll-arrow');
+  if(arr) arr.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+async function loadAdminDiario() {
+  const { data } = await sb.from('diario').select('*').order('sesion', { ascending: false });
+  const el = document.getElementById('admin-diario-list');
+  if(!data||!data.length) { el.innerHTML = '<div class="empty-state" style="padding:1rem">Sin sesiones</div>'; return; }
+  el.innerHTML = data.map(e=>`
+    <div class="card" style="margin-bottom:.5rem;display:flex;align-items:center;gap:.75rem">
+      <div style="flex:1">
+        <div style="font-size:14px;color:var(--text)">Sesión ${e.sesion}: ${e.titulo||''}</div>
+        <div style="font-size:12px;color:var(--text3)">${e.fecha_real||''}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="openDiarioForm(${e.id})">Editar</button>
+    </div>`).join('');
+}
+
+async function openDiarioForm(id) {
+  let e = {};
+  if(id) { const { data } = await sb.from('diario').select('*').eq('id',id).single(); e = data||{}; }
+  document.getElementById('modal-diario-title').textContent = id ? 'Editar sesión' : 'Nueva sesión';
+  document.getElementById('modal-diario-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Número de sesión</label><input class="form-input" id="d-sesion" type="number" value="${e.sesion||''}"></div>
+    <div class="form-group"><label class="form-label">Título</label><input class="form-input" id="d-titulo" value="${e.titulo||''}"></div>
+    <div class="form-group"><label class="form-label">Fecha real</label><input class="form-input" id="d-fecha" type="date" value="${e.fecha_real||''}"></div>
+    <div class="form-group"><label class="form-label">Fecha en la crónica (ej: "15 de octubre, 2025")</label><input class="form-input" id="d-ficticia" value="${e.fecha_ficticia||''}"></div>
+    <div class="form-group"><label class="form-label">Relato de la sesión</label><textarea class="form-textarea" id="d-contenido" style="min-height:200px">${e.contenido||''}</textarea></div>
+    <button class="btn btn-primary btn-full" onclick="saveDiario(${id||'null'})">Guardar</button>
+    ${id ? `<button class="btn btn-danger btn-full" style="margin-top:.5rem" onclick="deleteDiario(${id})">Eliminar sesión</button>` : ''}`;
+  openModal('modal-diario');
+}
+
+async function saveDiario(id) {
+  const record = {
+    sesion: parseInt(document.getElementById('d-sesion').value),
+    titulo: document.getElementById('d-titulo').value,
+    fecha_real: document.getElementById('d-fecha').value||null,
+    fecha_ficticia: document.getElementById('d-ficticia').value,
+    contenido: document.getElementById('d-contenido').value,
+  };
+  let error;
+  if(id) ({ error } = await sb.from('diario').update(record).eq('id',id));
+  else ({ error } = await sb.from('diario').insert(record));
+  if(error) { toast('Error guardando','error'); return; }
+  toast('Guardado ✓','success');
+  closeModal('modal-diario');
+  loadDiario(); loadAdminDiario();
+}
+
+async function deleteDiario(id) {
+  if(!confirm('¿Eliminar esta sesión?')) return;
+  await sb.from('diario').delete().eq('id',id);
+  toast('Eliminado','success');
+  closeModal('modal-diario');
+  loadDiario(); loadAdminDiario();
+}
+
+// ═══════════════════════════════
+// STATIC DATA: CLANES
+// ═══════════════════════════════
 const clanes=[
   {name:"Brujah",secta:"Camarilla / Anarquistas",badge:"b-red",
    disc:["Potencia","Celeridad","Presencia"],
-   deb:"Frenesí fácil: +2 a dificultad de autocontrol ante provocación.",
-   desc:"Rebeldes e idealistas. Fueron filósofos-guerreros. Hoy son el músculo inconformista de la Camarilla o líderes anarquistas."},
+   deb:"Frenesí fácil: +2 dif. de autocontrol ante provocación.",
+   desc:"Rebeldes e idealistas. En la antigüedad fueron filósofos-guerreros que gobernaron la mítica Cartago. Hoy son el músculo inconformista de la Camarilla: violentos, apasionados y leales a sus causas. Muchos lideran el movimiento Anarquista. Desconfían del poder establecido pero son los primeros en defenderlo con los puños cuando hace falta.",
+   opiniones:[
+     {clan:"Ventrue",op:"Arrogantes aristócratas que confunden el privilegio con el mérito. Han olvidado lo que significa luchar por algo."},
+     {clan:"Toreador",op:"Decadentes que llaman arte a su indulgencia. Al menos son honestos sobre lo que son."},
+     {clan:"Tremere",op:"No confíes en ellos. Nunca. Cada favor que hacen viene con un precio oculto."},
+     {clan:"Gangrel",op:"Los únicos que entienden la libertad de verdad. Lástima que prefieran los bosques a la lucha."},
+   ]},
   {name:"Gangrel",secta:"Camarilla / Independientes",badge:"b-teal",
    disc:["Animalismo","Fortaleza","Protean"],
    deb:"Cada frenesí deja una característica animal permanente acumulativa.",
-   desc:"Solitarios y salvajes. Viven fuera de las ciudades. Muy cercanos a la naturaleza y a la Bestia."},
+   desc:"Solitarios y salvajes, los Gangrel son los más cercanos a la Bestia de todos los clanes de la Camarilla. Viven fuera de las ciudades, en la naturaleza, y tienen una relación especial con los animales. Son nómadas por naturaleza y se transforman literalmente en bestias con el tiempo. Valoran la libertad y la supervivencia sobre la política.",
+   opiniones:[
+     {clan:"Nosferatu",op:"Los únicos que entienden lo que es estar fuera del juego. Hay respeto ahí, aunque ellos vivan en sus cloacas."},
+     {clan:"Brujah",op:"Buena gente. Luchan por lo que creen. Ojalá supieran que la verdadera libertad no se negocia en mesas de poder."},
+     {clan:"Ventrue",op:"Pretenden gobernar lo que no entienden. Que se queden en sus ciudades."},
+     {clan:"Toreador",op:"Criaturas hermosas que nunca han conocido el frío de un bosque a medianoche. No los comprendo."},
+   ]},
   {name:"Malkavian",secta:"Camarilla",badge:"b-purple",
    disc:["Auspex","Dominación","Ofuscación"],
    deb:"Todos sufren al menos un trastorno mental grave e incurable.",
-   desc:"Todos están locos. Pero su locura es a veces profecía. Se comunican telepáticamente (el Murmullo)."},
+   desc:"Todos los Malkavian están locos. Sin excepción. Pero su locura es a menudo profecía: ven patrones que otros no pueden ver, conexiones ocultas en el caos. Se comunican entre sí telepáticamente a través del Murmullo, una red mental que comparten todos los del clan. Sus actos pueden parecer absurdos hasta que, de pronto, tienen un sentido aterrador.",
+   opiniones:[
+     {clan:"Nosferatu",op:"Ellos también conocen las partes oscuras del mundo. Sus secretos son distintos a los nuestros, pero los respetamos."},
+     {clan:"Tremere",op:"Creen que la magia es orden y control. Qué aburrido. Qué equivocados."},
+     {clan:"Ventrue",op:"El rey más poderoso sigue siendo un peón en el tablero. Solo que ellos no lo saben."},
+     {clan:"Toreador",op:"La belleza que persiguen es solo el reflejo de algo más profundo y más terrible. Algún día lo verán."},
+   ]},
   {name:"Nosferatu",secta:"Camarilla",badge:"b-gray",
    disc:["Animalismo","Ofuscación","Potencia"],
-   deb:"Apariencia 0 permanente. Su sola presencia viola la Mascarada.",
-   desc:"Monstruosamente deformados por el Abrazo. Viven en túneles. Los mejores espías de la Camarilla."},
+   deb:"Apariencia 0 permanente. Su sola presencia puede violar la Mascarada.",
+   desc:"El Abrazo Nosferatu es una maldición física: los deforma de manera irreversible, volviéndolos monstruosos. Viven en alcantarillas, túneles y los espacios olvidados de las ciudades. A cambio de su apariencia, son los mejores recopiladores de información del mundo vampírico: lo saben todo sobre todos, y esa es su moneda de poder.",
+   opiniones:[
+     {clan:"Brujah",op:"Pelean con pasión. Nosotros preferimos la información. Pero los apreciamos cuando las cosas se ponen físicas."},
+     {clan:"Toreador",op:"Nos desprecian por nuestra apariencia. Nosotros sabemos todos sus secretos. Quién gana esa ecuación es obvio."},
+     {clan:"Ventrue",op:"Nos usan como herramientas de inteligencia. No saben que sabemos que nos usan. Ventaja nuestra."},
+     {clan:"Malkavian",op:"Sus locos ven cosas que nosotros no vemos. Los escuchamos más de lo que ellos creen."},
+   ]},
   {name:"Toreador",secta:"Camarilla",badge:"b-gold",
    disc:["Auspex","Celeridad","Presencia"],
    deb:"Se paralizan ante belleza extrema: tirada de Autocontrol dif.6 para actuar.",
-   desc:"Amantes del arte y la belleza. Encantadores y peligrosos. La élite social de la Camarilla."},
+   desc:"Los Toreador son los amantes del arte, la cultura y la belleza del mundo vampírico. Frecuentan galerías, teatros, y los salones más exclusivos. Son encantadores, manipuladores y peligrosos. La élite social de la Camarilla, son los que mueven los hilos detrás de los eventos sociales y las cortes vampíricas. Su obsesión por la belleza puede ser literal y debilitante.",
+   opiniones:[
+     {clan:"Ventrue",op:"Socios necesarios. Ellos tienen el dinero, nosotros tenemos el encanto. La combinación funciona bien cuando no están demasiado ocupados admirándose a sí mismos."},
+     {clan:"Brujah",op:"Pasión sin refinamiento. Nos rompen las cosas bonitas que tardamos siglos en conseguir."},
+     {clan:"Tremere",op:"Fascinantes en su obsesión con el control. Habría que estudiarlos... desde lejos."},
+     {clan:"Nosferatu",op:"Detestables pero útiles. Sus fiestas son el mejor lugar para recopilar información."},
+   ]},
   {name:"Tremere",secta:"Camarilla",badge:"b-red",
    disc:["Auspex","Dominación","Taumaturgia"],
-   deb:"El primer trago de sangre vampírica crea automáticamente el 1er nivel de vínculo.",
-   desc:"Magos convertidos en vampiros (s.XII). Muy organizados. Únicos dueños de la Taumaturgia."},
+   deb:"El primer trago de sangre vampírica crea el 1er nivel de vínculo automáticamente.",
+   desc:"Los Tremere son magos que en el siglo XII robaron la inmortalidad vampírica mediante rituales prohibidos. La Camarilla nunca los ha perdonado del todo, pero los necesita. Son la única fuente de Taumaturgia: magia de sangre que ningún otro clan puede igualar. Están organizados casi militarmente, con una jerarquía de pirámide y secretos celosamente guardados.",
+   opiniones:[
+     {clan:"Brujah",op:"Traidores desde el principio. Robaron su inmortalidad y mienten sobre ello. No se puede confiar en quien empieza mintiendo."},
+     {clan:"Ventrue",op:"Una alianza útil aunque incómoda. Sus capacidades mágicas son invaluables. Pero siempre hay que contar los cubiertos después."},
+     {clan:"Gangrel",op:"No nos agradamos. Ellos quieren controlar todo; nosotros queremos controlar nada. Punto muerto."},
+     {clan:"Malkavian",op:"Interesantes. Creen que la magia da respuestas. En realidad solo abre más preguntas."},
+   ]},
   {name:"Ventrue",secta:"Camarilla",badge:"b-gold",
    disc:["Dominación","Fortaleza","Presencia"],
    deb:"Solo pueden alimentarse de un tipo específico de mortal (definido en creación).",
-   desc:"Aristócratas y líderes. Núcleo del poder político vampírico. Orgullosos y manipuladores."},
+   desc:"Los Ventrue son los aristócratas del mundo vampírico: banqueros, políticos, CEOs, generales. Llevan siglos controlando las estructuras de poder humanas desde adentro. Son el núcleo político de la Camarilla y la mayoría de los Príncipes pertenecen a este clan. Orgullosos hasta el extremo, son capaces de cualquier cosa para mantener su posición.",
+   opiniones:[
+     {clan:"Toreador",op:"Aliados naturales. Comparten nuestro amor por el refinamiento, aunque confunden el poder con el arte."},
+     {clan:"Brujah",op:"Perros rabiosos. Útiles cuando están encadenados, peligrosos cuando no lo están."},
+     {clan:"Tremere",op:"Los magos son herramientas necesarias. Pero las herramientas no gobiernan: sirven."},
+     {clan:"Nosferatu",op:"Repugnantes pero invaluables. Saben cosas que nadie más sabe. Les pagamos bien."},
+   ]},
   {name:"Lasombra",secta:"Sabbat",badge:"b-gray",
    disc:["Dominación","Obtenebración","Potencia"],
    deb:"No tienen reflejo en espejos ni aparecen en cámaras o fotos.",
-   desc:"Señores de las sombras. Pragmáticos y crueles. Co-fundadores del Sabbat."},
+   desc:"Los Lasombra son los co-fundadores del Sabbat y sus líderes ideológicos. Señores de las sombras en sentido literal: pueden manipular y materializar la oscuridad. Pragmáticos, crueles y filosóficamente sofisticados, creen que los vampiros deben abrazar su naturaleza como depredadores superiores. La Iglesia Católica fue durante siglos su campo de influencia preferido.",
+   opiniones:[
+     {clan:"Tzimisce",op:"Nuestros hermanos en la fundación. Tienen la mente; nosotros tenemos la carne. Juntos somos el Sabbat."},
+     {clan:"Camarilla",op:"Títeres que juegan a ser reyes. La Torre de Marfil caerá. Solo es cuestión de tiempo."},
+     {clan:"Brujah Antitribu",op:"Su rabia es un recurso. Hay que canalizarla, no dejar que la queme todo."},
+   ]},
   {name:"Tzimisce",secta:"Sabbat",badge:"b-red",
    disc:["Animalismo","Auspex","Vicisitud"],
    deb:"Deben dormir sobre tierra/restos de su hogar natal (mínimo 500g). Si no, pierden Atributos.",
-   desc:"Maestros de la carne. Remodelan cuerpos a voluntad. Fríamente intelectuales y alienígenas."},
+   desc:"Los Tzimisce son los maestros de la carne. Con la Vicisitud pueden remodelar cuerpos a voluntad: el propio y el ajeno. Son fríamente intelectuales, casi alienígenas en su manera de pensar, y han abandonado prácticamente todo rastro de humanidad. Sus guaridas son obras de arte hechas de carne viva. Son señores feudales en el sentido más oscuro del término.",
+   opiniones:[
+     {clan:"Lasombra",op:"Útiles para la guerra y el terror. Pero nunca muestres debilidad ante ellos. Nunca."},
+     {clan:"Camarilla",op:"Se aferran a sus reglas como los mortales se aferran a sus dioses. Patético."},
+     {clan:"Tremere",op:"Robaron de nosotros para crear su magia de sangre. La deuda será cobrada eventualmente."},
+   ]},
   {name:"Assamita",secta:"Independiente",badge:"b-teal",
    disc:["Celeridad","Ofuscación","Quietud"],
-   deb:"Adictos a la sangre vampírica. +1 sangre por nivel de Disciplina usada.",
-   desc:"Asesinos y justiceros. Cultura guerrera sofisticada. Contratados para eliminar objetivos."},
+   deb:"Adictos a la sangre vampírica. Cada nivel de Disciplina activa cuesta +1 punto de sangre.",
+   desc:"Los Assamitas son asesinos y justiceros con una sofisticada cultura guerrera originaria de Oriente Medio. Son contratados por otros vampiros para eliminar objetivos difíciles, y su pago preferido es la sangre vampírica, a la que se han vuelto adictamente dependientes. Tienen tres castas: guerreros, hechiceros y viziers (académicos). Su sede es la fortaleza de Alamut.",
+   opiniones:[
+     {clan:"Camarilla",op:"Clientes frecuentes que nos temen. Como debe ser."},
+     {clan:"Tremere",op:"Nos maldijeron durante siglos para que no pudiéramos atacar vampiros. Esa maldición ya no existe. Que lo recuerden."},
+     {clan:"Sabbat",op:"Caos sin propósito. No hay honor en la destrucción por la destrucción."},
+   ]},
   {name:"Giovanni",secta:"Independiente",badge:"b-purple",
    disc:["Dominación","Nigromancia","Potencia"],
-   deb:"Su Beso es agónico: 1 nivel de daño extra y sin éxtasis normal.",
-   desc:"Familia italiana de nigromantes. Controlan empresas y los muertos. Extremadamente secretos."},
+   deb:"Su Beso es agónico: 1 nivel de daño extra y sin el éxtasis normal.",
+   desc:"Los Giovanni son una familia italiana de nigromantes que en el siglo XV se convirtieron en vampiros al destruir a su propio sire Antediluviano. Controlan vastos imperios empresariales y financieros además de dominar la muerte y los espíritus. Son extremadamente secretos y la familia (tanto viva como muerta) lo es todo para ellos. No se puede confiar en ellos a menos que seas Giovanni.",
+   opiniones:[
+     {clan:"Camarilla",op:"Un negocio más. Les vendemos servicios, ellos miran hacia otro lado. Trato justo."},
+     {clan:"Cappadocios",op:"No existen más. Nosotros nos encargamos de eso. Tema cerrado."},
+     {clan:"Sabbat",op:"Demasiado caóticos para hacer negocios. Demasiado peligrosos para ignorar."},
+   ]},
   {name:"Ravnos",secta:"Independiente",badge:"b-gold",
    disc:["Animismo","Celeridad","Ofuscación"],
-   deb:"Vicio compulsivo propio del clan: necesita Autocontrol para resistirlo.",
-   desc:"Nómadas embaucadores. Malditos con la compulsión del engaño. Sin bases fijas."},
+   deb:"Vicio compulsivo propio de cada Ravnos: necesita superar Autocontrol para resistirlo.",
+   desc:"Los Ravnos son nómadas y embaucadores, malditos con una compulsión irresistible hacia el engaño y el robo. Viajan sin establecer bases fijas, viven del ingenio y la ilusión, y crean fantasmas con su Disciplina de Animismo. Tienen raíces culturales en el subcontinente indio. Son mal vistos en casi todos los círculos vampíricos por su reputación de estafadores.",
+   opiniones:[
+     {clan:"Giovanni",op:"Hacen buenos negocios... cuando se puede atraparlos. El problema es el 'cuando'."},
+     {clan:"Camarilla",op:"Nos odian porque no podemos ser controlados. Eso nos gusta."},
+     {clan:"Assamita",op:"Admiramos su habilidad. Desconfiamos de todo lo demás."},
+   ]},
   {name:"Seg. de Set",secta:"Independiente",badge:"b-gray",
    disc:["Ofuscación","Presencia","Serpentis"],
-   deb:"Luz solar E intensa artificial: daño agravado.",
-   desc:"Culto a Set. Corruptores y tentadores. Recopilan secretos y crean adicciones."},
+   deb:"Luz solar e intensa artificial causan daño agravado.",
+   desc:"Los Seguidores de Set son un culto religioso vampírico que venera a Set, dios egipcio de la oscuridad y el caos. Son corruptores y tentadores por naturaleza: recopilan secretos, crean adicciones y explotan las debilidades ajenas. Su objetivo final es liberar a Set de su prisión y traer una nueva era. Operan a través de templos disfrazados de night clubs, iglesias y centros espirituales.",
+   opiniones:[
+     {clan:"Camarilla",op:"Su Mascarada es una jaula. Nosotros ofrecemos la llave... por un precio."},
+     {clan:"Tremere",op:"Magos sin fe. La magia sin devoción es solo técnica. Los compadecemos."},
+     {clan:"Giovanni",op:"Comprendemos la relación con los muertos. Pero sus dioses no son nuestros dioses."},
+   ]},
 ];
 
 const disciplinas=[
   {name:"Animalismo",clanes:"Gangrel, Nosferatu, Tzimisce",
-   desc:"Control de animales y la Bestia interior. Requiere Manipulación y Carisma.",
+   desc:"Permite al vampiro conectar con la Bestia interior de animales y otros seres. A niveles bajos es comunicación; a niveles altos es control total e incluso posesión. Los vampiros sin esta disciplina repelen a los animales.",
    poderes:[
-     {n:"●",nom:"Susurros Salvajes",pool:"Man/Car + Trato c/Animales",dif:6,ef:"Comunicación telepática con animales."},
-     {n:"●●",nom:"El Llamado de la Bestia",pool:"Car + Trato c/Animales",dif:6,ef:"Convocar y controlar animales en la zona."},
-     {n:"●●●",nom:"Fuerza del Animal",pool:"Man + Empatía",dif:7,ef:"Dominar la Bestia de otro vampiro o mortal."},
-     {n:"●●●●",nom:"Subsumirse en la Bestia",pool:"—",dif:"—",ef:"Intercambiar mente con un animal."},
-     {n:"●●●●●",nom:"Espíritu de la Bestia",pool:"—",dif:"—",ef:"Control masivo de animales / unión con la Bestia."},
+     {n:"●",nom:"Susurros Salvajes",pool:"Man/Car+Trato c/Animales",dif:6,
+      ef:"Comunicación telepática con un animal. El vampiro puede transmitir órdenes simples y recibir información sensorial básica. Requiere contacto visual sostenido."},
+     {n:"●●",nom:"El Llamado de la Bestia",pool:"Car+Trato c/Animales",dif:6,
+      ef:"Convoca animales de la zona (1 por éxito). Los animales convocados obedecen órdenes sencillas. El radio de convocatoria aumenta con los éxitos."},
+     {n:"●●●",nom:"Fuerza del Animal",pool:"Man+Empatía",dif:7,
+      ef:"Domina la Bestia interior de mortales o vampiros. En mortales provoca miedo o rabia; en vampiros puede forzar frenesí o calmar uno existente. El objetivo resiste con Fuerza de Voluntad."},
+     {n:"●●●●",nom:"Subsumirse en la Bestia",pool:"—",dif:"—",
+      ef:"El vampiro proyecta su mente dentro de un animal, controlándolo completamente mientras su propio cuerpo queda en torpor. Puede ver, oír y actuar a través del animal indefinidamente."},
+     {n:"●●●●●",nom:"Espíritu de la Bestia",pool:"—",dif:"—",
+      ef:"Control masivo de animales en una zona amplia, o unión profunda con la Bestia propia para ganar capacidades bestiales durante un tiempo. El vampiro puede coordinar manadas enteras."},
    ]},
   {name:"Auspex",clanes:"Toreador, Tremere, Tzimisce, Nosferatu, Malkavian",
-   desc:"Percepción y visión sobrenatural. Puede usarse para detectar Ofuscación.",
+   desc:"Agudiza los sentidos más allá de lo sobrenatural, permitiendo percibir auras, leer mentes y proyectar el espíritu. Contrarresta parcialmente la Ofuscación (tirada enfrentada de Auspex vs Ofuscación).",
    poderes:[
-     {n:"●",nom:"Sentidos Agudizados",pool:"Per + Alerta",dif:6,ef:"Potencia todos los sentidos sobrenaturalmente."},
-     {n:"●●",nom:"Aura Vampírica",pool:"Per + Empatía",dif:8,ef:"Ver el aura (emociones, naturaleza, mentiras)."},
-     {n:"●●●",nom:"La Mente Está Dispuesta",pool:"Int + Empatía",dif:"FV víctima",ef:"Leer pensamientos superficiales."},
-     {n:"●●●●",nom:"Proyección Astral",pool:"Per + Ocultismo",dif:7,ef:"El espíritu abandona el cuerpo y viaja."},
-     {n:"●●●●●",nom:"Mente Colmena",pool:"—",dif:"—",ef:"Intercambiar percepciones a larga distancia."},
+     {n:"●",nom:"Sentidos Agudizados",pool:"Per+Alerta",dif:6,
+      ef:"Potencia todos los sentidos de forma sobrenatural. Ver en la oscuridad casi total, oír conversaciones a distancia, detectar olores sutiles. Los estímulos intensos pueden abrumar al vampiro (+1 dif. en esas situaciones)."},
+     {n:"●●",nom:"Aura Vampírica",pool:"Per+Empatía",dif:8,
+      ef:"El vampiro ve el aura de una persona como colores y patrones de luz. Revela estado emocional, si miente, si es vampiro, ghoul, mago u otro sobrenatural, y pistas sobre su naturaleza. Los éxitos determinan el detalle."},
+     {n:"●●●",nom:"La Mente Está Dispuesta",pool:"Int+Empatía",dif:"FV víctima",
+      ef:"Lectura de pensamientos superficiales. Con 1 éxito se captan emociones e imágenes vagas; con más éxitos se accede a pensamientos más específicos. El objetivo puede notar la intrusión si supera Percepción+Alerta dif.8."},
+     {n:"●●●●",nom:"Proyección Astral",pool:"Per+Ocultismo",dif:7,
+      ef:"El espíritu abandona el cuerpo y viaja en el plano astral. Puede moverse a gran velocidad, pasar paredes y observar sin ser visto. Vulnerable en el plano astral: si el hilo astral se corta, el vampiro entra en torpor."},
+     {n:"●●●●●",nom:"Mente Colmena",pool:"—",dif:"—",
+      ef:"El vampiro puede fundir su percepción con la de otro a cualquier distancia, compartiendo sentidos completamente. También puede usar todos los niveles anteriores de Auspex sobre objetivos a gran distancia."},
    ]},
   {name:"Celeridad",clanes:"Brujah, Assamita, Toreador",
-   desc:"Velocidad sobrehumana. Cada nivel otorga acciones extra sin reducir dados.",
+   desc:"Velocidad sobrehumana que permite al vampiro actuar múltiples veces mientras los demás apenas se mueven. A diferencia de las Acciones Múltiples normales, no reduce los dados de la reserva.",
    poderes:[
-     {n:"●",nom:"Celeridad 1",pool:"—",dif:"—",ef:"+1 acción extra por turno (sin reducir dados)."},
-     {n:"●●",nom:"Celeridad 2",pool:"—",dif:"—",ef:"+2 acciones extra."},
-     {n:"●●●",nom:"Celeridad 3",pool:"—",dif:"—",ef:"+3 acciones extra."},
-     {n:"●●●●",nom:"Celeridad 4",pool:"—",dif:"—",ef:"+4 acciones extra."},
-     {n:"●●●●●",nom:"La Flor de la Muerte",pool:"—",dif:"—",ef:"+5 acciones. Puede aplicar todos los dados de Cel. a un solo ataque letal."},
+     {n:"●",nom:"Celeridad 1",pool:"—",dif:"—",
+      ef:"+1 acción adicional por turno sin penalización de dados. En combate esto es devastador: atacar y esquivar en el mismo turno con reservas completas."},
+     {n:"●●",nom:"Celeridad 2",pool:"—",dif:"—",
+      ef:"+2 acciones adicionales. El vampiro empieza a moverse más rápido de lo que el ojo humano puede seguir. Puede actuar antes que casi cualquier oponente."},
+     {n:"●●●",nom:"Celeridad 3",pool:"—",dif:"—",
+      ef:"+3 acciones. El vampiro es un borrón para los humanos. Puede recorrer habitaciones enteras antes de que alguien reaccione."},
+     {n:"●●●●",nom:"Celeridad 4",pool:"—",dif:"—",
+      ef:"+4 acciones. Velocidad que desafía la física normal. Las balas son evitables. El movimiento es imperceptible para mortales."},
+     {n:"●●●●●",nom:"La Flor de la Muerte",pool:"—",dif:"—",
+      ef:"+5 acciones. Además, el vampiro puede concentrar todos sus dados de Celeridad en un único ataque devastador (La Flor), sumando todos esos dados extra a la reserva de daño de un solo golpe."},
    ]},
   {name:"Dominación",clanes:"Ventrue, Tremere, Lasombra, Malkavian",
-   desc:"Control mental. Requiere contacto visual y que la víctima entienda el idioma. No funciona en vampiros de generación menor al dominador.",
+   desc:"Control mental directo. Requiere contacto visual y que la víctima entienda el idioma del vampiro. No funciona en vampiros de generación menor (número más bajo) que el dominador.",
    poderes:[
-     {n:"●",nom:"Compeler",pool:"Man + Intimidación",dif:"FV víctima",ef:"Orden de una sola palabra ejecutada de inmediato."},
-     {n:"●●",nom:"Mandar",pool:"Man + Liderazgo",dif:"FV víctima",ef:"Orden compleja que la víctima cumple literalmente."},
-     {n:"●●●",nom:"Mesmerismo",pool:"Man + Liderazgo",dif:"FV víctima",ef:"Sugestión post-hipnótica profunda activada por disparador."},
-     {n:"●●●●",nom:"Cas. de Recuerdos",pool:"Man + Medicina",dif:7,ef:"Borrar o implantar recuerdos en la víctima."},
-     {n:"●●●●●",nom:"Marioneta",pool:"Man + Medicina",dif:8,ef:"Control total del cuerpo de la víctima."},
+     {n:"●",nom:"Compeler",pool:"Man+Intimidación",dif:"FV víctima",
+      ef:"Orden de una sola palabra que la víctima ejecuta inmediatamente. La orden debe ser simple y directa. La víctima no recuerda haber sido dominada. Ejemplo: 'Duerme', 'Corre', 'Habla'."},
+     {n:"●●",nom:"Mandar",pool:"Man+Liderazgo",dif:"FV víctima",
+      ef:"Orden compleja de varias frases. La víctima la cumple al pie de la letra, como un autómata. Si la orden contradice su instinto de supervivencia, recibe dados extra para resistir."},
+     {n:"●●●",nom:"Mesmerismo",pool:"Man+Liderazgo",dif:"FV víctima",
+      ef:"Implanta una sugestión post-hipnótica profunda que se activa ante un disparador específico. La víctima puede no recordar nada hasta que el disparador ocurra. Las sugestiones pueden durar meses."},
+     {n:"●●●●",nom:"Cas. de Recuerdos",pool:"Man+Medicina",dif:7,
+      ef:"Borra, altera o implanta recuerdos específicos. Con suficientes éxitos puede reescribir una noche completa en la memoria de la víctima. Los recuerdos implantados se sienten completamente reales."},
+     {n:"●●●●●",nom:"Marioneta",pool:"Man+Medicina",dif:8,
+      ef:"Control total del cuerpo de la víctima como si fuera una marioneta. El vampiro puede hacer que la víctima se mueva, hable y actúe según su voluntad mientras mantiene la concentración."},
    ]},
   {name:"Fortaleza",clanes:"Ventrue, Gangrel",
-   desc:"Resistencia sobrenatural al daño. Cada nivel suma dados a la reserva de absorción, incluyendo daño agravado.",
+   desc:"Resistencia sobrenatural al daño físico. Cada nivel suma dados a la reserva de absorción, incluyendo daño agravado (que normalmente solo se absorbe con Fortaleza).",
    poderes:[
-     {n:"●",nom:"Fortaleza 1",pool:"—",dif:"—",ef:"+1 dado de absorción (incluso agravado)."},
-     {n:"●●",nom:"Fortaleza 2",pool:"—",dif:"—",ef:"+2 dados de absorción."},
-     {n:"●●●",nom:"Fortaleza 3",pool:"—",dif:"—",ef:"+3 dados de absorción."},
-     {n:"●●●●",nom:"Fortaleza 4",pool:"—",dif:"—",ef:"+4 dados de absorción."},
-     {n:"●●●●●",nom:"Fortaleza 5",pool:"—",dif:"—",ef:"+5 dados de absorción + resistencia extrema."},
+     {n:"●",nom:"Fortaleza 1",pool:"—",dif:"—",
+      ef:"+1 dado de absorción contra todo tipo de daño, incluyendo agravado (fuego, luz solar, garras sobrenaturales). Un vampiro con Resistencia 3 y Fortaleza 1 tiene 4 dados contra contundente/letal y 1 dado contra agravado."},
+     {n:"●●",nom:"Fortaleza 2",pool:"—",dif:"—",
+      ef:"+2 dados de absorción. El vampiro empieza a ignorar heridas que derribarían a cualquier otro."},
+     {n:"●●●",nom:"Fortaleza 3",pool:"—",dif:"—",
+      ef:"+3 dados de absorción. Las balas apenas molestan. El fuego duele pero no incapacita tan fácilmente."},
+     {n:"●●●●",nom:"Fortaleza 4",pool:"—",dif:"—",
+      ef:"+4 dados de absorción. El vampiro puede sobrevivir situaciones que destruirían a casi cualquier otro ser sobrenatural."},
+     {n:"●●●●●",nom:"Fortaleza 5",pool:"—",dif:"—",
+      ef:"+5 dados de absorción. La resistencia es casi legendaria. Incluso la luz solar directa requiere exposición prolongada para causar daño significativo."},
    ]},
   {name:"Obtenebración",clanes:"Lasombra (exclusiva)",
-   desc:"Control de las sombras y la oscuridad. Sombras físicamente reales.",
+   desc:"Control de las sombras como entidades físicas reales. Las sombras creadas son frías, oscuras y tangibles. Esta disciplina no funciona en lugares de completa oscuridad natural.",
    poderes:[
-     {n:"●",nom:"Manto de Sombras",pool:"—",dif:"—",ef:"Oscuridad en zona de 3m. Dificulta visión a todos menos al usuario."},
-     {n:"●●",nom:"Manos de la Oscuridad",pool:"Man + Ocultismo",dif:7,ef:"Tentáculos de sombra que atacan o agarran (Fue+2 letal)."},
-     {n:"●●●",nom:"Sudario de la Noche",pool:"—",dif:"—",ef:"Oscuridad total en zona amplia. Solo el usuario ve con claridad."},
-     {n:"●●●●",nom:"Armadura de la Noche",pool:"—",dif:"—",ef:"Las sombras absorben daño (agravado incluido)."},
-     {n:"●●●●●",nom:"El Abyecto",pool:"Man + Intimidación",dif:7,ef:"Invocar una entidad de oscuridad destructiva."},
+     {n:"●",nom:"Manto de Sombras",pool:"—",dif:"—",
+      ef:"El vampiro envuelve un área de hasta 3 metros en oscuridad sobrenatural. Las luces normales no la penetran. El vampiro ve con claridad dentro; todos los demás sufren +2 a dificultades de acciones visuales."},
+     {n:"●●",nom:"Manos de la Oscuridad",pool:"Man+Ocultismo",dif:7,
+      ef:"Invoca tentáculos de sombra que pueden atacar, agarrar o estrangular. Cada éxito crea un tentáculo (Fuerza 3, daño Fuerza+2 letal). Los tentáculos pueden ser atacados pero solo con daño agravado."},
+     {n:"●●●",nom:"Sudario de la Noche",pool:"—",dif:"—",
+      ef:"Oscuridad total en una zona amplia (radio en metros = nivel del vampiro × 3). El vampiro y quienes desee pueden ver con claridad. El resto está completamente ciego, incluso con visión nocturna artificial."},
+     {n:"●●●●",nom:"Armadura de la Noche",pool:"—",dif:"—",
+      ef:"Las sombras envuelven al vampiro como armadura. Suman dados de absorción igual al nivel de Obtenebración, incluyendo contra daño agravado. El vampiro parece una silueta oscura en movimiento."},
+     {n:"●●●●●",nom:"El Abyecto",pool:"Man+Intimidación",dif:7,
+      ef:"Abre un portal a la oscuridad absoluta y convoca una entidad. La entidad ataca todo lo que no sea el vampiro. Cuesta 1 Fuerza de Voluntad invocarla y otra mantenerla cada turno."},
    ]},
   {name:"Ofuscación",clanes:"Nosferatu, Malkavian, Assamita",
-   desc:"Invisibilidad y engaño mental. No engaña a cámaras ni sensores electrónicos.",
+   desc:"Invisibilidad y engaño de la percepción. No es magia visual sino mental: engaña a la mente de los observadores. No funciona con cámaras, sensores electrónicos ni animales (a menos que también se use Animalismo).",
    poderes:[
-     {n:"●",nom:"Camuflaje",pool:"—",dif:"—",ef:"Pasa inadvertido si no actúa agresivamente."},
-     {n:"●●",nom:"Desdibujado",pool:"—",dif:"—",ef:"Invisibilidad activa: puede moverse sin ser notado."},
-     {n:"●●●",nom:"Máscara de Mil Rostros",pool:"Man + Actuación",dif:6,ef:"Asumir apariencia de otra persona específica."},
-     {n:"●●●●",nom:"Velo de la Oscuridad",pool:"Man + Subterfugio",dif:7,ef:"Afectar múltiples personas a la vez."},
-     {n:"●●●●●",nom:"Mente Indetectable",pool:"—",dif:"—",ef:"Ni Auspex ni poderes mentales detectan al vampiro."},
+     {n:"●",nom:"Camuflaje",pool:"—",dif:"—",
+      ef:"El vampiro se vuelve 'no notable': la gente simplemente no presta atención a su presencia. No es invisibilidad, pero el vampiro puede estar en una habitación y ser ignorado. Se rompe con cualquier acción agresiva."},
+     {n:"●●",nom:"Desdibujado",pool:"—",dif:"—",
+      ef:"Invisibilidad activa mientras el vampiro no ataque. Puede moverse, abrir puertas, incluso hablar en susurros sin ser detectado. Los observadores atentos pueden intentar Per+Alerta dif.9 para notar algo extraño."},
+     {n:"●●●",nom:"Máscara de Mil Rostros",pool:"Man+Actuación",dif:6,
+      ef:"El vampiro asume la apariencia de una persona específica o crea un disfraz mental convincente. La ilusión afecta todos los sentidos. No cambia el cuerpo físico, solo la percepción."},
+     {n:"●●●●",nom:"Velo de Oscuridad",pool:"Man+Subterfugio",dif:7,
+      ef:"Extiende la ofuscación a múltiples personas o a un grupo entero. Todos en el grupo son ignorados simultáneamente. Útil para infiltrar un equipo completo."},
+     {n:"●●●●●",nom:"Mente Indetectable",pool:"—",dif:"—",
+      ef:"El vampiro desaparece de la percepción sobrenatural además de la mundana. Ni Auspex, ni magia, ni poderes de detección pueden ubicarlo. Es prácticamente un fantasma incluso para otros vampiros."},
    ]},
   {name:"Potencia",clanes:"Brujah, Nosferatu, Giovanni",
-   desc:"Fuerza sobrehumana. Cada nivel suma a Fuerza para daño y carga.",
+   desc:"Fuerza sobrehumana que va más allá de lo que el cuerpo físico debería permitir. Cada nivel suma efectivamente a la puntuación de Fuerza para cálculos de daño, carga y acciones físicas.",
    poderes:[
-     {n:"●",nom:"Potencia 1",pool:"—",dif:"—",ef:"+1 Fuerza efectiva. Puede doblar barras de metal."},
-     {n:"●●",nom:"Potencia 2",pool:"—",dif:"—",ef:"+2 Fuerza. Puede lanzar autos."},
-     {n:"●●●",nom:"Potencia 3",pool:"—",dif:"—",ef:"+3 Fuerza. Puede derribar muros."},
-     {n:"●●●●",nom:"Potencia 4",pool:"—",dif:"—",ef:"+4 Fuerza. Estructuras pesadas."},
-     {n:"●●●●●",nom:"Potencia 5",pool:"—",dif:"—",ef:"+5 Fuerza. Fuerza casi ilimitada."},
+     {n:"●",nom:"Potencia 1",pool:"—",dif:"—",
+      ef:"+1 Fuerza efectiva. El vampiro puede doblar barras de metal, romper cadenas gruesas y cargar el doble de lo normal."},
+     {n:"●●",nom:"Potencia 2",pool:"—",dif:"—",
+      ef:"+2 Fuerza. Puede lanzar un automóvil pequeño varios metros o atravesar paredes de ladrillo de un puñetazo."},
+     {n:"●●●",nom:"Potencia 3",pool:"—",dif:"—",
+      ef:"+3 Fuerza. Puede derribar muros de concreto, detener vehículos en movimiento."},
+     {n:"●●●●",nom:"Potencia 4",pool:"—",dif:"—",
+      ef:"+4 Fuerza. Puede destruir estructuras enteras, levantar camiones."},
+     {n:"●●●●●",nom:"Potencia 5",pool:"—",dif:"—",
+      ef:"+5 Fuerza. Fuerza casi ilimitada. Las hazañas físicas son legendarias incluso entre vampiros antiguos."},
    ]},
   {name:"Presencia",clanes:"Toreador, Ventrue, Brujah",
-   desc:"Carisma y aura sobrenatural. Puede afectar a múltiples blancos.",
+   desc:"Aura sobrenatural de carisma, terror o atracción que afecta a todos en el entorno. A diferencia de la Dominación, no requiere contacto visual y puede afectar a múltiples personas simultáneamente.",
    poderes:[
-     {n:"●",nom:"Fascinación",pool:"Ap + Actuación",dif:7,ef:"Un individuo queda cautivado y sigue al vampiro."},
-     {n:"●●",nom:"Deslumbrar",pool:"Car + Actuación",dif:7,ef:"Todos en la zona quedan paralizados de admiración."},
-     {n:"●●●",nom:"La Voz",pool:"Man + Intimidación",dif:"FV víctima",ef:"Provoca miedo, huida o parálisis."},
-     {n:"●●●●",nom:"Magnificencia",pool:"—",dif:"—",ef:"Aura imponente permanente. Todos quieren agradar."},
-     {n:"●●●●●",nom:"Llamada",pool:"Man + Liderazgo",dif:6,ef:"Llamar a una persona conocida de forma irresistible."},
+     {n:"●",nom:"Fascinación",pool:"Ap+Actuación",dif:7,
+      ef:"Un individuo queda cautivado por el vampiro y lo sigue o atiende. No es control, sino una atracción irresistible. El objetivo puede resistir con Fuerza de Voluntad dif.8 si la situación es claramente peligrosa."},
+     {n:"●●",nom:"Deslumbrar",pool:"Car+Actuación",dif:7,
+      ef:"Todos en el área quedan paralizados de admiración o terror durante un turno por éxito. El vampiro elige si el efecto es de belleza sublime o presencia aterradora. Afecta hasta 10 personas por éxito."},
+     {n:"●●●",nom:"La Voz",pool:"Man+Intimidación",dif:"FV víctima",
+      ef:"Provoca miedo intenso en el objetivo: huye, se paraliza o hace lo que el vampiro indique. Puede usarse en múltiples objetivos a la vez. El efecto dura hasta que el vampiro lo cancele o la víctima gaste FV."},
+     {n:"●●●●",nom:"Magnificencia",pool:"—",dif:"—",
+      ef:"Aura imponente y permanente mientras esté activa. Todos los que estén cerca quieren agradar al vampiro, ceden en discusiones, evitan confrontaciones. Cuesta 1 FV activarla; dura la escena."},
+     {n:"●●●●●",nom:"Llamada",pool:"Man+Liderazgo",dif:6,
+      ef:"El vampiro llama telepáticamente a una persona conocida, quien siente una compulsión irresistible de acudir. La persona viajará días si hace falta. Puede resistirse con FV dif.8 pero la compulsión regresa."},
    ]},
   {name:"Protean",clanes:"Gangrel",
-   desc:"Transformación del cuerpo. Permite adoptar formas animales.",
+   desc:"Transformación del cuerpo físico. Permite al vampiro adaptar su forma a la del mundo animal. Las formas adoptadas son siempre de color oscuro o negro, marcadas por la naturaleza vampírica.",
    poderes:[
-     {n:"●",nom:"Ojos de la Bestia",pool:"—",dif:"—",ef:"Ver en la oscuridad total."},
-     {n:"●●",nom:"Garras Salvajes",pool:"—",dif:"—",ef:"Garras que causan daño agravado."},
-     {n:"●●●",nom:"Tierra de Caín",pool:"—",dif:"—",ef:"Fundirse con la tierra. Torpor seguro durante el día."},
-     {n:"●●●●",nom:"Cambiaformas",pool:"Man + Supervivencia",dif:7,ef:"Forma de lobo o niebla."},
-     {n:"●●●●●",nom:"Forma de la Bestia",pool:"—",dif:"—",ef:"Cualquier forma animal (tamaño variable)."},
+     {n:"●",nom:"Ojos de la Bestia",pool:"—",dif:"—",
+      ef:"Los ojos del vampiro brillan con luz animal (roja, amarilla o verde) y pueden ver en la oscuridad absoluta sin penalización. Los humanos que vean estos ojos en la oscuridad deben tirar Valor dif.4 o retroceder."},
+     {n:"●●",nom:"Garras Salvajes",pool:"—",dif:"—",
+      ef:"Las manos del vampiro se transforman en garras bestiales que causan daño agravado. Son lo suficientemente fuertes para escalar superficies lisas y lo suficientemente afiladas para atravesar armadura ligera."},
+     {n:"●●●",nom:"Tierra de Caín",pool:"—",dif:"—",
+      ef:"El vampiro puede fundirse con la tierra o superficie sobre la que duerme. Queda en torpor seguro durante el día. Nada puede detectarlo en este estado salvo medios mágicos muy poderosos."},
+     {n:"●●●●",nom:"Cambiaformas",pool:"Man+Supervivencia",dif:7,
+      ef:"El vampiro adopta la forma de un lobo grande o de niebla. En forma de lobo tiene Fuerza+2 y Destreza+2. En forma de niebla es inmune al daño físico pero no puede atacar ni usar Disciplinas físicas."},
+     {n:"●●●●●",nom:"Forma de la Bestia",pool:"—",dif:"—",
+      ef:"El vampiro puede adoptar cualquier forma animal (tamaño entre ratón y caballo). Las estadísticas cambian según el animal. Puede usar esta forma indefinidamente pero cada amanecer en forma animal agrava la Bestia."},
    ]},
   {name:"Taumaturgia",clanes:"Tremere (exclusiva)",
-   desc:"Magia de sangre ritual. Sendas y rituales. Requiere entrenamiento formal Tremere.",
+   desc:"Magia de sangre ritual que solo los Tremere dominan. Se organiza en Sendas (especializaciones) y Rituales. Cada Senda se compra por separado. La Senda de Sangre es la principal.",
    poderes:[
-     {n:"●",nom:"Senda de Sangre 1",pool:"Voluntad",dif:3,ef:"Detectar sangre de vampiro en la zona."},
-     {n:"●●",nom:"Senda de Sangre 2",pool:"Man + Intimidación",dif:6,ef:"Provocar dolor intenso usando la sangre de la víctima."},
-     {n:"●●●",nom:"Senda de Sangre 3",pool:"Man + Medicina",dif:7,ef:"Hervir sangre de la víctima (daño agravado)."},
-     {n:"●●●●",nom:"Senda de Sangre 4",pool:"Int + Ocultismo",dif:8,ef:"Control total del movimiento de sangre ajena."},
-     {n:"●●●●●",nom:"Senda de Sangre 5",pool:"Int + Ocultismo",dif:9,ef:"Vampirismo: drenar toda la sangre de una víctima."},
+     {n:"●",nom:"Senda de Sangre 1 — Sabor de Sangre",pool:"Per+Ocultismo",dif:3,
+      ef:"Tocando sangre, el vampiro puede saber si es humana o vampírica, la generación aproximada del dador, si tiene enfermedades o sustancias, y si ha sido usada en rituales recientes."},
+     {n:"●●",nom:"Senda de Sangre 2 — Agonía Sanguínea",pool:"Man+Intimidación",dif:6,
+      ef:"El vampiro hace hervir la sangre en las venas de la víctima causando dolor intenso. La víctima sufre -2 a todas sus acciones mientras dure el efecto. Requiere haber probado la sangre del objetivo previamente."},
+     {n:"●●●",nom:"Senda de Sangre 3 — Hervir la Sangre",pool:"Man+Medicina",dif:7,
+      ef:"Hace hervir literalmente la sangre dentro del cuerpo. Causa daño agravado (1 nivel por éxito). Devastador contra vampiros. La víctima debe estar a la vista del lanzador."},
+     {n:"●●●●",nom:"Senda de Sangre 4 — Movimiento de la Mente Sanguínea",pool:"Int+Ocultismo",dif:8,
+      ef:"Control completo de la sangre en el cuerpo de otro. Puede inmovilizarlo, obligarlo a sangrar por los poros o extraer su sangre vampírica. El objetivo puede resistir con Fuerza de Voluntad."},
+     {n:"●●●●●",nom:"Senda de Sangre 5 — Vampirismo",pool:"Int+Ocultismo",dif:9,
+      ef:"Drenar toda la sangre de una víctima a distancia. El proceso toma varios turnos. Si se vacía completamente a un vampiro, este entra en torpor profundo. El Tremere absorbe esa sangre."},
    ]},
 ];
 
-const directorio=[
-  {n:1,nombre:"Elena Vasquez",clan:"Toreador",rol:"CEO",edad:312,gen:"8ª",nature:"Director",demeanor:"Bon Vivant",desc:"Arbitraje, prioridades, vetos, estabilidad de la organización."},
-  {n:2,nombre:"Marcus Blackwood",clan:"Brujah",rol:"Sheriff",edad:186,gen:"9ª",nature:"Rebelde",demeanor:"Bravo",desc:"Seguridad, castigos, persecución de violaciones."},
-  {n:3,nombre:"Aisha Al-Farsi",clan:"Assamita",rol:"Enforcer",edad:241,gen:"8ª",nature:"Superviviente",demeanor:"Autócrata",desc:"Ejecuciones discretas, extracciones, recupero de reliquias."},
-  {n:4,nombre:"Luca Moretti",clan:"Ventrue",rol:"CFO",edad:398,gen:"7ª",nature:"Director",demeanor:"Aristócrata",desc:"Finanzas, lavado, compra de voluntades."},
-  {n:5,nombre:"Sofia Petrov",clan:"Malkavian",rol:"Oráculo",edad:154,gen:"10ª",nature:"Curioso",demeanor:"Visionario",desc:"Presagios, patrones de crisis, lectura social."},
-  {n:6,nombre:"Jasper Lee",clan:"Gangrel",rol:"Residuos/Limpieza",edad:223,gen:"9ª",nature:"Superviviente",demeanor:"Solitud",desc:"Desaparición de cuerpos, logística, encubrimiento."},
-  {n:7,nombre:"Isabella Cruz",clan:"Nosferatu",rol:"Inteligencia",edad:271,gen:"8ª",nature:"Director",demeanor:"Trickster",desc:"Informantes, vigilancia, chantajes."},
-  {n:8,nombre:"Dante Moreau",clan:"Lasombra",rol:"Relaciones Públicas",edad:137,gen:"10ª",nature:"Autócrata",demeanor:"Bon Vivant",desc:"Control de narrativa, escándalos, acuerdos con élites."},
-  {n:9,nombre:"Nia Okafor",clan:"Tremere",rol:"Ciberseguridad",edad:119,gen:"9ª",nature:"Perfeccionista",demeanor:"Académico",desc:"Borrado de rastros, cámaras, protección digital."},
-  {n:10,nombre:"Victor Chen",clan:"Ravnos",rol:"Enlace Criminal",edad:168,gen:"9ª",nature:"Curioso",demeanor:"Trickster",desc:"Contrabando, mercado negro, falsificación."},
-  {n:11,nombre:"Amara Singh",clan:"Seg. de Set",rol:"Enlace Religioso",edad:205,gen:"8ª",nature:"Tentador",demeanor:"Visionario",desc:"Cultos, iglesias, reclutamiento, contención de fanatismos."},
-  {n:12,nombre:"Rafael Torres",clan:"Giovanni",rol:"Enlace Espiritual",edad:347,gen:"7ª",nature:"Avaro",demeanor:"Aristócrata",desc:"Muertos inquietos, limpieza espiritual, favores necrománticos."},
-  {n:13,nombre:"Clara Dubois",clan:"Tzimisce",rol:"Ops. Especiales",edad:289,gen:"8ª",nature:"Monstruo",demeanor:"Académico",desc:"Operaciones clandestinas, interrogatorios, adaptación de agentes."},
+// ═══════════════════════════════
+// MERITOS Y DEFECTOS DATA
+// ═══════════════════════════════
+const meritosData=[
+  // FÍSICOS
+  {tipo:"merit",cat:"fisico",nombre:"Ambidextro",val:1,desc:"Puede usar ambas manos con igual habilidad. Sin penalización por mano débil en ataques con dos armas."},
+  {tipo:"merit",cat:"fisico",nombre:"Apariencia llamativa",val:1,desc:"Aspecto memorable que llama la atención positivamente. +1 dado en situaciones donde la apariencia importa."},
+  {tipo:"merit",cat:"fisico",nombre:"Resistencia al dolor",val:2,desc:"Ignora las penalizaciones de Magullado y Lastimado. Las heridas menores simplemente no le afectan."},
+  {tipo:"merit",cat:"fisico",nombre:"Sentidos agudos",val:1,desc:"Percepción natural excepcional. +2 a tiradas de Percepción que involucren ese sentido específico."},
+  {tipo:"merit",cat:"fisico",nombre:"Tolerancia al fuego",val:3,desc:"Resistencia natural inusual al fuego. El vampiro puede tirar Fortaleza contra daño de fuego aunque no tenga la disciplina."},
+  {tipo:"merit",cat:"fisico",nombre:"Digestión rápida",val:1,desc:"Puede gastar sangre a razón de 2 puntos por turno aunque su generación normalmente solo permita 1."},
+  // MENTALES
+  {tipo:"merit",cat:"mental",nombre:"Memoria eidética",val:2,desc:"Recuerda perfectamente todo lo que ha visto o escuchado. Sin tirada para recordar detalles; dif. reducida para información compleja."},
+  {tipo:"merit",cat:"mental",nombre:"Mentes múltiples",val:3,desc:"Puede procesar información en paralelo. +1 acción declarada por turno sin penalización en situaciones de análisis o planificación."},
+  {tipo:"merit",cat:"mental",nombre:"Concentración",val:1,desc:"Puede mantener la concentración bajo presión. Sin penalización por distracciones menores en tiradas mentales."},
+  {tipo:"merit",cat:"mental",nombre:"Mente analítica",val:1,desc:"Excelente capacidad de razonamiento lógico. +1 dado en investigación y análisis de patrones o pistas."},
+  {tipo:"merit",cat:"mental",nombre:"Conciencia Jyhad",val:2,desc:"Conocimiento amplio de la política vampírica. +2 dados al intentar comprender maniobras políticas entre clanes o sectas."},
+  {tipo:"merit",cat:"mental",nombre:"Artista natural",val:1,desc:"Talento artístico innato. +2 dados en la expresión artística elegida (música, pintura, escritura, etc.)."},
+  // SOCIALES
+  {tipo:"merit",cat:"social",nombre:"Buena reputación",val:2,desc:"Conocido positivamente en los círculos vampíricos. +2 dados en situaciones sociales con vampiros de tu secta."},
+  {tipo:"merit",cat:"social",nombre:"Contactos en los bajos fondos",val:1,desc:"Conexiones con el crimen organizado mortal. Puede obtener información o servicios ilegales sin tirada si el tiempo lo permite."},
+  {tipo:"merit",cat:"social",nombre:"Cómplice humano",val:1,desc:"Un mortal de confianza que sabe sobre los vampiros y los ayuda. El Narrador crea el PNJ conjuntamente."},
+  {tipo:"merit",cat:"social",nombre:"Status social heredado",val:2,desc:"Reconocimiento automático en la corte vampírica. +1 Status inicial en la ciudad de origen."},
+  {tipo:"merit",cat:"social",nombre:"Mascarada impecable",val:2,desc:"Experiencia en mantener la apariencia humana. +2 dados a tiradas de Actuación para parecer mortal."},
+  // SOBRENATURALES
+  {tipo:"merit",cat:"sobrenatural",nombre:"Conciencia de la Bestia",val:2,desc:"El vampiro siente cuando la Bestia amenaza con tomar el control. +2 dados en tiradas de control de frenesí."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Sangre potente",val:3,desc:"La sangre del vampiro es especialmente potente. Sus ghouls son más fuertes y los vínculos de sangre que crea son más difíciles de romper."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Sueño ligero",val:1,desc:"Puede despertar más rápidamente durante el día ante peligros. Tira Per+Alerta dif.8 para reaccionar durante las horas de luz."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Afinidad con el clan",val:2,desc:"Comprensión especial de su propio clan. Aprende las Disciplinas del clan al 80% del costo normal de XP."},
+  // DEFECTOS
+  {tipo:"defect",cat:"defecto",nombre:"Adicción",val:1,desc:"Compulsión por una sustancia o comportamiento. Debe superar Autocontrol dif.6 para resistir cuando esté disponible la sustancia."},
+  {tipo:"defect",cat:"defecto",nombre:"Enemigo declarado",val:1,desc:"Un vampiro poderoso lo tiene en la mira. El Narrador puede introducirlo como antagonista recurrente."},
+  {tipo:"defect",cat:"defecto",nombre:"Fobia",val:2,desc:"Terror irracional ante algo específico. Rötschreck automático ante el objeto de la fobia, sin tirada de control."},
+  {tipo:"defect",cat:"defecto",nombre:"Apariencia perturbadora",val:2,desc:"Algo en su presencia inquieta a los humanos. -2 dados en interacciones sociales con mortales que no estén acostumbrados."},
+  {tipo:"defect",cat:"defecto",nombre:"Oscuro secreto",val:1,desc:"Algo que si se revelara destruiría su reputación o su vida. El Narrador puede presionar esta palanca narrativamente."},
+  {tipo:"defect",cat:"defecto",nombre:"Torpeza",val:1,desc:"Propenso a accidentes físicos menores. -1 dado en tiradas de Destreza que impliquen coordinación fina."},
+  {tipo:"defect",cat:"defecto",nombre:"Incapacidad",val:2,desc:"Una habilidad específica es imposible para el personaje, independientemente del aprendizaje."},
+  {tipo:"defect",cat:"defecto",nombre:"Comportamiento compulsivo",val:1,desc:"Una rutina que debe completar siempre. Si se interrumpe, sufre -2 a todas las acciones hasta completarla."},
+  {tipo:"defect",cat:"defecto",nombre:"Instinto predatorio",val:2,desc:"La Bestia es especialmente cercana a la superficie. -1 a dificultad de frenesí en todas las situaciones provocadoras."},
+  {tipo:"defect",cat:"defecto",nombre:"Aliado mortal en peligro",val:1,desc:"Alguien que le importa es vulnerable. El Narrador puede usarlo como palanca de presión narrativa."},
+  {tipo:"defect",cat:"defecto",nombre:"Olvidos",val:2,desc:"Lagunas de memoria frecuentes. Puede olvidar información importante en los peores momentos (tirada Int dif.7 para recordar bajo presión)."},
+  {tipo:"defect",cat:"defecto",nombre:"Deuda de sangre",val:1,desc:"Debe un favor enorme a otro vampiro. El acreedor puede cobrarlo en el peor momento posible."},
 ];
 
-const chicagoAreas=[
-  {n:1,nombre:"Downtown Core",subtitulo:"Loop + River North / Streeterville",ingreso:"Alto",riesgo:"Máximo",poder:"Directorio, Príncipe",desc:"Centro financiero y político. Elíseo principal. Máxima visibilidad, máximo riesgo de Mascarada."},
-  {n:2,nombre:"North Lakefront",subtitulo:"Lincoln Park, Lakeview, Uptown",ingreso:"Alto-Medio",riesgo:"Medio-Alto",poder:"Toreador, Ventrue",desc:"Lujo y nightlife. Territorios Toreador. Muchos neonatos con ambiciones."},
-  {n:3,nombre:"Creative Belt",subtitulo:"West Loop, Wicker Park, Logan, Pilsen, Hyde Park",ingreso:"Mixto",riesgo:"Medio",poder:"Brujah, Malkavian",desc:"Núcleo artístico y cultural. Anarquistas y disidentes. Tensión latente con la Camarilla."},
-  {n:4,nombre:"Northwest & Far North",subtitulo:"Humboldt, Albany Park, Rogers Park",ingreso:"Trabajador/Migrante",riesgo:"Bajo-Medio",poder:"Gangrel, Nosferatu",desc:"Barrios migrantes y trabajadores. Menos vigilados. Buenos para caza discreta."},
-  {n:5,nombre:"West Side Pressure Zone",subtitulo:"Austin, Garfield Park, North Lawndale",ingreso:"Bajo",riesgo:"Alto",poder:"Sabbat infiltrado",desc:"Zona de fractura social. Conflicto constante. Infiltración Sabbat sospechada."},
-  {n:6,nombre:"South Side & Calumet",subtitulo:"Bronzeville, South Shore, Calumet",ingreso:"Bajo-Mixto",riesgo:"Variable",poder:"Independientes, Giovanni",desc:"Fractura histórica y industria pesada. Giovanni activos. Muertos inquietos frecuentes."},
+const trasfondosData=[
+  {nombre:"Aliados",desc:"Humanos (o grupos) que colaboran activamente con el vampiro: detectives, médicos, abogados, periodistas. No son ghouls, actúan por amistad, dinero o deuda.",
+   niveles:["1 — Un contacto confiable con recursos limitados","2 — Un grupo pequeño o individuo muy competente","3 — Varios aliados o uno extremadamente poderoso","4 — Una red de aliados con recursos sustanciales","5 — Aliados que controlan organizaciones enteras"]},
+  {nombre:"Contactos",desc:"Red de informantes en distintos sectores. A diferencia de los Aliados, los Contactos dan información pero no actúan directamente.",
+   niveles:["1 — Un contacto en un área específica","2 — Contactos en 2-3 sectores","3 — Red moderada, información frecuente","4 — Red amplia, pocas áreas sin cobertura","5 — Omnipresencia informativa en la ciudad"]},
+  {nombre:"Dominio",desc:"Territorio reconocido donde el vampiro puede cazar sin pedir permiso. El Príncipe lo reconoce (con mayor o menor entusiasmo).",
+   niveles:["1 — Una manzana o edificio","2 — Un barrio pequeño","3 — Un barrio completo","4 — Varios barrios o zona importante","5 — Territorio extenso reconocido por todos"]},
+  {nombre:"Generación",desc:"Comprarse una generación más baja que la estándar (8ª). Costoso en puntos gratuitos pero fundamental para algunos builds.",
+   niveles:["1 — 8ª generación (estándar)","2 — 7ª generación","3 — 6ª generación","4 — 5ª generación","5 — 4ª generación (requiere aprobación del Narrador)"]},
+  {nombre:"Influencia",desc:"Poder en círculos humanos: política, medios, crimen organizado, iglesia, etc. Permite mover piezas en el mundo mortal sin exponerse.",
+   niveles:["1 — Influencia menor en un sector","2 — Influencia moderada, puede hacer favores","3 — Influencia significativa, puede torcer decisiones menores","4 — Influencia fuerte, puede afectar política local","5 — Domina un sector completo de la ciudad"]},
+  {nombre:"Manada",desc:"Para personajes del Sabbat: el grupo de vampiros de confianza total con quienes comparten el vínculo de la Vaulderie.",
+   niveles:["1 — 1-2 compañeros de confianza","2 — Manada pequeña pero cohesionada","3 — Manada bien establecida con recursos","4 — Manada grande y leal","5 — Manada legendaria con territorio propio"]},
+  {nombre:"Mentor",desc:"Un vampiro más antiguo que guía, protege y ocasionalmente ayuda al personaje. A mayor nivel, más poderoso e involucrado.",
+   niveles:["1 — Mentor distante, consejo ocasional","2 — Mentor activo que comparte conocimiento","3 — Mentor poderoso con conexiones","4 — Mentor muy influyente dispuesto a intervenir","5 — Anciano que pone sus recursos al servicio del personaje"]},
+  {nombre:"Recursos",desc:"Riqueza y bienes materiales. Un vampiro sin recursos depende de otros para refugio, transporte y equipamiento.",
+   niveles:["1 — Clase trabajadora, lo básico cubierto","2 — Clase media, cómodo sin lujos","3 — Clase alta, vive bien","4 — Rico, acceso a recursos considerables","5 — Millonario, prácticamente sin límite presupuestario"]},
+  {nombre:"Refugio",desc:"Lugar seguro para descansar durante el día. La calidad y seguridad varía enormemente.",
+   niveles:["1 — Lugar básico y discreto (sótano, almacén)","2 — Lugar seguro con protecciones básicas","3 — Refugio bien protegido, difícil de encontrar","4 — Fortaleza personal con múltiples medidas de seguridad","5 — Refugio prácticamente inexpugnable"]},
+  {nombre:"Rebaño",desc:"Grupo de humanos que el vampiro puede alimentarse regularmente sin necesidad de cazar. No son ghouls pero están bajo su influencia.",
+   niveles:["1 — 1-2 personas dispuestas","2 — Pequeño grupo de 3-5 personas","3 — Grupo de 6-10, variado","4 — Grupo grande de 10-20 con disponibilidad amplia","5 — Rebaño extenso, nunca pasa hambre"]},
+  {nombre:"Status",desc:"Reconocimiento y reputación dentro de la secta vampírica. Alto Status abre puertas; Status 0 significa ser ignorado o despreciado.",
+   niveles:["1 — Reconocido, se sabe quién es","2 — Respetado, se toman en cuenta sus opiniones","3 — Influyente, su presencia cambia dinámicas","4 — Muy influyente, los demás buscan su aprobación","5 — Pilar de la secta, figura de autoridad indiscutida"]},
 ];
 
-function renderDirectorio(){
-  const el=document.getElementById('directorio-list');
-  el.innerHTML=directorio.map((m,i)=>`
-    <div class="card" style="margin-bottom:.5rem">
-      <div class="coll-header" onclick="toggleColl('dir${i}',this)">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-family:var(--font-title);font-size:12px;color:var(--text3);min-width:20px">${m.n}.</span>
-          <span style="font-size:15px;color:var(--text)">${m.nombre}</span>
-          <span class="badge b-gray" style="font-size:10px">${m.clan}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:12px;color:var(--red-light)">${m.rol}</span>
-          <span class="coll-arrow">▼</span>
-        </div>
-      </div>
-      <div class="coll-body" id="dir${i}">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;margin:.4rem 0">
-          <span style="color:var(--text3)">Edad</span><span>${m.edad} años</span>
-          <span style="color:var(--text3)">Generación</span><span>${m.gen}</span>
-          <span style="color:var(--text3)">Nature</span><span>${m.nature}</span>
-          <span style="color:var(--text3)">Demeanor</span><span>${m.demeanor}</span>
-        </div>
-        <p style="font-size:13px;margin-top:.4rem">${m.desc}</p>
-      </div>
-    </div>
-  `).join('');
+
+function filterMeritos(cat, btn) {
+  document.querySelectorAll('#merit-cat-btns button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMeritos(cat);
 }
 
-function renderChicagoAreas(){
-  const el=document.getElementById('chicago-areas');
-  el.innerHTML=chicagoAreas.map((a,i)=>`
+function renderMeritos(cat) {
+  const el = document.getElementById('meritos-list');
+  const filtered = cat === 'todos' ? meritosData : meritosData.filter(m=>m.cat===cat);
+  const merits = filtered.filter(m=>m.tipo==='merit');
+  const defects = filtered.filter(m=>m.tipo==='defect');
+  let html = '';
+  if(merits.length) {
+    html += `<h3 style="margin-top:.5rem">Méritos</h3>`;
+    html += `<div class="card"><table><tr><th>Nombre</th><th>Valor</th><th>Descripción</th></tr>`;
+    html += merits.map(m=>`<tr><td style="font-weight:500;white-space:nowrap">${m.nombre}</td><td style="color:var(--gold);white-space:nowrap">${m.val} pt${m.val>1?'s':''}</td><td style="font-size:13px">${m.desc}</td></tr>`).join('');
+    html += `</table></div>`;
+  }
+  if(defects.length) {
+    html += `<h3>Defectos</h3>`;
+    html += `<div class="card"><table><tr><th>Nombre</th><th>Valor</th><th>Descripción</th></tr>`;
+    html += defects.map(m=>`<tr><td style="font-weight:500;white-space:nowrap">${m.nombre}</td><td style="color:var(--red-light);white-space:nowrap">+${m.val} pt${m.val>1?'s':''}</td><td style="font-size:13px">${m.desc}</td></tr>`).join('');
+    html += `</table></div>`;
+  }
+  el.innerHTML = html || '<div class="empty-state">Sin resultados</div>';
+}
+
+function renderTrasfondos() {
+  const el = document.getElementById('trasfondos-list');
+  el.innerHTML = trasfondosData.map((t,i)=>`
     <div class="card" style="margin-bottom:.5rem">
-      <div class="coll-header" onclick="toggleColl('chi${i}',this)">
-        <div>
-          <div style="font-size:14px;color:var(--text);font-family:var(--font-title)">${a.nombre}</div>
-          <div style="font-size:12px;color:var(--text3)">${a.subtitulo}</div>
-        </div>
+      <div class="coll-header" onclick="toggleColl('tf${i}',this)">
+        <h3 style="margin:0">${t.nombre}</h3>
         <span class="coll-arrow">▼</span>
       </div>
-      <div class="coll-body" id="chi${i}">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;margin:.4rem 0">
-          <span style="color:var(--text3)">Ingreso</span><span>${a.ingreso}</span>
-          <span style="color:var(--text3)">Riesgo Mascarada</span><span>${a.riesgo}</span>
-          <span style="color:var(--text3)">Poder dominante</span><span>${a.poder}</span>
-        </div>
-        <p style="font-size:13px;margin-top:.3rem">${a.desc}</p>
+      <div class="coll-body" id="tf${i}">
+        <p style="font-size:14px;margin-bottom:.5rem">${t.desc}</p>
+        <table>
+          ${t.niveles.map(n=>`<tr><td style="font-size:13px;color:var(--text2)">${n}</td></tr>`).join('')}
+        </table>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function renderClanes(filter=''){
-  const el=document.getElementById('clan-list');
-  const f=filter.toLowerCase();
-  const filtered=clanes.filter(c=>!f||c.name.toLowerCase().includes(f)||c.disc.join().toLowerCase().includes(f)||c.desc.toLowerCase().includes(f));
-  el.innerHTML=filtered.map((c,i)=>`
+function filterClanes(v) {
+  const f = v.toLowerCase();
+  const el = document.getElementById('clan-list');
+  const filtered = clanes.filter(c=>!f||c.name.toLowerCase().includes(f)||c.disc.join().toLowerCase().includes(f)||c.desc.toLowerCase().includes(f));
+  el.innerHTML = filtered.map((c,i)=>`
     <div class="card" style="margin-bottom:.5rem">
       <div class="coll-header" onclick="toggleColl('cl${i}',this)">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -935,19 +1952,27 @@ function renderClanes(filter=''){
         <span class="coll-arrow">▼</span>
       </div>
       <div class="coll-body" id="cl${i}">
-        <p style="font-size:14px">${c.desc}</p>
-        <p style="font-size:13px;color:var(--text3)"><strong style="color:var(--text2)">Disciplinas:</strong> ${c.disc.join(', ')}</p>
-        <div class="warn-box" style="margin-top:.4rem;font-size:13px"><strong>Debilidad:</strong> ${c.deb}</div>
+        <p style="font-size:14px;margin-bottom:.6rem">${c.desc}</p>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:.6rem"><strong style="color:var(--text2)">Disciplinas:</strong> ${c.disc.join(', ')}</p>
+        <div class="warn-box" style="margin-bottom:.6rem;font-size:13px"><strong>Debilidad:</strong> ${c.deb}</div>
+        ${c.opiniones && c.opiniones.length ? `
+        <div style="border-top:1px solid var(--border);padding-top:.6rem;margin-top:.4rem">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:var(--font-title);margin-bottom:.4rem">Opiniones sobre otros clanes</div>
+          ${c.opiniones.map(op=>`
+            <div style="margin-bottom:.4rem">
+              <span style="font-size:11px;color:var(--gold-dim);font-family:var(--font-title)">${op.clan}</span>
+              <p style="font-size:13px;color:var(--text2);font-style:italic;margin:1px 0 0">"${op.op}"</p>
+            </div>`).join('')}
+        </div>` : ''}
       </div>
-    </div>
-  `).join('')||'<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
+    </div>`).join('') || '<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
 }
 
-function renderDiscs(filter=''){
-  const el=document.getElementById('disc-list');
-  const f=filter.toLowerCase();
-  const filtered=disciplinas.filter(d=>!f||d.name.toLowerCase().includes(f)||d.clanes.toLowerCase().includes(f)||d.poderes.some(p=>p.nom.toLowerCase().includes(f)));
-  el.innerHTML=filtered.map((d,i)=>`
+function filterDiscs(v) {
+  const f = v.toLowerCase();
+  const el = document.getElementById('disc-list');
+  const filtered = disciplinas.filter(d=>!f||d.name.toLowerCase().includes(f)||d.clanes.toLowerCase().includes(f)||d.poderes.some(p=>p.nom.toLowerCase().includes(f)));
+  el.innerHTML = filtered.map((d,i)=>`
     <div class="card" style="margin-bottom:.5rem">
       <div class="coll-header" onclick="toggleColl('dc${i}',this)">
         <div>
@@ -960,47 +1985,32 @@ function renderDiscs(filter=''){
         <p style="font-size:13px;margin-bottom:.5rem">${d.desc}</p>
         <table>
           <tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>
-          ${d.poderes.map(p=>`<tr>
-            <td style="color:var(--red-light);font-size:13px">${p.n}</td>
-            <td style="font-size:13px">${p.nom}</td>
-            <td style="color:#e88;font-style:italic;font-size:13px">${p.pool}</td>
-            <td style="font-size:13px">${p.dif}</td>
-          </tr>
-          <tr><td colspan="4" style="font-size:12px;color:var(--text3);padding-bottom:6px">${p.ef}</td></tr>`).join('')}
+          ${d.poderes.map(p=>`
+            <tr>
+              <td style="color:var(--red-light);font-size:13px">${p.n}</td>
+              <td style="font-size:13px">${p.nom}</td>
+              <td style="color:#e88;font-style:italic;font-size:12px">${p.pool}</td>
+              <td style="font-size:13px">${p.dif}</td>
+            </tr>
+            <tr><td colspan="4" style="font-size:12px;color:var(--text3);padding-bottom:6px">${p.ef}</td></tr>`).join('')}
         </table>
       </div>
-    </div>
-  `).join('')||'<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
+    </div>`).join('') || '<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
 }
 
-function filterClanes(v){ renderClanes(v); }
-function filterDiscs(v){ renderDiscs(v); }
-
-function toggleColl(id,header){
-  const body=document.getElementById(id);
-  if(!body)return;
-  const open=body.classList.toggle('open');
-  if(header) header.classList.toggle('open',open);
-}
-
-function show(id,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  window.scrollTo(0,0);
-}
-
-// SPLASH
-window.addEventListener('load',()=>{
-  renderClanes(); renderDiscs(); renderDirectorio(); renderChicagoAreas();
-  setTimeout(()=>document.getElementById('splash').classList.add('hide'),1600);
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+window.addEventListener('load', () => {
+  filterClanes('');
+  filterDiscs('');
+  renderMeritos('todos');
+  renderTrasfondos();
+  loadDirectorio();
+  setTimeout(()=>document.getElementById('splash').classList.add('hide'), 1800);
 });
 
-// PWA SERVICE WORKER
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
