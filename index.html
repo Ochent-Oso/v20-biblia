@@ -1327,15 +1327,32 @@ async function savePJ(id) {
       'Notas': document.getElementById('f-notas').value,
     }
   };
-  const file = window._pjPendingFile && window._pjPendingFile();
+  // Get file directly from input — more reliable
+  const pjFileInput = document.getElementById('pj-img');
+  const file = pjFileInput && pjFileInput.files && pjFileInput.files[0];
   if(file) {
-    try { toast('Subiendo imagen...'); record.foto_url = await uploadImage(file, `pjs/${record.nombre}_${Date.now()}`); }
-    catch(e) { toast('Error subiendo imagen','error'); return; }
+    try { 
+      toast('Subiendo imagen...');
+      // Sanitize filename: remove spaces, tildes and special chars
+      const safeName = (record.nombre || 'pj').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_');
+      const url = await uploadImage(file, `pjs/${safeName}_${Date.now()}`);
+      if(!url) { toast('Error: no se obtuvo URL','error'); return; }
+      record.foto_url = url;
+    }
+    catch(e) { 
+      console.error('Upload error:', e);
+      toast('Error subiendo imagen: ' + e.message,'error'); 
+      return; 
+    }
   }
   let error;
   if(id) ({ error } = await sb.from('personajes_pj').update(record).eq('id',id));
   else ({ error } = await sb.from('personajes_pj').insert(record));
-  if(error) { toast('Error guardando','error'); return; }
+  if(error) { 
+    console.error('DB error:', error);
+    toast('Error guardando: ' + error.message,'error'); 
+    return; 
+  }
   toast('Guardado ✓','success');
   closeModal('modal-pj');
   loadPJs(); loadAdminPJs();
@@ -1471,10 +1488,21 @@ async function saveWiki(id) {
     contenido: document.getElementById('wiki-contenido').value,
     actualizado_en: new Date().toISOString()
   };
-  const file = window._wikiPendingFile && window._wikiPendingFile();
+  const wikiFileInput = document.getElementById('wiki-img');
+  const file = wikiFileInput && wikiFileInput.files && wikiFileInput.files[0];
   if(file) {
-    try { toast('Subiendo imagen...'); record.foto_url = await uploadImage(file, `wiki/${record.titulo}_${Date.now()}`); }
-    catch(e) { toast('Error subiendo imagen','error'); return; }
+    try { 
+      toast('Subiendo imagen...');
+      const safeTitle = (record.titulo || 'wiki').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_');
+      const url = await uploadImage(file, `wiki/${safeTitle}_${Date.now()}`);
+      if(!url) { toast('Error: no se obtuvo URL','error'); return; }
+      record.foto_url = url;
+    }
+    catch(e) { 
+      console.error('Upload error:', e);
+      toast('Error subiendo imagen: ' + e.message,'error'); 
+      return; 
+    }
   }
   let error;
   if(id) ({ error } = await sb.from('wiki').update(record).eq('id',id));
