@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="V20 Biblia">
+<meta name="theme-color" content="#1a0a0a">
+<title>V20 — Biblia del Narrador</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0608;
+  --surface: #160c0e;
+  --surface2: #1e1012;
+  --surface3: #251418;
+  --border: rgba(180,60,60,0.18);
+  --border2: rgba(180,60,60,0.35);
+  --red: #c0392b;
+  --red-light: #e74c3c;
+  --red-dim: #8b1c1c;
+  --gold: #c9a84c;
+  --gold-dim: #8a6e2f;
+  --text: #e8ddd5;
+  --text2: #b8a89e;
+  --text3: #7a6a62;
+  --font-title: 'Cinzel', serif;
+  --font-body: 'Crimson Text', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; }
+body { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* SPLASH */
+#splash {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; transition: opacity .6s ease;
+}
+#splash.hide { opacity: 0; pointer-events: none; }
+.splash-symbol {
+  font-size: 64px; margin-bottom: 1rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+.splash-title { font-family: var(--font-title); font-size: 22px; color: var(--gold); letter-spacing: .1em; margin-bottom: .3rem; }
+.splash-sub { font-size: 13px; color: var(--text3); letter-spacing: .2em; text-transform: uppercase; }
+
+/* HEADER */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border2);
+  padding: .75rem 1rem;
+  display: flex; align-items: center; gap: .75rem;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-symbol { font-size: 22px; flex-shrink: 0; }
+.header-text h1 { font-family: var(--font-title); font-size: 15px; color: var(--gold); letter-spacing: .05em; }
+.header-text p { font-size: 11px; color: var(--text3); letter-spacing: .15em; text-transform: uppercase; margin-top: 1px; }
+
+/* NAV */
+nav {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto; display: flex; gap: 0;
+  scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex-shrink: 0;
+  padding: .65rem 1rem;
+  font-family: var(--font-title);
+  font-size: 11px; letter-spacing: .08em;
+  color: var(--text3);
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer; transition: all .2s;
+  white-space: nowrap;
+}
+.nav-btn.active { color: var(--gold); border-bottom-color: var(--red); }
+.nav-btn:active { background: var(--surface3); }
+
+/* CONTENT */
+main { flex: 1; overflow-y: auto; padding: 1rem; max-width: 800px; margin: 0 auto; width: 100%; }
+
+/* SECTIONS */
+.section { display: none; animation: fadeIn .3s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+h2 { font-family: var(--font-title); font-size: 18px; color: var(--gold); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border2); letter-spacing: .06em; }
+h3 { font-family: var(--font-title); font-size: 14px; color: var(--red-light); margin: 1.2rem 0 .6rem; letter-spacing: .05em; }
+h4 { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .12em; margin: .8rem 0 .3rem; }
+p { color: var(--text2); line-height: 1.7; margin-bottom: .6rem; font-size: 15px; }
+
+.card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .9rem 1rem;
+  margin-bottom: .75rem;
+}
+.card-red { border-color: var(--red-dim); }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: .75rem; margin-bottom: .75rem; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: .75rem; margin-bottom: .75rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; margin: .4rem 0; }
+th { text-align: left; padding: 5px 8px; font-family: var(--font-title); font-size: 10px; letter-spacing: .1em; color: var(--gold-dim); border-bottom: 1px solid var(--border); }
+td { padding: 6px 8px; color: var(--text2); border-bottom: 1px solid rgba(180,60,60,0.08); vertical-align: top; font-size: 14px; }
+tr:last-child td { border-bottom: none; }
+td:first-child { color: var(--text); }
+
+.badge {
+  display: inline-block; font-size: 10px; letter-spacing: .08em;
+  padding: 2px 8px; border-radius: 10px; margin: 2px;
+  font-family: var(--font-title);
+}
+.b-red { background: rgba(192,57,43,.25); color: #e88; border: 1px solid rgba(192,57,43,.4); }
+.b-gold { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid rgba(201,168,76,.3); }
+.b-gray { background: rgba(120,100,90,.2); color: #bbb; border: 1px solid rgba(120,100,90,.3); }
+.b-teal { background: rgba(22,160,133,.2); color: #7ed; border: 1px solid rgba(22,160,133,.3); }
+.b-purple { background: rgba(142,68,173,.2); color: #ccf; border: 1px solid rgba(142,68,173,.3); }
+
+.rule-box {
+  background: var(--surface3);
+  border-left: 3px solid var(--red-dim);
+  border-radius: 0 6px 6px 0;
+  padding: .75rem 1rem;
+  font-size: 14px; color: var(--text2); line-height: 1.7;
+  margin: .5rem 0;
+}
+.warn-box {
+  background: rgba(201,168,76,.08);
+  border: 1px solid rgba(201,168,76,.25);
+  border-radius: 6px;
+  padding: .6rem .9rem;
+  font-size: 13px; color: var(--gold-dim);
+  margin: .5rem 0;
+}
+.pool-line { font-size: 14px; color: var(--text2); padding: 2px 0; }
+.pool-line span { color: #e88; font-style: italic; }
+
+/* COLLAPSIBLE */
+.coll-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; padding: .5rem 0;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.coll-header h3 { margin: 0; }
+.coll-arrow { font-size: 11px; color: var(--text3); transition: transform .2s; flex-shrink: 0; margin-left: .5rem; }
+.coll-header.open .coll-arrow { transform: rotate(180deg); }
+.coll-body { display: none; padding-top: .75rem; }
+.coll-body.open { display: block; }
+
+/* DIFF TABLE */
+.diff-grid { display: grid; grid-template-columns: 30px 1fr; gap: 4px 10px; font-size: 14px; margin: .5rem 0; }
+.diff-num { color: var(--red-light); font-family: var(--font-title); font-size: 15px; }
+
+/* SEQUENCE STEPS */
+.steps { display: flex; flex-direction: column; gap: 10px; margin: .75rem 0; }
+.step { display: flex; gap: 10px; align-items: flex-start; }
+.step-num {
+  min-width: 26px; height: 26px; border-radius: 50%;
+  background: var(--red-dim); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-title); font-size: 12px; flex-shrink: 0;
+}
+.step-text { font-size: 14px; color: var(--text2); line-height: 1.6; padding-top: 3px; }
+.step-text strong { color: var(--text); }
+
+/* SEARCH */
+.search-wrap { position: relative; margin-bottom: 1rem; }
+.search-wrap input {
+  width: 100%; padding: .6rem .9rem .6rem 2.2rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 14px;
+  outline: none;
+}
+.search-wrap input:focus { border-color: var(--border2); }
+.search-icon { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; }
+.search-wrap input::placeholder { color: var(--text3); }
+
+/* FOOTER */
+footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3); letter-spacing: .1em; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-symbol">🩸</div>
+  <div class="splash-title">Vampiro: La Mascarada</div>
+  <div class="splash-sub">Biblia del Narrador · V20</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-symbol">🩸</div>
+  <div class="header-text">
+    <h1>Vampiro: La Mascarada</h1>
+    <p>Biblia del Narrador · Ed. 20° Aniversario</p>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-btn active" onclick="show('lore',this)">Lore</button>
+  <button class="nav-btn" onclick="show('clanes',this)">Clanes</button>
+  <button class="nav-btn" onclick="show('reglas',this)">Reglas</button>
+  <button class="nav-btn" onclick="show('combate',this)">Combate</button>
+  <button class="nav-btn" onclick="show('disciplinas',this)">Disciplinas</button>
+  <button class="nav-btn" onclick="show('sistemas',this)">Sistemas</button>
+  <button class="nav-btn" onclick="show('chicago',this)">Chicago</button>
+  <button class="nav-btn" onclick="show('refrapida',this)">Ref. Rápida</button>
+</nav>
+
+<main>
+
+<!-- ═══ LORE ═══ -->
+<div id="lore" class="section active">
+  <h2>Mundo de Tinieblas</h2>
+  <p>El mundo de Vampiro es el nuestro, pero más oscuro y antiguo. Los vampiros llevan milenios ocultos entre los humanos, manipulando la historia desde las sombras.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Glosario esencial</h4>
+      <table>
+        <tr><td>Abrazo</td><td>Convertir a un humano en vampiro</td></tr>
+        <tr><td>Vástago</td><td>Vampiro (término Camarilla)</td></tr>
+        <tr><td>Cainita</td><td>Vampiro (término Sabbat)</td></tr>
+        <tr><td>Chiquillo</td><td>Vampiro recién Abrazado</td></tr>
+        <tr><td>Sire</td><td>El vampiro que dio el Abrazo</td></tr>
+        <tr><td>Ancilla</td><td>Vampiro de 100-300 años</td></tr>
+        <tr><td>Anciano</td><td>Vampiro de 300+ años</td></tr>
+        <tr><td>Matusalén</td><td>Vampiro de 1000+ años</td></tr>
+        <tr><td>Antediluviano</td><td>3ª generación, fundadores de clanes</td></tr>
+        <tr><td>Caín</td><td>El primer vampiro, según el mito</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>Términos de juego</h4>
+      <table>
+        <tr><td>Mascarada</td><td>Ley de ocultar la existencia vampírica</td></tr>
+        <tr><td>Jyhad</td><td>Guerra eterna entre vampiros antiguos</td></tr>
+        <tr><td>Gehena</td><td>El apocalipsis vampírico profetizado</td></tr>
+        <tr><td>La Bestia</td><td>Instinto animal dentro del vampiro</td></tr>
+        <tr><td>Frenesí</td><td>Pérdida de control ante la Bestia</td></tr>
+        <tr><td>Elíseo</td><td>Lugar neutral de reunión</td></tr>
+        <tr><td>Diablerie</td><td>Devorar el alma de otro vampiro</td></tr>
+        <tr><td>Torpor</td><td>Sueño profundo vampírico</td></tr>
+        <tr><td>Muerte Definitiva</td><td>Destrucción permanente</td></tr>
+        <tr><td>Ghoul</td><td>Humano que bebió sangre vampírica</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>Las Sectas</h3>
+  <div class="card card-red">
+    <span class="badge b-gold">Camarilla</span> <span style="font-size:13px;color:var(--text3)">La Torre de Marfil</span>
+    <p style="margin-top:.5rem">La mayor secta. Fundada en el siglo XV. Impone la Mascarada. Sus 7 clanes fundadores: Brujah, Gangrel, Malkavian, Nosferatu, Toreador, Tremere y Ventrue.</p>
+    <table>
+      <tr><th>Cargo</th><th>Rol</th></tr>
+      <tr><td>Príncipe</td><td>Gobernante de la ciudad</td></tr>
+      <tr><td>Senescal</td><td>Lugarteniente del Príncipe</td></tr>
+      <tr><td>Primogénito</td><td>Líder de clan en la ciudad</td></tr>
+      <tr><td>Sheriff</td><td>Encargado de la ley</td></tr>
+      <tr><td>Arpía</td><td>Árbitro del Status social</td></tr>
+      <tr><td>Justicar</td><td>Autoridad supranacional por clan</td></tr>
+    </table>
+  </div>
+  <div class="card card-red">
+    <span class="badge b-red">Sabbat</span> <span style="font-size:13px;color:var(--text3)">La Espada de Caín</span>
+    <p style="margin-top:.5rem">Rechazan la Mascarada y la humanidad. Se organizan en manadas con ferviente credo religioso. Clanes principales: Lasombra y Tzimisce.</p>
+    <table>
+      <tr><th>Cargo</th><th>Rol</th></tr>
+      <tr><td>Arzobispo</td><td>Gobernante de ciudad/diócesis</td></tr>
+      <tr><td>Obispo</td><td>Asistente del Arzobispo</td></tr>
+      <tr><td>Sacerdote</td><td>Líder de manada</td></tr>
+      <tr><td>Mano Negra</td><td>Milicia secreta de élite</td></tr>
+    </table>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <span class="badge b-gray">Anarquistas</span>
+      <p style="margin-top:.4rem;font-size:14px">Rechazan la tiranía de Príncipes y Antediluvianos. Se organizan en baronías lideradas por Barones.</p>
+    </div>
+    <div class="card">
+      <span class="badge b-purple">Independientes</span>
+      <p style="margin-top:.4rem;font-size:14px">Clanes sin alineación formal: Assamitas, Giovanni, Ravnos, Seguidores de Set. Sus propias agendas.</p>
+    </div>
+  </div>
+
+  <h3>Las 6 Tradiciones</h3>
+  <div class="card">
+    <table>
+      <tr><th>#</th><th>Tradición</th><th>Esencia</th></tr>
+      <tr><td>I</td><td>La Mascarada</td><td>No revelar la existencia vampírica</td></tr>
+      <tr><td>II</td><td>El Dominio</td><td>El Príncipe tiene autoridad en su ciudad</td></tr>
+      <tr><td>III</td><td>La Progenie</td><td>Solo el Príncipe autoriza el Abrazo</td></tr>
+      <tr><td>IV</td><td>La Responsabilidad</td><td>El sire responde por su chiquillo</td></tr>
+      <tr><td>V</td><td>La Hospitalidad</td><td>Presentarse al Príncipe al llegar</td></tr>
+      <tr><td>VI</td><td>La Destrucción</td><td>Solo el Príncipe puede ordenar la Muerte Definitiva</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ CLANES ═══ -->
+<div id="clanes" class="section">
+  <h2>Los 13 Clanes</h2>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="clan-search" placeholder="Buscar clan..." oninput="filterClanes(this.value)">
+  </div>
+  <div id="clan-list"></div>
+</div>
+
+<!-- ═══ REGLAS ═══ -->
+<div id="reglas" class="section">
+  <h2>Reglas Base</h2>
+
+  <h3>Sistema de Dados</h3>
+  <div class="rule-box">Vampiro usa <strong>dados de 10 caras (d10)</strong>. Se forma una <strong>reserva</strong> = Atributo + Habilidad. Se tiran todos y se cuentan los que igualen o superen la <strong>dificultad</strong>. Los "1" restan éxitos obtenidos.</div>
+
+  <h3>Dificultades</h3>
+  <div class="card">
+    <div class="diff-grid">
+      <span class="diff-num">3</span><span>Trivial — examinar una multitud</span>
+      <span class="diff-num">4</span><span>Fácil — seguir un rastro de sangre</span>
+      <span class="diff-num">5</span><span>Sencillo — seducir a alguien receptivo</span>
+      <span class="diff-num">6</span><span style="color:var(--gold)">Normal — disparar un revólver (estándar)</span>
+      <span class="diff-num">7</span><span>Complicado — localizar el origen de un sonido</span>
+      <span class="diff-num">8</span><span>Difícil — convencer a un policía escéptico</span>
+      <span class="diff-num">9</span><span>Extremo — caminar con heridas graves</span>
+      <span class="diff-num">10</span><span>Casi imposible</span>
+    </div>
+  </div>
+
+  <h3>Grados de Éxito</h3>
+  <div class="card">
+    <table>
+      <tr><th>Éxitos</th><th>Grado</th><th>Descripción</th></tr>
+      <tr><td>1</td><td>Marginal</td><td>Apenas el mínimo</td></tr>
+      <tr><td>2</td><td>Moderado</td><td>Resultado funcional</td></tr>
+      <tr><td>3</td><td>Completo</td><td>Objetivo logrado limpiamente</td></tr>
+      <tr><td>4</td><td>Excepcional</td><td>Superas las expectativas</td></tr>
+      <tr><td>5+</td><td>Fenomenal</td><td>Resultado perfecto</td></tr>
+    </table>
+  </div>
+
+  <h3>Fracasos</h3>
+  <div class="rule-box">Si hay <strong>más "1" que éxitos</strong> → <strong>Fracaso</strong>. Algo sale muy mal dramáticamente. Sin éxitos pero sin "1" → Fallo simple (nada ocurre). Sin "1" en la tirada → imposible fracasar.</div>
+  <div class="warn-box">Usar los fracasos con moderación. Son dramáticos, no rutinarios.</div>
+
+  <h3>Acciones Múltiples</h3>
+  <div class="rule-box">Determinar la reserva más pequeña de todas las acciones. Dividir ese número entre todas las acciones. Cada acción usa su porción de dados.<br><br>Ejemplo: Reserva A=5, Reserva B=7 → más pequeña=5 → entre 2 acciones → 2 dados cada una.</div>
+
+  <h3>Generación y Sangre</h3>
+  <div class="card">
+    <table>
+      <tr><th>Gen.</th><th>Rasgos max.</th><th>Reserva</th><th>Sangre/turno</th></tr>
+      <tr><td>7ª</td><td>6</td><td>20</td><td>2</td></tr>
+      <tr><td>8ª</td><td>5</td><td>15</td><td>2</td></tr>
+      <tr><td>9ª</td><td>5</td><td>14</td><td>2</td></tr>
+      <tr><td>10ª</td><td>5</td><td>13</td><td>1</td></tr>
+      <tr><td>11ª</td><td>5</td><td>12</td><td>1</td></tr>
+      <tr><td>12ª</td><td>5</td><td>11</td><td>1</td></tr>
+      <tr><td>13ª+</td><td>5</td><td>10</td><td>1</td></tr>
+    </table>
+  </div>
+
+  <h3>Éxitos Automáticos</h3>
+  <div class="rule-box">Si reserva &gt; doble de la dificultad → se puede asumir 1 éxito automático sin tirar.<br>Gastar 1 Fuerza de Voluntad → 1 éxito automático (una vez por turno).</div>
+
+  <h3>Frenesí — Tiradas de Control</h3>
+  <div class="card">
+    <table>
+      <tr><th>Disparador</th><th>Pool</th><th>Dif.</th></tr>
+      <tr><td>Insulto / provocación grave</td><td>Humanidad</td><td>6</td></tr>
+      <tr><td>Sangre presente (hambre)</td><td>Humanidad</td><td>7</td></tr>
+      <tr><td>Ver fuego</td><td>Coraje</td><td>6</td></tr>
+      <tr><td>Luz solar</td><td>Coraje</td><td>8</td></tr>
+      <tr><td>Vampiro en frenesí ataca al PJ</td><td>Coraje</td><td>5</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ COMBATE ═══ -->
+<div id="combate" class="section">
+  <h2>Combate</h2>
+
+  <div class="card card-red">
+    <h4>Secuencia de combate</h4>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Iniciativa</strong> — Todos tiran Destreza + Astucia + 1d10. Mayor va primero. Se declaran acciones y activaciones de Disciplinas.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Ataque</strong> — Se resuelven según orden. Pueden interrumpirse para defensas (tirar FV dif.6 o gastar 1 punto de FV).</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Resolución</strong> — Calcular daño, absorber, actualizar niveles de salud. Repetir hasta fin del turno.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Pools de Ataque</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Sin arma</h4>
+      <div class="pool-line"><span>Destreza + Pelea</span> dif. 6</div>
+      <div class="pool-line">Daño: Fuerza (contundente)</div>
+    </div>
+    <div class="card">
+      <h4>Arma C.C.</h4>
+      <div class="pool-line"><span>Destreza + Armas C.C.</span> dif. 6</div>
+      <div class="pool-line">Daño: según arma (letal)</div>
+    </div>
+    <div class="card">
+      <h4>Arma de fuego</h4>
+      <div class="pool-line"><span>Destreza + Armas de Fuego</span> dif. 6</div>
+      <div class="pool-line">Daño: según arma (letal)</div>
+    </div>
+    <div class="card">
+      <h4>Arrojadiza</h4>
+      <div class="pool-line"><span>Destreza + Atletismo</span> dif. 6</div>
+      <div class="pool-line">Daño: según arma</div>
+    </div>
+  </div>
+
+  <h3>Defensas (acciones enfrentadas)</h3>
+  <div class="grid3">
+    <div class="card">
+      <h4>Bloqueo</h4>
+      <div class="pool-line"><span>Destreza + Pelea</span></div>
+      <p style="font-size:13px">Solo daño contundente. Necesita Fortaleza para letal/agravado.</p>
+    </div>
+    <div class="card">
+      <h4>Esquiva</h4>
+      <div class="pool-line"><span>Destreza + Atletismo</span></div>
+      <p style="font-size:13px">Sirve contra cualquier ataque.</p>
+    </div>
+    <div class="card">
+      <h4>Parada</h4>
+      <div class="pool-line"><span>Destreza + Armas C.C.</span></div>
+      <p style="font-size:13px">Con arma. Si supera al atacante puede contraatacar.</p>
+    </div>
+  </div>
+
+  <h3>Tipos de Daño</h3>
+  <div class="card">
+    <table>
+      <tr><th>Tipo</th><th>Símbolo</th><th>Causado por</th><th>Absorción</th></tr>
+      <tr><td>Contundente</td><td style="color:var(--text3)">/</td><td>Puñetazos, golpes romos</td><td>Resistencia</td></tr>
+      <tr><td>Letal</td><td style="color:var(--red-light)">X</td><td>Armas, disparos</td><td>Resistencia (vamp.)</td></tr>
+      <tr><td>Agravado</td><td style="color:var(--gold)">*</td><td>Fuego, sol, garras sobrenaturales</td><td>Solo Fortaleza</td></tr>
+    </table>
+  </div>
+
+  <h3>Absorción</h3>
+  <div class="rule-box"><strong>Pool = Resistencia</strong> (+ Fortaleza contra letal y agravado).<br>Tirada dif. 6. Cada éxito resta 1 nivel de daño.<br>Las tiradas de absorción <strong>no pueden fracasar</strong>.</div>
+
+  <h3>Maniobras C.C.</h3>
+  <div class="card">
+    <table>
+      <tr><th>Maniobra</th><th>Pool</th><th>Dif.</th><th>Daño</th></tr>
+      <tr><td>Puñetazo</td><td>Des+Pelea</td><td>6</td><td>Fuerza (C)</td></tr>
+      <tr><td>Patada</td><td>Des+Pelea</td><td>7</td><td>Fue+1 (C)</td></tr>
+      <tr><td>Mordisco</td><td>Des+Pelea</td><td>6</td><td>Fue+1 (A)</td></tr>
+      <tr><td>Garra</td><td>Des+Pelea</td><td>6</td><td>Fue+1 (A)</td></tr>
+      <tr><td>Agarrón</td><td>Fue+Pelea</td><td>6</td><td>Fuerza (ext.)</td></tr>
+      <tr><td>Placaje</td><td>Fue+Pelea</td><td>7</td><td>Fue+1 + derribo</td></tr>
+      <tr><td>Barrido</td><td>Des+Pelea</td><td>7</td><td>Fue + derribo</td></tr>
+      <tr><td>Desarmar</td><td>Des+Armas</td><td>7</td><td>Especial</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--text3);margin-top:.4rem">(C) Contundente · (A) Agravado · ext. Daño extendido</p>
+  </div>
+
+  <h3>Modificadores a Distancia</h3>
+  <div class="card">
+    <table>
+      <tr><th>Situación</th><th>Mod.</th></tr>
+      <tr><td>Bocajarro (&lt;2m)</td><td>Dif. 4</td></tr>
+      <tr><td>Alcance corto</td><td>Dif. 6</td></tr>
+      <tr><td>Alcance largo (x2)</td><td>Dif. 8</td></tr>
+      <tr><td>Apuntar (por turno)</td><td>+1 dado (máx. Percepción)</td></tr>
+      <tr><td>Ráfaga de 3 balas</td><td>+2 dados, dif. +1</td></tr>
+      <tr><td>Fuego automático</td><td>+10 dados, dif. +2</td></tr>
+      <tr><td>Cobertura ligera</td><td>Dif. +1 para atacar</td></tr>
+      <tr><td>Cobertura buena</td><td>Dif. +2 para atacar</td></tr>
+      <tr><td>Flanco</td><td>+1 dado atacante</td></tr>
+      <tr><td>Espalda</td><td>+2 dados atacante</td></tr>
+      <tr><td>Múltiples oponentes</td><td>+1 dif. por oponente tras el 1° (máx. +4)</td></tr>
+    </table>
+  </div>
+
+  <h3>Niveles de Salud</h3>
+  <div class="card">
+    <table>
+      <tr><th>Nivel</th><th>Penalización en dados</th></tr>
+      <tr><td>Magullado</td><td>Ninguna</td></tr>
+      <tr><td>Lastimado</td><td>Ninguna</td></tr>
+      <tr><td>Lesionado</td><td>-1 dado</td></tr>
+      <tr><td>Herido</td><td>-1 dado, vel. reducida</td></tr>
+      <tr><td>Malherido</td><td>-2 dados</td></tr>
+      <tr><td>Tullido</td><td>-2 dados, solo arrastrarse</td></tr>
+      <tr><td>Incapacitado</td><td>Sin conciencia</td></tr>
+    </table>
+  </div>
+
+  <h3>Curación Vampírica</h3>
+  <div class="card">
+    <table>
+      <tr><th>Daño</th><th>Coste</th></tr>
+      <tr><td>Contundente (1 nivel)</td><td>1 sangre / turno</td></tr>
+      <tr><td>Letal (1 nivel)</td><td>2 sangre</td></tr>
+      <tr><td>Agravado (1 nivel)</td><td>5 sangre + 1 día en torpor</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ DISCIPLINAS ═══ -->
+<div id="disciplinas" class="section">
+  <h2>Disciplinas</h2>
+  <p>Poderes sobrenaturales del vampiro. Se activan sin coste salvo indicación. Niveles 6+ solo para Generación 7ª o menor.</p>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="disc-search" placeholder="Buscar disciplina o poder..." oninput="filterDiscs(this.value)">
+  </div>
+  <div id="disc-list"></div>
+</div>
+
+<!-- ═══ SISTEMAS ═══ -->
+<div id="sistemas" class="section">
+  <h2>Sistemas Dramáticos</h2>
+
+  <h3>Caza</h3>
+  <div class="rule-box">1 hora de búsqueda = 1 tirada de Percepción + Habilidad acorde al método.</div>
+  <div class="card">
+    <table>
+      <tr><th>Zona</th><th>Dif.</th></tr>
+      <tr><td>Barrios marginales</td><td>4</td></tr>
+      <tr><td>Zona pobre / bohemia</td><td>5</td></tr>
+      <tr><td>Distrito comercial / industrial</td><td>6</td></tr>
+      <tr><td>Suburbios</td><td>7</td></tr>
+      <tr><td>Zona muy vigilada</td><td>8</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--text3);margin-top:.4rem">Métodos: Apariencia+Subterfugio (seducción), Resistencia+Atletismo (persecución), Astucia+Callejeo (emboscada)</p>
+  </div>
+
+  <h3>Acciones Físicas</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th></tr>
+      <tr><td>Derribar puerta interior</td><td>Fuerza</td><td>6 (1 éx.)</td></tr>
+      <tr><td>Derribar puerta blindada</td><td>Fuerza</td><td>8 (5 éx.)</td></tr>
+      <tr><td>Escalar</td><td>Des+Atletismo</td><td>6</td></tr>
+      <tr><td>Salto horizontal</td><td>Des+Atletismo</td><td>3</td></tr>
+      <tr><td>Salto vertical</td><td>Fue+Atletismo</td><td>3</td></tr>
+      <tr><td>Conducir (normal)</td><td>Des+Conducir</td><td>5</td></tr>
+      <tr><td>Conducir (persecución)</td><td>Des+Conducir</td><td>6-8</td></tr>
+    </table>
+  </div>
+
+  <h3>Acciones Sociales</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th></tr>
+      <tr><td>Intimidar</td><td>Ap/Fue+Intimidación</td><td>6</td></tr>
+      <tr><td>Persuadir</td><td>Man+Subterfugio</td><td>6-8</td></tr>
+      <tr><td>Seducir</td><td>Ap+Subterfugio</td><td>6</td></tr>
+      <tr><td>Liderazgo / Arenga</td><td>Car+Liderazgo</td><td>6</td></tr>
+      <tr><td>Detectar mentira</td><td>Per+Empatía</td><td>6</td></tr>
+      <tr><td>Mentir / Engañar</td><td>Man+Subterfugio</td><td>6</td></tr>
+    </table>
+  </div>
+
+  <h3>Acciones Mentales</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Pool</th><th>Dif.</th></tr>
+      <tr><td>Investigar</td><td>As+Investigación</td><td>6</td></tr>
+      <tr><td>Hackear</td><td>Int+Tecnología</td><td>6-9</td></tr>
+      <tr><td>Primeros auxilios</td><td>Int+Medicina</td><td>6</td></tr>
+      <tr><td>Percepción activa</td><td>Per+Alerta</td><td>6</td></tr>
+      <tr><td>Sigilo</td><td>Des+Sigilo</td><td>6</td></tr>
+      <tr><td>Detectar emboscada</td><td>Per+Alerta vs Des+Sigilo</td><td>Enf.</td></tr>
+    </table>
+  </div>
+
+  <h3>Vínculo de Sangre</h3>
+  <div class="rule-box"><strong>1 dosis:</strong> leve fascinación<br><strong>2 dosis:</strong> obsesión marcada<br><strong>3 dosis:</strong> esclavitud emocional total<br><br>Para romperlo: no beber la sangre del regente durante 1 año por cada dosis bebida.</div>
+</div>
+
+<!-- ═══ CHICAGO ═══ -->
+<div id="chicago" class="section">
+  <h2>Chicago — Mapa de la Crónica</h2>
+
+  <h3>El Directorio</h3>
+  <p>Mesa de 13 asientos que gobierna Chicago, con representación por clan. Estructura corporativa.</p>
+  <div id="directorio-list"></div>
+
+  <h3>Macro-Áreas de Chicago</h3>
+  <div id="chicago-areas"></div>
+</div>
+
+<!-- ═══ REF RÁPIDA ═══ -->
+<div id="refrapida" class="section">
+  <h2>Referencia Rápida</h2>
+
+  <h3>Armas de Fuego</h3>
+  <div class="card">
+    <table>
+      <tr><th>Arma</th><th>Daño</th><th>Cad.</th><th>Carg.</th><th>Alcance</th></tr>
+      <tr><td>Pistola ligera</td><td>4</td><td>4</td><td>17+1</td><td>20m</td></tr>
+      <tr><td>Pistola pesada</td><td>5</td><td>3</td><td>7+1</td><td>35m</td></tr>
+      <tr><td>Revólver ligero</td><td>4</td><td>3</td><td>6</td><td>20m</td></tr>
+      <tr><td>Revólver pesado</td><td>6</td><td>2</td><td>6</td><td>35m</td></tr>
+      <tr><td>Subfusil</td><td>4</td><td>3</td><td>30+1</td><td>20m</td></tr>
+      <tr><td>Fusil asalto</td><td>8</td><td>4</td><td>30+1</td><td>150m</td></tr>
+      <tr><td>Escopeta</td><td>8</td><td>1</td><td>5+1</td><td>20m</td></tr>
+    </table>
+  </div>
+
+  <h3>Armas C.C.</h3>
+  <div class="card">
+    <table>
+      <tr><th>Arma</th><th>Daño</th><th>Tipo</th></tr>
+      <tr><td>Cuchillo</td><td>Fue+1</td><td>Letal</td></tr>
+      <tr><td>Espada corta</td><td>Fue+2</td><td>Letal</td></tr>
+      <tr><td>Espada</td><td>Fue+3</td><td>Letal</td></tr>
+      <tr><td>Hacha de mano</td><td>Fue+3</td><td>Letal</td></tr>
+      <tr><td>Garrote / Palo</td><td>Fue+2</td><td>Contundente</td></tr>
+      <tr><td>Estaca (corazón)</td><td>—</td><td>Parálisis vamp.</td></tr>
+    </table>
+  </div>
+
+  <h3>Armaduras</h3>
+  <div class="card">
+    <table>
+      <tr><th>Tipo</th><th>+Absorción</th><th>Penalización</th></tr>
+      <tr><td>Cuero reforzado</td><td>+1</td><td>Ninguna</td></tr>
+      <tr><td>Chaleco Clase 1</td><td>+2</td><td>Ninguna</td></tr>
+      <tr><td>Chaleco Clase 2</td><td>+3</td><td>-1 dado físico</td></tr>
+      <tr><td>Armadura táctica</td><td>+4</td><td>-2 dados físicos</td></tr>
+    </table>
+  </div>
+
+  <h3>Costes de Sangre</h3>
+  <div class="card">
+    <table>
+      <tr><th>Acción</th><th>Coste</th></tr>
+      <tr><td>Despertar cada noche</td><td>1</td></tr>
+      <tr><td>Curar contundente (1 nivel)</td><td>1</td></tr>
+      <tr><td>Curar letal (1 nivel)</td><td>2</td></tr>
+      <tr><td>Subir Atributo físico +1 (turno)</td><td>1</td></tr>
+      <tr><td>Alimentar a ghoul</td><td>1</td></tr>
+    </table>
+  </div>
+
+  <h3>Costes de Experiencia</h3>
+  <div class="card">
+    <table>
+      <tr><th>Rasgo</th><th>Coste</th></tr>
+      <tr><td>Nueva Habilidad</td><td>3 xp</td></tr>
+      <tr><td>Habilidad existente</td><td>2 × nivel</td></tr>
+      <tr><td>Nuevo Atributo</td><td>4 xp</td></tr>
+      <tr><td>Atributo existente</td><td>5 × nivel</td></tr>
+      <tr><td>Disciplina de clan</td><td>5 × nivel</td></tr>
+      <tr><td>Disciplina fuera de clan</td><td>7 × nivel</td></tr>
+      <tr><td>Nueva Disciplina (fuera clan)</td><td>10 xp</td></tr>
+      <tr><td>Humanidad / Senda</td><td>2 × nivel</td></tr>
+      <tr><td>Fuerza de Voluntad</td><td>1 × nivel</td></tr>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<footer>Vientos de Sombra y Sangre · Chicago · V20</footer>
+
+<script>
+// DATA
+const clanes=[
+  {name:"Brujah",secta:"Camarilla / Anarquistas",badge:"b-red",
+   disc:["Potencia","Celeridad","Presencia"],
+   deb:"Frenesí fácil: +2 a dificultad de autocontrol ante provocación.",
+   desc:"Rebeldes e idealistas. Fueron filósofos-guerreros. Hoy son el músculo inconformista de la Camarilla o líderes anarquistas."},
+  {name:"Gangrel",secta:"Camarilla / Independientes",badge:"b-teal",
+   disc:["Animalismo","Fortaleza","Protean"],
+   deb:"Cada frenesí deja una característica animal permanente acumulativa.",
+   desc:"Solitarios y salvajes. Viven fuera de las ciudades. Muy cercanos a la naturaleza y a la Bestia."},
+  {name:"Malkavian",secta:"Camarilla",badge:"b-purple",
+   disc:["Auspex","Dominación","Ofuscación"],
+   deb:"Todos sufren al menos un trastorno mental grave e incurable.",
+   desc:"Todos están locos. Pero su locura es a veces profecía. Se comunican telepáticamente (el Murmullo)."},
+  {name:"Nosferatu",secta:"Camarilla",badge:"b-gray",
+   disc:["Animalismo","Ofuscación","Potencia"],
+   deb:"Apariencia 0 permanente. Su sola presencia viola la Mascarada.",
+   desc:"Monstruosamente deformados por el Abrazo. Viven en túneles. Los mejores espías de la Camarilla."},
+  {name:"Toreador",secta:"Camarilla",badge:"b-gold",
+   disc:["Auspex","Celeridad","Presencia"],
+   deb:"Se paralizan ante belleza extrema: tirada de Autocontrol dif.6 para actuar.",
+   desc:"Amantes del arte y la belleza. Encantadores y peligrosos. La élite social de la Camarilla."},
+  {name:"Tremere",secta:"Camarilla",badge:"b-red",
+   disc:["Auspex","Dominación","Taumaturgia"],
+   deb:"El primer trago de sangre vampírica crea automáticamente el 1er nivel de vínculo.",
+   desc:"Magos convertidos en vampiros (s.XII). Muy organizados. Únicos dueños de la Taumaturgia."},
+  {name:"Ventrue",secta:"Camarilla",badge:"b-gold",
+   disc:["Dominación","Fortaleza","Presencia"],
+   deb:"Solo pueden alimentarse de un tipo específico de mortal (definido en creación).",
+   desc:"Aristócratas y líderes. Núcleo del poder político vampírico. Orgullosos y manipuladores."},
+  {name:"Lasombra",secta:"Sabbat",badge:"b-gray",
+   disc:["Dominación","Obtenebración","Potencia"],
+   deb:"No tienen reflejo en espejos ni aparecen en cámaras o fotos.",
+   desc:"Señores de las sombras. Pragmáticos y crueles. Co-fundadores del Sabbat."},
+  {name:"Tzimisce",secta:"Sabbat",badge:"b-red",
+   disc:["Animalismo","Auspex","Vicisitud"],
+   deb:"Deben dormir sobre tierra/restos de su hogar natal (mínimo 500g). Si no, pierden Atributos.",
+   desc:"Maestros de la carne. Remodelan cuerpos a voluntad. Fríamente intelectuales y alienígenas."},
+  {name:"Assamita",secta:"Independiente",badge:"b-teal",
+   disc:["Celeridad","Ofuscación","Quietud"],
+   deb:"Adictos a la sangre vampírica. +1 sangre por nivel de Disciplina usada.",
+   desc:"Asesinos y justiceros. Cultura guerrera sofisticada. Contratados para eliminar objetivos."},
+  {name:"Giovanni",secta:"Independiente",badge:"b-purple",
+   disc:["Dominación","Nigromancia","Potencia"],
+   deb:"Su Beso es agónico: 1 nivel de daño extra y sin éxtasis normal.",
+   desc:"Familia italiana de nigromantes. Controlan empresas y los muertos. Extremadamente secretos."},
+  {name:"Ravnos",secta:"Independiente",badge:"b-gold",
+   disc:["Animismo","Celeridad","Ofuscación"],
+   deb:"Vicio compulsivo propio del clan: necesita Autocontrol para resistirlo.",
+   desc:"Nómadas embaucadores. Malditos con la compulsión del engaño. Sin bases fijas."},
+  {name:"Seg. de Set",secta:"Independiente",badge:"b-gray",
+   disc:["Ofuscación","Presencia","Serpentis"],
+   deb:"Luz solar E intensa artificial: daño agravado.",
+   desc:"Culto a Set. Corruptores y tentadores. Recopilan secretos y crean adicciones."},
+];
+
+const disciplinas=[
+  {name:"Animalismo",clanes:"Gangrel, Nosferatu, Tzimisce",
+   desc:"Control de animales y la Bestia interior. Requiere Manipulación y Carisma.",
+   poderes:[
+     {n:"●",nom:"Susurros Salvajes",pool:"Man/Car + Trato c/Animales",dif:6,ef:"Comunicación telepática con animales."},
+     {n:"●●",nom:"El Llamado de la Bestia",pool:"Car + Trato c/Animales",dif:6,ef:"Convocar y controlar animales en la zona."},
+     {n:"●●●",nom:"Fuerza del Animal",pool:"Man + Empatía",dif:7,ef:"Dominar la Bestia de otro vampiro o mortal."},
+     {n:"●●●●",nom:"Subsumirse en la Bestia",pool:"—",dif:"—",ef:"Intercambiar mente con un animal."},
+     {n:"●●●●●",nom:"Espíritu de la Bestia",pool:"—",dif:"—",ef:"Control masivo de animales / unión con la Bestia."},
+   ]},
+  {name:"Auspex",clanes:"Toreador, Tremere, Tzimisce, Nosferatu, Malkavian",
+   desc:"Percepción y visión sobrenatural. Puede usarse para detectar Ofuscación.",
+   poderes:[
+     {n:"●",nom:"Sentidos Agudizados",pool:"Per + Alerta",dif:6,ef:"Potencia todos los sentidos sobrenaturalmente."},
+     {n:"●●",nom:"Aura Vampírica",pool:"Per + Empatía",dif:8,ef:"Ver el aura (emociones, naturaleza, mentiras)."},
+     {n:"●●●",nom:"La Mente Está Dispuesta",pool:"Int + Empatía",dif:"FV víctima",ef:"Leer pensamientos superficiales."},
+     {n:"●●●●",nom:"Proyección Astral",pool:"Per + Ocultismo",dif:7,ef:"El espíritu abandona el cuerpo y viaja."},
+     {n:"●●●●●",nom:"Mente Colmena",pool:"—",dif:"—",ef:"Intercambiar percepciones a larga distancia."},
+   ]},
+  {name:"Celeridad",clanes:"Brujah, Assamita, Toreador",
+   desc:"Velocidad sobrehumana. Cada nivel otorga acciones extra sin reducir dados.",
+   poderes:[
+     {n:"●",nom:"Celeridad 1",pool:"—",dif:"—",ef:"+1 acción extra por turno (sin reducir dados)."},
+     {n:"●●",nom:"Celeridad 2",pool:"—",dif:"—",ef:"+2 acciones extra."},
+     {n:"●●●",nom:"Celeridad 3",pool:"—",dif:"—",ef:"+3 acciones extra."},
+     {n:"●●●●",nom:"Celeridad 4",pool:"—",dif:"—",ef:"+4 acciones extra."},
+     {n:"●●●●●",nom:"La Flor de la Muerte",pool:"—",dif:"—",ef:"+5 acciones. Puede aplicar todos los dados de Cel. a un solo ataque letal."},
+   ]},
+  {name:"Dominación",clanes:"Ventrue, Tremere, Lasombra, Malkavian",
+   desc:"Control mental. Requiere contacto visual y que la víctima entienda el idioma. No funciona en vampiros de generación menor al dominador.",
+   poderes:[
+     {n:"●",nom:"Compeler",pool:"Man + Intimidación",dif:"FV víctima",ef:"Orden de una sola palabra ejecutada de inmediato."},
+     {n:"●●",nom:"Mandar",pool:"Man + Liderazgo",dif:"FV víctima",ef:"Orden compleja que la víctima cumple literalmente."},
+     {n:"●●●",nom:"Mesmerismo",pool:"Man + Liderazgo",dif:"FV víctima",ef:"Sugestión post-hipnótica profunda activada por disparador."},
+     {n:"●●●●",nom:"Cas. de Recuerdos",pool:"Man + Medicina",dif:7,ef:"Borrar o implantar recuerdos en la víctima."},
+     {n:"●●●●●",nom:"Marioneta",pool:"Man + Medicina",dif:8,ef:"Control total del cuerpo de la víctima."},
+   ]},
+  {name:"Fortaleza",clanes:"Ventrue, Gangrel",
+   desc:"Resistencia sobrenatural al daño. Cada nivel suma dados a la reserva de absorción, incluyendo daño agravado.",
+   poderes:[
+     {n:"●",nom:"Fortaleza 1",pool:"—",dif:"—",ef:"+1 dado de absorción (incluso agravado)."},
+     {n:"●●",nom:"Fortaleza 2",pool:"—",dif:"—",ef:"+2 dados de absorción."},
+     {n:"●●●",nom:"Fortaleza 3",pool:"—",dif:"—",ef:"+3 dados de absorción."},
+     {n:"●●●●",nom:"Fortaleza 4",pool:"—",dif:"—",ef:"+4 dados de absorción."},
+     {n:"●●●●●",nom:"Fortaleza 5",pool:"—",dif:"—",ef:"+5 dados de absorción + resistencia extrema."},
+   ]},
+  {name:"Obtenebración",clanes:"Lasombra (exclusiva)",
+   desc:"Control de las sombras y la oscuridad. Sombras físicamente reales.",
+   poderes:[
+     {n:"●",nom:"Manto de Sombras",pool:"—",dif:"—",ef:"Oscuridad en zona de 3m. Dificulta visión a todos menos al usuario."},
+     {n:"●●",nom:"Manos de la Oscuridad",pool:"Man + Ocultismo",dif:7,ef:"Tentáculos de sombra que atacan o agarran (Fue+2 letal)."},
+     {n:"●●●",nom:"Sudario de la Noche",pool:"—",dif:"—",ef:"Oscuridad total en zona amplia. Solo el usuario ve con claridad."},
+     {n:"●●●●",nom:"Armadura de la Noche",pool:"—",dif:"—",ef:"Las sombras absorben daño (agravado incluido)."},
+     {n:"●●●●●",nom:"El Abyecto",pool:"Man + Intimidación",dif:7,ef:"Invocar una entidad de oscuridad destructiva."},
+   ]},
+  {name:"Ofuscación",clanes:"Nosferatu, Malkavian, Assamita",
+   desc:"Invisibilidad y engaño mental. No engaña a cámaras ni sensores electrónicos.",
+   poderes:[
+     {n:"●",nom:"Camuflaje",pool:"—",dif:"—",ef:"Pasa inadvertido si no actúa agresivamente."},
+     {n:"●●",nom:"Desdibujado",pool:"—",dif:"—",ef:"Invisibilidad activa: puede moverse sin ser notado."},
+     {n:"●●●",nom:"Máscara de Mil Rostros",pool:"Man + Actuación",dif:6,ef:"Asumir apariencia de otra persona específica."},
+     {n:"●●●●",nom:"Velo de la Oscuridad",pool:"Man + Subterfugio",dif:7,ef:"Afectar múltiples personas a la vez."},
+     {n:"●●●●●",nom:"Mente Indetectable",pool:"—",dif:"—",ef:"Ni Auspex ni poderes mentales detectan al vampiro."},
+   ]},
+  {name:"Potencia",clanes:"Brujah, Nosferatu, Giovanni",
+   desc:"Fuerza sobrehumana. Cada nivel suma a Fuerza para daño y carga.",
+   poderes:[
+     {n:"●",nom:"Potencia 1",pool:"—",dif:"—",ef:"+1 Fuerza efectiva. Puede doblar barras de metal."},
+     {n:"●●",nom:"Potencia 2",pool:"—",dif:"—",ef:"+2 Fuerza. Puede lanzar autos."},
+     {n:"●●●",nom:"Potencia 3",pool:"—",dif:"—",ef:"+3 Fuerza. Puede derribar muros."},
+     {n:"●●●●",nom:"Potencia 4",pool:"—",dif:"—",ef:"+4 Fuerza. Estructuras pesadas."},
+     {n:"●●●●●",nom:"Potencia 5",pool:"—",dif:"—",ef:"+5 Fuerza. Fuerza casi ilimitada."},
+   ]},
+  {name:"Presencia",clanes:"Toreador, Ventrue, Brujah",
+   desc:"Carisma y aura sobrenatural. Puede afectar a múltiples blancos.",
+   poderes:[
+     {n:"●",nom:"Fascinación",pool:"Ap + Actuación",dif:7,ef:"Un individuo queda cautivado y sigue al vampiro."},
+     {n:"●●",nom:"Deslumbrar",pool:"Car + Actuación",dif:7,ef:"Todos en la zona quedan paralizados de admiración."},
+     {n:"●●●",nom:"La Voz",pool:"Man + Intimidación",dif:"FV víctima",ef:"Provoca miedo, huida o parálisis."},
+     {n:"●●●●",nom:"Magnificencia",pool:"—",dif:"—",ef:"Aura imponente permanente. Todos quieren agradar."},
+     {n:"●●●●●",nom:"Llamada",pool:"Man + Liderazgo",dif:6,ef:"Llamar a una persona conocida de forma irresistible."},
+   ]},
+  {name:"Protean",clanes:"Gangrel",
+   desc:"Transformación del cuerpo. Permite adoptar formas animales.",
+   poderes:[
+     {n:"●",nom:"Ojos de la Bestia",pool:"—",dif:"—",ef:"Ver en la oscuridad total."},
+     {n:"●●",nom:"Garras Salvajes",pool:"—",dif:"—",ef:"Garras que causan daño agravado."},
+     {n:"●●●",nom:"Tierra de Caín",pool:"—",dif:"—",ef:"Fundirse con la tierra. Torpor seguro durante el día."},
+     {n:"●●●●",nom:"Cambiaformas",pool:"Man + Supervivencia",dif:7,ef:"Forma de lobo o niebla."},
+     {n:"●●●●●",nom:"Forma de la Bestia",pool:"—",dif:"—",ef:"Cualquier forma animal (tamaño variable)."},
+   ]},
+  {name:"Taumaturgia",clanes:"Tremere (exclusiva)",
+   desc:"Magia de sangre ritual. Sendas y rituales. Requiere entrenamiento formal Tremere.",
+   poderes:[
+     {n:"●",nom:"Senda de Sangre 1",pool:"Voluntad",dif:3,ef:"Detectar sangre de vampiro en la zona."},
+     {n:"●●",nom:"Senda de Sangre 2",pool:"Man + Intimidación",dif:6,ef:"Provocar dolor intenso usando la sangre de la víctima."},
+     {n:"●●●",nom:"Senda de Sangre 3",pool:"Man + Medicina",dif:7,ef:"Hervir sangre de la víctima (daño agravado)."},
+     {n:"●●●●",nom:"Senda de Sangre 4",pool:"Int + Ocultismo",dif:8,ef:"Control total del movimiento de sangre ajena."},
+     {n:"●●●●●",nom:"Senda de Sangre 5",pool:"Int + Ocultismo",dif:9,ef:"Vampirismo: drenar toda la sangre de una víctima."},
+   ]},
+];
+
+const directorio=[
+  {n:1,nombre:"Elena Vasquez",clan:"Toreador",rol:"CEO",edad:312,gen:"8ª",nature:"Director",demeanor:"Bon Vivant",desc:"Arbitraje, prioridades, vetos, estabilidad de la organización."},
+  {n:2,nombre:"Marcus Blackwood",clan:"Brujah",rol:"Sheriff",edad:186,gen:"9ª",nature:"Rebelde",demeanor:"Bravo",desc:"Seguridad, castigos, persecución de violaciones."},
+  {n:3,nombre:"Aisha Al-Farsi",clan:"Assamita",rol:"Enforcer",edad:241,gen:"8ª",nature:"Superviviente",demeanor:"Autócrata",desc:"Ejecuciones discretas, extracciones, recupero de reliquias."},
+  {n:4,nombre:"Luca Moretti",clan:"Ventrue",rol:"CFO",edad:398,gen:"7ª",nature:"Director",demeanor:"Aristócrata",desc:"Finanzas, lavado, compra de voluntades."},
+  {n:5,nombre:"Sofia Petrov",clan:"Malkavian",rol:"Oráculo",edad:154,gen:"10ª",nature:"Curioso",demeanor:"Visionario",desc:"Presagios, patrones de crisis, lectura social."},
+  {n:6,nombre:"Jasper Lee",clan:"Gangrel",rol:"Residuos/Limpieza",edad:223,gen:"9ª",nature:"Superviviente",demeanor:"Solitud",desc:"Desaparición de cuerpos, logística, encubrimiento."},
+  {n:7,nombre:"Isabella Cruz",clan:"Nosferatu",rol:"Inteligencia",edad:271,gen:"8ª",nature:"Director",demeanor:"Trickster",desc:"Informantes, vigilancia, chantajes."},
+  {n:8,nombre:"Dante Moreau",clan:"Lasombra",rol:"Relaciones Públicas",edad:137,gen:"10ª",nature:"Autócrata",demeanor:"Bon Vivant",desc:"Control de narrativa, escándalos, acuerdos con élites."},
+  {n:9,nombre:"Nia Okafor",clan:"Tremere",rol:"Ciberseguridad",edad:119,gen:"9ª",nature:"Perfeccionista",demeanor:"Académico",desc:"Borrado de rastros, cámaras, protección digital."},
+  {n:10,nombre:"Victor Chen",clan:"Ravnos",rol:"Enlace Criminal",edad:168,gen:"9ª",nature:"Curioso",demeanor:"Trickster",desc:"Contrabando, mercado negro, falsificación."},
+  {n:11,nombre:"Amara Singh",clan:"Seg. de Set",rol:"Enlace Religioso",edad:205,gen:"8ª",nature:"Tentador",demeanor:"Visionario",desc:"Cultos, iglesias, reclutamiento, contención de fanatismos."},
+  {n:12,nombre:"Rafael Torres",clan:"Giovanni",rol:"Enlace Espiritual",edad:347,gen:"7ª",nature:"Avaro",demeanor:"Aristócrata",desc:"Muertos inquietos, limpieza espiritual, favores necrománticos."},
+  {n:13,nombre:"Clara Dubois",clan:"Tzimisce",rol:"Ops. Especiales",edad:289,gen:"8ª",nature:"Monstruo",demeanor:"Académico",desc:"Operaciones clandestinas, interrogatorios, adaptación de agentes."},
+];
+
+const chicagoAreas=[
+  {n:1,nombre:"Downtown Core",subtitulo:"Loop + River North / Streeterville",ingreso:"Alto",riesgo:"Máximo",poder:"Directorio, Príncipe",desc:"Centro financiero y político. Elíseo principal. Máxima visibilidad, máximo riesgo de Mascarada."},
+  {n:2,nombre:"North Lakefront",subtitulo:"Lincoln Park, Lakeview, Uptown",ingreso:"Alto-Medio",riesgo:"Medio-Alto",poder:"Toreador, Ventrue",desc:"Lujo y nightlife. Territorios Toreador. Muchos neonatos con ambiciones."},
+  {n:3,nombre:"Creative Belt",subtitulo:"West Loop, Wicker Park, Logan, Pilsen, Hyde Park",ingreso:"Mixto",riesgo:"Medio",poder:"Brujah, Malkavian",desc:"Núcleo artístico y cultural. Anarquistas y disidentes. Tensión latente con la Camarilla."},
+  {n:4,nombre:"Northwest & Far North",subtitulo:"Humboldt, Albany Park, Rogers Park",ingreso:"Trabajador/Migrante",riesgo:"Bajo-Medio",poder:"Gangrel, Nosferatu",desc:"Barrios migrantes y trabajadores. Menos vigilados. Buenos para caza discreta."},
+  {n:5,nombre:"West Side Pressure Zone",subtitulo:"Austin, Garfield Park, North Lawndale",ingreso:"Bajo",riesgo:"Alto",poder:"Sabbat infiltrado",desc:"Zona de fractura social. Conflicto constante. Infiltración Sabbat sospechada."},
+  {n:6,nombre:"South Side & Calumet",subtitulo:"Bronzeville, South Shore, Calumet",ingreso:"Bajo-Mixto",riesgo:"Variable",poder:"Independientes, Giovanni",desc:"Fractura histórica y industria pesada. Giovanni activos. Muertos inquietos frecuentes."},
+];
+
+function renderDirectorio(){
+  const el=document.getElementById('directorio-list');
+  el.innerHTML=directorio.map((m,i)=>`
+    <div class="card" style="margin-bottom:.5rem">
+      <div class="coll-header" onclick="toggleColl('dir${i}',this)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-family:var(--font-title);font-size:12px;color:var(--text3);min-width:20px">${m.n}.</span>
+          <span style="font-size:15px;color:var(--text)">${m.nombre}</span>
+          <span class="badge b-gray" style="font-size:10px">${m.clan}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:12px;color:var(--red-light)">${m.rol}</span>
+          <span class="coll-arrow">▼</span>
+        </div>
+      </div>
+      <div class="coll-body" id="dir${i}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;margin:.4rem 0">
+          <span style="color:var(--text3)">Edad</span><span>${m.edad} años</span>
+          <span style="color:var(--text3)">Generación</span><span>${m.gen}</span>
+          <span style="color:var(--text3)">Nature</span><span>${m.nature}</span>
+          <span style="color:var(--text3)">Demeanor</span><span>${m.demeanor}</span>
+        </div>
+        <p style="font-size:13px;margin-top:.4rem">${m.desc}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderChicagoAreas(){
+  const el=document.getElementById('chicago-areas');
+  el.innerHTML=chicagoAreas.map((a,i)=>`
+    <div class="card" style="margin-bottom:.5rem">
+      <div class="coll-header" onclick="toggleColl('chi${i}',this)">
+        <div>
+          <div style="font-size:14px;color:var(--text);font-family:var(--font-title)">${a.nombre}</div>
+          <div style="font-size:12px;color:var(--text3)">${a.subtitulo}</div>
+        </div>
+        <span class="coll-arrow">▼</span>
+      </div>
+      <div class="coll-body" id="chi${i}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;margin:.4rem 0">
+          <span style="color:var(--text3)">Ingreso</span><span>${a.ingreso}</span>
+          <span style="color:var(--text3)">Riesgo Mascarada</span><span>${a.riesgo}</span>
+          <span style="color:var(--text3)">Poder dominante</span><span>${a.poder}</span>
+        </div>
+        <p style="font-size:13px;margin-top:.3rem">${a.desc}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderClanes(filter=''){
+  const el=document.getElementById('clan-list');
+  const f=filter.toLowerCase();
+  const filtered=clanes.filter(c=>!f||c.name.toLowerCase().includes(f)||c.disc.join().toLowerCase().includes(f)||c.desc.toLowerCase().includes(f));
+  el.innerHTML=filtered.map((c,i)=>`
+    <div class="card" style="margin-bottom:.5rem">
+      <div class="coll-header" onclick="toggleColl('cl${i}',this)">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="badge ${c.badge}">${c.name}</span>
+          <span style="font-size:12px;color:var(--text3)">${c.secta}</span>
+        </div>
+        <span class="coll-arrow">▼</span>
+      </div>
+      <div class="coll-body" id="cl${i}">
+        <p style="font-size:14px">${c.desc}</p>
+        <p style="font-size:13px;color:var(--text3)"><strong style="color:var(--text2)">Disciplinas:</strong> ${c.disc.join(', ')}</p>
+        <div class="warn-box" style="margin-top:.4rem;font-size:13px"><strong>Debilidad:</strong> ${c.deb}</div>
+      </div>
+    </div>
+  `).join('')||'<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
+}
+
+function renderDiscs(filter=''){
+  const el=document.getElementById('disc-list');
+  const f=filter.toLowerCase();
+  const filtered=disciplinas.filter(d=>!f||d.name.toLowerCase().includes(f)||d.clanes.toLowerCase().includes(f)||d.poderes.some(p=>p.nom.toLowerCase().includes(f)));
+  el.innerHTML=filtered.map((d,i)=>`
+    <div class="card" style="margin-bottom:.5rem">
+      <div class="coll-header" onclick="toggleColl('dc${i}',this)">
+        <div>
+          <div style="font-size:15px;color:var(--text);font-family:var(--font-title)">${d.name}</div>
+          <div style="font-size:12px;color:var(--text3)">${d.clanes}</div>
+        </div>
+        <span class="coll-arrow">▼</span>
+      </div>
+      <div class="coll-body" id="dc${i}">
+        <p style="font-size:13px;margin-bottom:.5rem">${d.desc}</p>
+        <table>
+          <tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>
+          ${d.poderes.map(p=>`<tr>
+            <td style="color:var(--red-light);font-size:13px">${p.n}</td>
+            <td style="font-size:13px">${p.nom}</td>
+            <td style="color:#e88;font-style:italic;font-size:13px">${p.pool}</td>
+            <td style="font-size:13px">${p.dif}</td>
+          </tr>
+          <tr><td colspan="4" style="font-size:12px;color:var(--text3);padding-bottom:6px">${p.ef}</td></tr>`).join('')}
+        </table>
+      </div>
+    </div>
+  `).join('')||'<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
+}
+
+function filterClanes(v){ renderClanes(v); }
+function filterDiscs(v){ renderDiscs(v); }
+
+function toggleColl(id,header){
+  const body=document.getElementById(id);
+  if(!body)return;
+  const open=body.classList.toggle('open');
+  if(header) header.classList.toggle('open',open);
+}
+
+function show(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// SPLASH
+window.addEventListener('load',()=>{
+  renderClanes(); renderDiscs(); renderDirectorio(); renderChicagoAreas();
+  setTimeout(()=>document.getElementById('splash').classList.add('hide'),1600);
+});
+
+// PWA SERVICE WORKER
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
