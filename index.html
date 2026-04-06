@@ -940,6 +940,9 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
 const SUPABASE_URL = 'https://kwncfqvoyicdwffbqhpg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_dR1zFDy4gx74LGADPdvAQw_myejUGQ8';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Admin client for storage uploads only — never exposed to users
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3bmNmcXZveWljZHdmZmJxaHBnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTUwNzI2MCwiZXhwIjoyMDkxMDgzMjYwfQ.jZ6kwM0uVprL7hsLuLhv8QyW3_4mUBfMByI3b34u-x4';
+const sbAdmin = supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // ═══════════════════════════════
 // PIN / ADMIN AUTH
@@ -1038,9 +1041,10 @@ function toggleColl(id, header) {
 // IMAGE UPLOAD
 // ═══════════════════════════════
 async function uploadImage(file, path) {
-  const { data, error } = await sb.storage.from('imagenes').upload(path, file, { upsert: true });
+  // Use admin client to bypass RLS on storage
+  const { data, error } = await sbAdmin.storage.from('imagenes').upload(path, file, { upsert: true });
   if(error) throw error;
-  const { data: urlData } = sb.storage.from('imagenes').getPublicUrl(path);
+  const { data: urlData } = sbAdmin.storage.from('imagenes').getPublicUrl(path);
   const url = urlData.publicUrl;
   console.log('Uploaded to:', url);
   return url;
