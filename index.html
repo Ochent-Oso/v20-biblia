@@ -147,9 +147,10 @@ td:first-child { color: var(--text); }
   border-radius: 8px; overflow: hidden; margin-bottom: .75rem;
 }
 .photo-card-img {
-  width: 100%; height: 200px; object-fit: cover; object-position: top;
-  background: var(--surface3); display: block;
+  width: 100%; height: 220px; object-fit: cover; object-position: top center;
+  background: var(--surface3); display: block; transition: opacity .15s;
 }
+.photo-card-img:active { opacity: .85; }
 .photo-card-img-placeholder {
   width: 100%; height: 200px; background: var(--surface3);
   display: flex; align-items: center; justify-content: center;
@@ -267,6 +268,29 @@ td:first-child { color: var(--text); }
 .pin-key { padding: .9rem; font-family: var(--font-title); font-size: 18px; color: var(--text); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: background .15s; }
 .pin-key:active { background: var(--surface3); }
 .pin-error { font-size: 12px; color: #e88; margin-top: .5rem; min-height: 18px; }
+
+
+/* LIGHTBOX */
+.lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,.95);
+  z-index: 2000; display: none; align-items: center; justify-content: center;
+  flex-direction: column; padding: 1rem;
+}
+.lightbox.open { display: flex; }
+.lightbox img {
+  max-width: 100%; max-height: 85vh;
+  object-fit: contain; border-radius: 6px;
+  animation: fadeIn .2s ease;
+}
+.lightbox-name {
+  font-family: var(--font-title); font-size: 14px; color: var(--gold);
+  margin-top: .75rem; letter-spacing: .08em;
+}
+.lightbox-close {
+  position: absolute; top: 1rem; right: 1rem;
+  font-size: 28px; color: var(--text3); cursor: pointer;
+  background: none; border: none; line-height: 1;
+}
 
 footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3); letter-spacing: .1em; }
 </style>
@@ -899,6 +923,14 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
 </div>
 
 </main>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-name" id="lightbox-name"></div>
+</div>
+
 <footer>Vientos de Sombra y Sangre · Chicago · V20</footer>
 
 <script>
@@ -1009,7 +1041,9 @@ async function uploadImage(file, path) {
   const { data, error } = await sb.storage.from('imagenes').upload(path, file, { upsert: true });
   if(error) throw error;
   const { data: urlData } = sb.storage.from('imagenes').getPublicUrl(path);
-  return urlData.publicUrl;
+  const url = urlData.publicUrl;
+  console.log('Uploaded to:', url);
+  return url;
 }
 
 function imgUploadWidget(onUrl, currentUrl='') {
@@ -1063,7 +1097,7 @@ function renderDirectorio(data) {
   el.innerHTML = data.map((m,i) => `
     <div class="photo-card">
       ${m.foto_url
-        ? `<img src="${m.foto_url}" class="photo-card-img" loading="lazy">`
+        ? `<img src="${m.foto_url}" class="photo-card-img" loading="lazy" onclick="openLightbox('${m.foto_url}','${m.nombre}')" style="cursor:pointer" title="Tocar para ver completa">`
         : `<div class="photo-card-img-placeholder">🧛</div>`}
       <div class="photo-card-body">
         <div style="display:flex;align-items:flex-start;justify-content:space-between">
@@ -1148,15 +1182,27 @@ async function saveDirEdit(id) {
     descripcion: document.getElementById('dir-desc').value,
     notas_secretas: document.getElementById('dir-notas').value
   };
-  const file = window._dirPendingFile && window._dirPendingFile();
+  // Get file directly from input element — more reliable than closure
+  const fileInput = document.getElementById('dir-img-input');
+  const file = fileInput && fileInput.files && fileInput.files[0];
   if(file) {
     try {
       toast('Subiendo imagen...');
-      updates.foto_url = await uploadImage(file, `directorio/${id}_${Date.now()}`);
-    } catch(e) { toast('Error subiendo imagen', 'error'); return; }
+      const url = await uploadImage(file, `directorio/${id}_${Date.now()}`);
+      if(!url) { toast('Error: no se obtuvo URL', 'error'); return; }
+      updates.foto_url = url;
+    } catch(e) { 
+      console.error('Upload error:', e);
+      toast('Error subiendo imagen: ' + e.message, 'error'); 
+      return; 
+    }
   }
   const { error } = await sb.from('directorio').update(updates).eq('id', id);
-  if(error) { toast('Error guardando', 'error'); return; }
+  if(error) { 
+    console.error('DB error:', error);
+    toast('Error guardando: ' + error.message, 'error'); 
+    return; 
+  }
   toast('Guardado ✓', 'success');
   closeModal('modal-dir');
   loadDirectorio();
@@ -2001,6 +2047,19 @@ function filterDiscs(v) {
 // ═══════════════════════════════
 // INIT
 // ═══════════════════════════════
+
+// LIGHTBOX
+function openLightbox(src, name) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-name').textContent = name || '';
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 window.addEventListener('load', () => {
   filterClanes('');
   filterDiscs('');
