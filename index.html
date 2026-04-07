@@ -590,6 +590,8 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <button class="modal-close" onclick="closeModal('modal-pj-detail')">✕</button>
     </div>
     <div id="modal-pj-detail-body"></div>
+    <!-- Ref panel lives inside this modal so it's always on top -->
+    <div id="ref-panel" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.9rem 1rem;margin-top:.75rem;position:relative;z-index:10"></div>
   </div>
 </div>
 
@@ -1296,8 +1298,7 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
 </main>
 
 
-<!-- REFERENCE PANEL -->
-<div id="ref-panel" style="display:none;position:fixed;bottom:5.5rem;left:.5rem;right:.5rem;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1rem 1rem .75rem;z-index:600;box-shadow:0 -8px 32px rgba(0,0,0,.7);max-height:60vh;overflow-y:auto"></div>
+<!-- REFERENCE PANEL (injected inside modals dynamically) -->
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -1452,7 +1453,10 @@ function closeDrawer() {
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModal(id) { 
+  document.getElementById(id).classList.remove('open');
+  if(id === 'modal-pj-detail') closeRefPanel();
+}
 
 function toggleColl(id, header) {
   const body = document.getElementById(id);
@@ -3081,61 +3085,46 @@ function showRef(type, key, level) {
     if(t) { showTrasRef(key, t, level); return; }
   }
   if(!data) return;
-  const panel = document.getElementById('ref-panel');
   const lvlDesc = level > 0 && data.niveles ? data.niveles[Math.min(level-1, data.niveles.length-1)] : '';
-  panel.innerHTML = `
+  showRefPanel(`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
       <div style="font-family:var(--font-title);font-size:14px;color:var(--gold)">${key}</div>
-      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
+      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;line-height:1">✕</button>
     </div>
     <p style="font-size:14px;color:var(--text2);margin-bottom:.5rem">${data.desc}</p>
-    ${lvlDesc ? `<div style="background:var(--surface3);border-left:3px solid var(--gold-dim);border-radius:0 6px 6px 0;padding:.5rem .75rem;font-size:13px;color:var(--gold)">${lvlDesc}</div>` : ''}`;
-  panel.style.display = 'block';
+    ${lvlDesc ? '<div style="background:var(--surface3);border-left:3px solid var(--gold-dim);border-radius:0 6px 6px 0;padding:.5rem .75rem;font-size:13px;color:var(--gold)">'+lvlDesc+'</div>' : ''}`);
 }
 
 function showDiscRef(disc, level) {
-  const panel = document.getElementById('ref-panel');
   const poder = level > 0 ? disc.poderes[Math.min(level-1, disc.poderes.length-1)] : null;
-  panel.innerHTML = `
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
-      <div style="font-family:var(--font-title);font-size:14px;color:var(--gold)">${disc.name}</div>
-      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
-    </div>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:.5rem">${disc.desc}</p>
-    ${poder ? `
-      <div style="background:var(--surface3);border-left:3px solid #aaf;border-radius:0 6px 6px 0;padding:.5rem .75rem;">
-        <div style="font-size:11px;color:#aaf;font-family:var(--font-title);margin-bottom:3px">Nivel ${level} — ${poder.nom}</div>
-        <div style="font-size:13px;color:var(--text2)">Pool: <em>${poder.pool}</em> · Dif: ${poder.dif}</div>
-        <div style="font-size:13px;color:var(--text2);margin-top:3px">${poder.ef}</div>
-      </div>` : ''}`;
-  panel.style.display = 'block';
+  const poderHtml = poder ? '<div style="background:var(--surface3);border-left:3px solid #aaf;border-radius:0 6px 6px 0;padding:.5rem .75rem;margin-top:.4rem"><div style="font-size:11px;color:#aaf;font-family:var(--font-title);margin-bottom:3px">Nivel '+level+' — '+poder.nom+'</div><div style="font-size:13px;color:var(--text2)">Pool: <em>'+poder.pool+'</em> · Dif: '+poder.dif+'</div><div style="font-size:13px;color:var(--text2);margin-top:3px">'+poder.ef+'</div></div>' : '';
+  showRefPanel('<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem"><div style="font-family:var(--font-title);font-size:14px;color:var(--gold)">'+disc.name+'</div><button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;line-height:1">✕</button></div><p style="font-size:14px;color:var(--text2);margin-bottom:.3rem">'+disc.desc+'</p>'+poderHtml);
 }
 
 function showMeritRef(name, data) {
-  const panel = document.getElementById('ref-panel');
-  panel.innerHTML = `
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
-      <div style="font-family:var(--font-title);font-size:14px;color:${data.tipo==='defect'?'#e88':'var(--gold)'}">${data.tipo==='defect'?'Defecto: ':'Mérito: '}${name}</div>
-      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
-    </div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:.4rem">${data.val} punto${data.val>1?'s':''} ${data.tipo==='defect'?'(otorga puntos extra)':'(cuesta puntos gratuitos)'}</div>
-    <p style="font-size:14px;color:var(--text2)">${data.desc}</p>`;
-  panel.style.display = 'block';
+  const color = data.tipo==='defect' ? '#e88' : 'var(--gold)';
+  const label = (data.tipo==='defect' ? 'Defecto: ' : 'Mérito: ') + name;
+  const pts = data.val+' punto'+(data.val>1?'s':'')+' '+(data.tipo==='defect'?'(otorga puntos extra)':'(cuesta puntos gratuitos)');
+  showRefPanel('<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem"><div style="font-family:var(--font-title);font-size:14px;color:'+color+'">'+label+'</div><button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;line-height:1">✕</button></div><div style="font-size:12px;color:var(--text3);margin-bottom:.4rem">'+pts+'</div><p style="font-size:14px;color:var(--text2)">'+data.desc+'</p>');
 }
 
 function showTrasRef(name, data, level) {
-  const panel = document.getElementById('ref-panel');
-  panel.innerHTML = `
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
-      <div style="font-family:var(--font-title);font-size:14px;color:#8d8">Trasfondo: ${name} ${'●'.repeat(level||0)}</div>
-      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
-    </div>
-    <p style="font-size:14px;color:var(--text2)">${data.desc}</p>`;
-  panel.style.display = 'block';
+  const dots = '●'.repeat(level||0);
+  showRefPanel('<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem"><div style="font-family:var(--font-title);font-size:14px;color:#8d8">Trasfondo: '+name+' '+dots+'</div><button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;line-height:1">✕</button></div><p style="font-size:14px;color:var(--text2)">'+data.desc+'</p>');
 }
 
 function closeRefPanel() {
-  document.getElementById('ref-panel').style.display = 'none';
+  const p = document.getElementById('ref-panel');
+  if(p) p.style.display = 'none';
+}
+
+function showRefPanel(html) {
+  const p = document.getElementById('ref-panel');
+  if(!p) return;
+  p.innerHTML = html;
+  p.style.display = 'block';
+  // Scroll panel into view within the modal
+  setTimeout(() => p.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
 }
 // ═══════════════════════════════
 // CHICAGO MAP
