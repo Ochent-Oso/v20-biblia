@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="V20 Biblia">
 <meta name="theme-color" content="#1a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="V20 Biblia">
+<meta name="msapplication-TileColor" content="#0d0608">
 <title>V20 — Biblia del Narrador</title>
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -321,6 +324,74 @@ td:first-child { color: var(--text); }
 .pin-error { font-size: 12px; color: #e88; margin-top: .5rem; min-height: 18px; }
 
 
+
+/* MUSIC PLAYER */
+.music-player {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--surface); border-bottom: 1px solid var(--border2);
+  padding: .75rem 1rem; margin: -1rem -1rem .75rem;
+}
+.player-info { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+.player-cover {
+  width: 48px; height: 48px; border-radius: 6px; object-fit: cover;
+  flex-shrink: 0; background: var(--surface3);
+}
+.player-cover-placeholder {
+  width: 48px; height: 48px; border-radius: 6px; background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.player-meta { flex: 1; min-width: 0; }
+.player-title {
+  font-family: var(--font-title); font-size: 13px; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.player-style { font-size: 11px; color: var(--text3); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-controls { display: flex; align-items: center; gap: .5rem; }
+.ctrl-btn {
+  background: none; border: none; color: var(--text2); cursor: pointer;
+  font-size: 20px; padding: 2px; line-height: 1; transition: color .15s;
+}
+.ctrl-btn:active { color: var(--gold); }
+.ctrl-btn.play { font-size: 28px; color: var(--red-light); }
+.player-progress {
+  width: 100%; height: 3px; background: var(--surface3);
+  border-radius: 2px; cursor: pointer; margin-top: .5rem;
+  position: relative;
+}
+.player-bar {
+  height: 100%; background: var(--red); border-radius: 2px;
+  width: 0%; transition: width .5s linear; pointer-events: none;
+}
+.player-time {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text3); margin-top: 3px;
+}
+
+/* TRACK LIST */
+.track-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .6rem .75rem; border-radius: 8px; cursor: pointer;
+  transition: background .15s; margin-bottom: 2px;
+}
+.track-item:active { background: var(--surface3); }
+.track-item.playing { background: var(--surface3); }
+.track-item.playing .track-num { color: var(--red-light); }
+.track-cover {
+  width: 42px; height: 42px; border-radius: 5px;
+  object-fit: cover; flex-shrink: 0;
+}
+.track-info { flex: 1; min-width: 0; }
+.track-name {
+  font-size: 14px; color: var(--text); font-family: var(--font-title);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.track-style { font-size: 11px; color: var(--text3); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track-num { font-size: 12px; color: var(--text3); min-width: 18px; text-align: center; }
+.track-dur { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+
 /* LIGHTBOX */
 .lightbox {
   position: fixed; inset: 0; background: rgba(0,0,0,.95);
@@ -562,6 +633,7 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
     <div class="drawer-item" onclick="showFromDrawer('directorio-sec','tab-campana')"><span class="di-icon">🕴️</span><span class="di-label">Directorio</span></div>
     <div class="drawer-item" onclick="showFromDrawer('chicago-sec','tab-campana')"><span class="di-icon">🗺️</span><span class="di-label">Chicago</span></div>
     <div class="drawer-item" onclick="showFromDrawer('wiki-sec','tab-campana')"><span class="di-icon">📚</span><span class="di-label">Wiki</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('musica-sec','tab-campana')"><span class="di-icon">🎵</span><span class="di-label">Música</span></div>
     <div class="drawer-item" onclick="showFromDrawer('refrapida','tab-campana')"><span class="di-icon">⚡</span><span class="di-label">Ref. Rápida</span></div>
   </div>
 </div>
@@ -1109,6 +1181,43 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
   <div id="diario-list"><div class="loading">Cargando diario...</div></div>
 </div>
 
+<!-- MUSICA -->
+<div id="musica-sec" class="section">
+  <h2>Banda Sonora</h2>
+  <p style="margin-bottom:.75rem">Música compuesta específicamente para <em>Vientos de Sombra y Sangre</em>.</p>
+
+  <!-- Sticky player -->
+  <div class="music-player" id="music-player" style="display:none">
+    <div class="player-info">
+      <img class="player-cover" id="player-cover" src="" alt="">
+      <div class="player-meta">
+        <div class="player-title" id="player-title">—</div>
+        <div class="player-style" id="player-style">—</div>
+      </div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" onclick="prevTrack()" title="Anterior">⏮</button>
+      <button class="ctrl-btn play" id="play-btn" onclick="togglePlay()">▶</button>
+      <button class="ctrl-btn" onclick="nextTrack()" title="Siguiente">⏭</button>
+      <button class="ctrl-btn" onclick="toggleShuffle()" id="shuffle-btn" title="Aleatorio" style="font-size:15px;margin-left:.25rem">⇄</button>
+    </div>
+    <div class="player-progress" onclick="seekAudio(event)">
+      <div class="player-bar" id="player-bar"></div>
+    </div>
+    <div class="player-time">
+      <span id="time-cur">0:00</span>
+      <span id="time-dur">0:00</span>
+    </div>
+    <div id="audio-fallback" style="display:none;align-items:center;gap:.5rem;margin-top:.5rem;font-size:12px;color:var(--text3)">
+      <span>Audio no disponible directamente —</span>
+      <a id="fallback-link" href="#" target="_blank" style="color:var(--gold)">Abrir en Suno ↗</a>
+    </div>
+  </div>
+
+  <!-- Track list -->
+  <div id="track-list"></div>
+</div>
+
 <!-- REF RAPIDA -->
 <div id="refrapida" class="section">
   <h2>Referencia Rápida</h2>
@@ -1274,6 +1383,7 @@ function show(id, btn) {
   if(id==='wiki-sec') loadWiki();
   if(id==='diario-sec') loadDiario();
   if(id==='chicago-sec') loadChicagoWithCache();
+  if(id==='musica-sec') renderTrackList();
 }
 
 function setActiveTab(tabId) {
@@ -2648,8 +2758,6 @@ function showPinInfo(id) {
   toast(p.nombre + (p.descripcion ? ' — '+p.descripcion : ''));
 }
 
-// Override loadChicago to cache pins
-const _origLoadChicago = loadChicago;
 async function loadChicagoWithCache() {
   const el = document.getElementById('pins-list');
   if(!el) return;
@@ -2774,11 +2882,178 @@ function getDot(id) {
   return el ? parseInt(el.value)||0 : 0;
 }
 
+
+// ═══════════════════════════════
+// MUSIC PLAYER
+// ═══════════════════════════════
+const PLAYLIST = [
+  {id:'6b544106-de11-4f38-9d12-31ca84b71c7d', title:'El Museo', style:'Ambient, Classical, eerie, slow burn', dur:'4:00'},
+  {id:'3dbae49f-227d-4786-8223-c314c7055011', title:'Chicago By Night', style:'Ambient, Classical, eerie, slow burn', dur:'3:02'},
+  {id:'d866bc02-c16c-4cd7-9d9d-27ba6d12d477', title:'Blood Moon Symphony', style:'Cinematic, orchestral, gothic, violin', dur:'2:14'},
+  {id:'b61949fc-198b-4fa9-9aba-7fda081cbdf9', title:'Blood Moon Reverie', style:'Gothic, atmospheric, haunting', dur:'3:03'},
+  {id:'19c69a8d-bf52-4583-8dac-58bc66f72ed4', title:'Eclipse', style:'Underground rave, intense, dark trance', dur:'4:00'},
+  {id:'ddb15208-124e-4395-8154-e14fe5880b41', title:'El Directorio', style:'Vampiric council, slow burn, mystical, dark', dur:'4:00'},
+  {id:'6d907555-677f-42fa-8b9f-1c4559f9edaf', title:'Dawn is Coming', style:'Slow burn, mystical, dark, evocative', dur:'2:49'},
+  {id:'11463b1f-0cae-4b5c-bc4f-467b0938bb41', title:'The Chase', style:'Heavy rock, car chase, intense, epic', dur:'3:54'},
+  {id:'9a2b2957-e2ef-4779-ad70-ac50706a2aaf', title:'The Wilds', style:'Eerie forest, chill and creepy', dur:'4:00'},
+  {id:'a6e127d9-d2da-43c3-8e82-a8718dfd90a1', title:'Noctis Legenda', style:'Lyric opera, orchestra, contralto', dur:'3:41'},
+  {id:'afa4a2c8-783c-4f07-8eaa-42673d66488b', title:'Eternità — Opera Cainita Acto 1', style:'Opera, orchestra, baritone', dur:'3:31'},
+  {id:'b7036cca-95b8-4442-b59f-79a99d0dc9f2', title:'In der Nacht — Opera Cainita Acto 2', style:'Opera, orchestra, baritone', dur:'4:00'},
+  {id:'007c93b6-5a45-4f03-b88d-45d7d602cca1', title:'Fugere Conor — Opera Cainita Acto 3', style:'Opera, orchestra, baritone', dur:'4:00'},
+  {id:'d1acde68-caff-4208-95d2-1329d47d9f17', title:'In der Nacht — Goth', style:'Gothic, atmospheric, nostalgic, haunting', dur:'3:44'},
+  {id:'333be4a6-f955-4de3-9aa8-a1c5b0eeff08', title:'Vents de Ténèbres et de Sang', style:'Gothic, heavy metal ballad, epic', dur:'4:00'},
+];
+
+function sunoImg(id) {
+  // Try image_ prefix first (most common), fallback handled by onerror
+  return `https://cdn2.suno.ai/image_${id}.jpeg`;
+}
+function sunoAudio(id) {
+  return `https://cdn1.suno.ai/${id}.mp3`;
+}
+
+let _audio = null;
+let _currentIdx = -1;
+let _shuffle = false;
+let _shuffleOrder = [];
+
+function initAudio() {
+  if(_audio) return;
+  _audio = new Audio();
+  _audio.crossOrigin = 'anonymous';
+  _audio.addEventListener('timeupdate', updateProgress);
+  _audio.addEventListener('ended', nextTrack);
+  _audio.addEventListener('loadedmetadata', () => {
+    document.getElementById('time-dur').textContent = fmtTime(_audio.duration);
+  });
+  _audio.addEventListener('error', () => {
+    // CDN blocked - show fallback
+    const track = PLAYLIST[_currentIdx];
+    if(!track) return;
+    document.getElementById('play-btn').textContent = '▶';
+    const fallbackBar = document.getElementById('audio-fallback');
+    if(fallbackBar) {
+      fallbackBar.style.display = 'flex';
+      document.getElementById('fallback-link').href = 'https://suno.com/song/'+track.id;
+    }
+  });
+}
+
+function fmtTime(s) {
+  if(!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s/60);
+  const sec = Math.floor(s%60).toString().padStart(2,'0');
+  return `${m}:${sec}`;
+}
+
+function updateProgress() {
+  if(!_audio || !_audio.duration) return;
+  const pct = (_audio.currentTime / _audio.duration) * 100;
+  document.getElementById('player-bar').style.width = pct + '%';
+  document.getElementById('time-cur').textContent = fmtTime(_audio.currentTime);
+}
+
+function playTrack(idx) {
+  initAudio();
+  _currentIdx = idx;
+  const track = PLAYLIST[idx];
+  // Update player UI
+  document.getElementById('music-player').style.display = 'block';
+  document.getElementById('player-title').textContent = track.title;
+  document.getElementById('player-style').textContent = track.style;
+  const cover = document.getElementById('player-cover');
+  cover.src = sunoImg(track.id);
+  cover.onerror = () => { cover.src = ''; };
+  // Load and play audio
+  _audio.src = sunoAudio(track.id);
+  _audio.play().catch(e => {
+    // Autoplay blocked - update button to show play state
+    console.log('Autoplay blocked:', e);
+  });
+  document.getElementById('play-btn').textContent = '⏸';
+  const fb = document.getElementById('audio-fallback');
+  if(fb) fb.style.display = 'none';
+  // Update track list highlight
+  document.querySelectorAll('.track-item').forEach((el,i) => {
+    el.classList.toggle('playing', i===idx);
+    const num = el.querySelector('.track-num');
+    if(num) num.textContent = i===idx ? '▶' : (i+1);
+  });
+}
+
+function togglePlay() {
+  if(!_audio) return;
+  if(_audio.paused) {
+    _audio.play();
+    document.getElementById('play-btn').textContent = '⏸';
+  } else {
+    _audio.pause();
+    document.getElementById('play-btn').textContent = '▶';
+  }
+}
+
+function nextTrack() {
+  if(_shuffle && _shuffleOrder.length) {
+    const next = _shuffleOrder.pop();
+    if(!_shuffleOrder.length) buildShuffleOrder();
+    playTrack(next);
+  } else {
+    playTrack((_currentIdx + 1) % PLAYLIST.length);
+  }
+}
+
+function prevTrack() {
+  if(_audio && _audio.currentTime > 3) {
+    _audio.currentTime = 0;
+    return;
+  }
+  playTrack((_currentIdx - 1 + PLAYLIST.length) % PLAYLIST.length);
+}
+
+function seekAudio(e) {
+  if(!_audio || !_audio.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  _audio.currentTime = pct * _audio.duration;
+}
+
+function buildShuffleOrder() {
+  _shuffleOrder = PLAYLIST.map((_,i)=>i).filter(i=>i!==_currentIdx).sort(()=>Math.random()-.5);
+}
+
+function toggleShuffle() {
+  _shuffle = !_shuffle;
+  if(_shuffle) buildShuffleOrder();
+  document.getElementById('shuffle-btn').style.color = _shuffle ? 'var(--gold)' : '';
+  toast(_shuffle ? 'Orden aleatorio activado' : 'Orden aleatorio desactivado');
+}
+
+function renderTrackList() {
+  const el = document.getElementById('track-list');
+  if(!el) return;
+  el.innerHTML = PLAYLIST.map((t,i) => `
+    <div class="track-item" id="track-${i}" onclick="playTrack(${i})">
+      <span class="track-num">${i+1}</span>
+      <img class="track-cover" src="${sunoImg(t.id)}" 
+           onerror="this.style.display='none'" loading="lazy" alt="">
+      <div class="track-info">
+        <div class="track-name">${t.title}</div>
+        <div class="track-style">${t.style}</div>
+      </div>
+      <span class="track-dur">${t.dur}</span>
+      <a href="https://suno.com/song/${t.id}" target="_blank" 
+         onclick="event.stopPropagation()" 
+         style="font-size:16px;color:var(--text3);text-decoration:none;padding:4px" 
+         title="Abrir en Suno">↗</a>
+    </div>`).join('');
+}
+
 window.addEventListener('load', () => {
   filterClanes('');
   filterDiscs('');
   renderMeritos('todos');
   renderTrasfondos();
+  renderTrackList();
   loadDirectorio();
   setTimeout(()=>document.getElementById('splash').classList.add('hide'), 1800);
 });

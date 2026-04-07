@@ -1,4 +1,4 @@
-const CACHE = 'v20-biblia-v1';
+const CACHE = 'v20-biblia-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -24,6 +24,6 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('/v20-biblia/index.html')))
+    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('/index.html')))
   );
 });
