@@ -1185,7 +1185,7 @@ const sbAdmin = supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 // ═══════════════════════════════
 // PIN / ADMIN AUTH
 // ═══════════════════════════════
-const ADMIN_PIN = '1349'; // Cambiá este PIN
+const ADMIN_PIN = '3692';
 let pinBuffer = '';
 let isAdmin = false;
 
@@ -1210,7 +1210,6 @@ function pinInput(d) {
         isAdmin = true;
         document.getElementById('pin-modal').classList.remove('open');
         document.getElementById('pin-error').textContent = '';
-        document.getElementById('admin-toggle').classList.add('active');
         openAdmin();
       } else {
         document.getElementById('pin-error').textContent = 'PIN incorrecto';
@@ -1229,7 +1228,11 @@ function updatePinDots() {
 
 function openAdmin() {
   document.getElementById('admin-overlay').classList.add('open');
-  loadAdminDir(); loadAdminPJs(); loadAdminWiki(); loadAdminDiario();
+  loadAdminDir(); 
+  loadAdminPJs(); 
+  loadAdminWiki(); 
+  loadAdminDiario();
+  loadAdminPins();
 }
 
 function closeAdmin() {
