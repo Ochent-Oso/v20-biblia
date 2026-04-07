@@ -325,6 +325,26 @@ td:first-child { color: var(--text); }
 
 
 
+
+/* CHIPS / TAGS */
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: .4rem; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface3); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 10px; font-size: 13px;
+  color: var(--text2); cursor: default;
+}
+.chip.merit { border-color: rgba(201,168,76,.4); color: var(--gold); }
+.chip.defect { border-color: rgba(192,57,43,.4); color: #e88; }
+.chip.disc { border-color: rgba(100,100,200,.4); color: #aaf; }
+.chip.tras { border-color: rgba(39,174,96,.3); color: #8d8; }
+.chip-dots { font-size: 12px; letter-spacing: -1px; }
+.chip-info { font-size: 14px; cursor: pointer; opacity: .7; }
+.chip-info:hover { opacity: 1; }
+.chip-del { font-size: 14px; cursor: pointer; opacity: .5; color: var(--text3); }
+.chip-del:hover { opacity: 1; color: #e88; }
+.chip-dot-btn { font-size: 13px; cursor: pointer; color: var(--text3); padding: 0 1px; }
+
 /* MUSIC PLAYER */
 .music-player {
   position: sticky; top: 0; z-index: 50;
@@ -1678,14 +1698,36 @@ async function openPJDetail(id) {
       </table>
     </div>
 
-    ${gf('Disciplinas','') ? `<h3>Disciplinas</h3><div class="card"><p style="font-size:14px">${gf('Disciplinas')}</p></div>` : ''}
-    ${gf('Trasfondos','') ? `<h3>Trasfondos</h3><div class="card"><p style="font-size:14px">${gf('Trasfondos')}</p></div>` : ''}
+    ${gf('DiscList','[]') !== '[]' || gf('Disciplinas','') ? `
+      <h3>Disciplinas</h3>
+      <div class="card">
+        <div class="chip-list">
+          ${(JSON.parse(gf('DiscList','[]') || '[]')).map(d=>`
+            <span class="chip disc">${d.name} ${'●'.repeat(d.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Disciplinas')}</p>`}
+        </div>
+      </div>` : ''}
+    ${gf('TrasList','[]') !== '[]' || gf('Trasfondos','') ? `
+      <h3>Trasfondos</h3>
+      <div class="card">
+        <div class="chip-list">
+          ${(JSON.parse(gf('TrasList','[]') || '[]')).map(t=>`
+            <span class="chip tras">${t.name} ${'●'.repeat(t.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Trasfondos')}</p>`}
+        </div>
+      </div>` : ''}
+    ${gf('MerDefList','[]') !== '[]' ? `
+      <h3>Méritos y Defectos</h3>
+      <div class="card">
+        <div class="chip-list">
+          ${(JSON.parse(gf('MerDefList','[]') || '[]')).map(m=>`
+            <span class="chip ${m.tipo}">${m.tipo==='defect'?'⚠ ':''}${m.name}</span>`).join('')}
+        </div>
+      </div>` : ''}
 
     <h3>Virtudes y Estado</h3>
     <div class="card">
       <table>
-        <tr><td>Humanidad</td><td>${dotView(gf('Humanidad',7))}</td></tr>
-        <tr><td>Fuerza de Voluntad</td><td>${dotView(gf('FuerzaVoluntad',5))}</td></tr>
+        <tr><td>Humanidad</td><td>${dotView(gf('Humanidad',7),10)}</td></tr>
+        <tr><td>Fuerza de Voluntad</td><td>${dotView(gf('FuerzaVoluntad',5),10)}</td></tr>
         <tr><td>Conciencia</td><td>${dotView(gf('Conciencia',1))}</td></tr>
         <tr><td>Autocontrol</td><td>${dotView(gf('Autocontrol',1))}</td></tr>
         <tr><td>Coraje</td><td>${dotView(gf('Coraje',1))}</td></tr>
@@ -1732,8 +1774,17 @@ async function openPJForm(id) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
       <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="pj-nombre" value="${pj.nombre||''}"></div>
       <div class="form-group"><label class="form-label">Jugador</label><input class="form-input" id="pj-jugador" value="${pj.jugador||''}"></div>
-      <div class="form-group"><label class="form-label">Clan</label><input class="form-input" id="pj-clan" value="${pj.clan||''}"></div>
-      <div class="form-group"><label class="form-label">Generación</label><input class="form-input" id="pj-gen" value="${pj.generacion||''}"></div>
+      <div class="form-group"><label class="form-label">Clan</label>
+        <select class="form-select" id="pj-clan" onchange="onClanChange(this.value)">
+          <option value="">— Elegir clan —</option>
+          ${['Brujah','Gangrel','Malkavian','Nosferatu','Toreador','Tremere','Ventrue','Lasombra','Tzimisce','Assamita','Giovanni','Ravnos','Seguidores de Set','Caitiff'].map(c=>`<option value="${c}" ${(pj.clan||'')==c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Generación</label>
+        <select class="form-select" id="pj-gen">
+          ${['13ª','12ª','11ª','10ª','9ª','8ª','7ª'].map(g=>`<option value="${g}" ${(pj.generacion||'')==g?'selected':''}>${g}</option>`).join('')}
+        </select>
+      </div>
     </div>
     <div class="form-group"><label class="form-label">Concepto</label><input class="form-input" id="f-concepto" value="${g('Concepto','')}"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
@@ -1787,12 +1838,41 @@ async function openPJForm(id) {
     </div>
 
     <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Disciplinas</h3>
-    <div class="form-group"><label class="form-label">Disciplinas (nombre: nivel, separadas por coma)</label>
-      <input class="form-input" id="f-disc" value="${g('Disciplinas','')}"></div>
+    <div id="disc-list-form" style="margin-bottom:.5rem"></div>
+    <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem">
+      <select class="form-select" id="disc-selector" style="flex:1">
+        <option value="">— Agregar disciplina —</option>
+        ${['Animalismo','Auspex','Celeridad','Dominación','Fortaleza','Obtenebración','Ofuscación','Potencia','Presencia','Protean','Taumaturgia','Vicisitud','Nigromancia','Quietud','Serpentis','Animismo'].map(d=>`<option value="${d}">${d}</option>`).join('')}
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="addDisc()" style="flex-shrink:0">+ Agregar</button>
+    </div>
 
     <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Trasfondos</h3>
-    <div class="form-group"><label class="form-label">Trasfondos (nombre: nivel)</label>
-      <input class="form-input" id="f-tras" value="${g('Trasfondos','')}"></div>
+    <div id="tras-list-form" style="margin-bottom:.5rem"></div>
+    <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem">
+      <select class="form-select" id="tras-selector" style="flex:1">
+        <option value="">— Agregar trasfondo —</option>
+        ${['Aliados','Contactos','Dominio','Generación','Influencia','Manada','Mentor','Recursos','Refugio','Rebaño','Status'].map(t=>`<option value="${t}">${t}</option>`).join('')}
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="addTras()" style="flex-shrink:0">+ Agregar</button>
+    </div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Méritos y Defectos</h3>
+    <div id="merdef-list-form" style="margin-bottom:.5rem"></div>
+    <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.25rem">
+      <select class="form-select" id="mer-selector" style="flex:1">
+        <option value="">— Agregar mérito —</option>
+        ${['Ambidextro','Apariencia llamativa','Resistencia al dolor','Sentidos agudos','Tolerancia al fuego','Digestión rápida','Memoria eidética','Concentración','Mente analítica','Conciencia Jyhad','Artista natural','Buena reputación','Contactos en los bajos fondos','Cómplice humano','Status social heredado','Mascarada impecable','Conciencia de la Bestia','Sangre potente','Sueño ligero','Afinidad con el clan'].map(m=>`<option value="merit:${m}">${m}</option>`).join('')}
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="addMerDef('merit')" style="flex-shrink:0">+ Mérito</button>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem">
+      <select class="form-select" id="def-selector" style="flex:1">
+        <option value="">— Agregar defecto —</option>
+        ${['Adicción','Enemigo declarado','Fobia','Apariencia perturbadora','Oscuro secreto','Torpeza','Incapacidad','Comportamiento compulsivo','Instinto predatorio','Aliado mortal en peligro','Olvidos','Deuda de sangre'].map(d=>`<option value="defect:${d}">${d}</option>`).join('')}
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="addMerDef('defect')" style="flex-shrink:0">+ Defecto</button>
+    </div>
 
     <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Virtudes</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem">
@@ -1802,12 +1882,18 @@ async function openPJForm(id) {
     </div>
 
     <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Estado</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
-      <div><label class="form-label">Humanidad</label><div>${dotRating('virt-humanidad',g('Humanidad',7))}</div></div>
-      <div><label class="form-label">Fuerza de Voluntad</label><div>${dotRating('virt-fv',g('FuerzaVoluntad',5))}</div></div>
+    <div style="background:var(--surface3);border-radius:6px;padding:.6rem .75rem;margin-bottom:.5rem;font-size:12px;color:var(--text3)">
+      Base Humanidad = Conciencia + Autocontrol · Base Fuerza de Voluntad = Coraje · Ambas van de 1 a 10
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
-      <div class="form-group"><label class="form-label">Sangre actual</label><input class="form-input" id="f-sangre-actual" type="number" min="0" max="20" value="${g('SangreActual',10)}"></div>
+      <div><label class="form-label">Humanidad</label><div>${dotRating('virt-humanidad', g('Humanidad') || Math.min(10, (g('Conciencia',1) + g('Autocontrol',1))), 10)}</div></div>
+      <div><label class="form-label">Fuerza de Voluntad</label><div>${dotRating('virt-fv', g('FuerzaVoluntad') || g('Coraje',1), 10)}</div></div>
+    </div>
+    <div style="background:var(--surface3);border-radius:6px;padding:.6rem .75rem;margin-bottom:.5rem;font-size:12px;color:var(--text3)">
+      Sangre máxima según generación: 13ª=10 · 10ª=13 · 9ª=14 · 8ª=15 · 7ª=20
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <div class="form-group"><label class="form-label">Sangre actual</label><input class="form-input" id="f-sangre-actual" type="number" min="0" max="50" value="${g('SangreActual',10)}"></div>
       <div class="form-group"><label class="form-label">Sangre máxima</label><input class="form-input" id="f-sangre-max" type="number" min="0" max="50" value="${g('SangreMax',10)}"></div>
     </div>
 
@@ -1825,6 +1911,11 @@ async function openPJForm(id) {
 
     <button class="btn btn-primary btn-full" onclick="savePJ(${id||'null'})">Guardar ficha</button>
     ${id ? `<button class="btn btn-danger btn-full" style="margin-top:.5rem" onclick="deletePJ(${id})">Eliminar personaje</button>` : ''}`;
+
+  // Initialize chip lists from existing data
+  initFormLists(pj.ficha || {});
+  // If clan is set, pre-load disciplines
+  if(pj.clan && !(pj.ficha?.DiscList)) onClanChange(pj.clan);
 
   document.getElementById('pj-img').addEventListener('change', e => {
     const file = e.target.files[0]; if(!file) return;
@@ -1888,8 +1979,11 @@ async function savePJ(id) {
       'Medicina': getDot('con-medicina'),
       'Ocultismo': getDot('con-ocultismo'),
       'Politica': getDot('con-politica'),
-      'Disciplinas': document.getElementById('f-disc')?.value||'',
-      'Trasfondos': document.getElementById('f-tras')?.value||'',
+      'Disciplinas': _formDiscs.map(d=>d.name+(d.level?': '+d.level:'')).join(', '),
+      'DiscList': JSON.stringify(_formDiscs),
+      'Trasfondos': _formTras.map(t=>t.name+(t.level?': '+t.level:'')).join(', '),
+      'TrasList': JSON.stringify(_formTras),
+      'MerDefList': JSON.stringify(_formMerDef),
       'Conciencia': getDot('virt-conciencia'),
       'Autocontrol': getDot('virt-autocontrol'),
       'Coraje': getDot('virt-coraje'),
@@ -2662,6 +2756,206 @@ function closeLightbox() {
   document.body.style.overflow = '';
 }
 
+
+
+// ═══════════════════════════════
+// PJ FORM: CLAN / DISC / TRAS / MERDEF
+// ═══════════════════════════════
+const CLAN_DISC = {
+  'Brujah':            ['Potencia','Celeridad','Presencia'],
+  'Gangrel':           ['Animalismo','Fortaleza','Protean'],
+  'Malkavian':         ['Auspex','Dominación','Ofuscación'],
+  'Nosferatu':         ['Animalismo','Ofuscación','Potencia'],
+  'Toreador':          ['Auspex','Celeridad','Presencia'],
+  'Tremere':           ['Auspex','Dominación','Taumaturgia'],
+  'Ventrue':           ['Dominación','Fortaleza','Presencia'],
+  'Lasombra':          ['Dominación','Obtenebración','Potencia'],
+  'Tzimisce':          ['Animalismo','Auspex','Vicisitud'],
+  'Assamita':          ['Celeridad','Ofuscación','Quietud'],
+  'Giovanni':          ['Dominación','Nigromancia','Potencia'],
+  'Ravnos':            ['Animismo','Celeridad','Ofuscación'],
+  'Seguidores de Set': ['Ofuscación','Presencia','Serpentis'],
+  'Caitiff':           [],
+};
+
+const MERIT_DATA = {
+  'Ambidextro':            {tipo:'merit',val:1,desc:'Usa ambas manos sin penalización. Sin -1 por mano débil en ataques con dos armas.'},
+  'Apariencia llamativa':  {tipo:'merit',val:1,desc:'+1 dado en situaciones donde la apariencia importa. Aspecto memorable.'},
+  'Resistencia al dolor':  {tipo:'merit',val:2,desc:'Ignora penalizaciones de Magullado y Lastimado.'},
+  'Sentidos agudos':       {tipo:'merit',val:1,desc:'+2 a tiradas de Percepción con el sentido elegido.'},
+  'Tolerancia al fuego':   {tipo:'merit',val:3,desc:'Puede tirar Fortaleza contra fuego aunque no tenga la disciplina.'},
+  'Digestión rápida':      {tipo:'merit',val:1,desc:'Puede gastar 2 puntos de sangre por turno aunque su generación solo permita 1.'},
+  'Memoria eidética':      {tipo:'merit',val:2,desc:'Recuerda perfectamente todo lo visto o escuchado. Dif. reducida para información compleja.'},
+  'Concentración':         {tipo:'merit',val:1,desc:'Sin penalización por distracciones menores en tiradas mentales.'},
+  'Mente analítica':       {tipo:'merit',val:1,desc:'+1 dado en investigación y análisis de patrones o pistas.'},
+  'Conciencia Jyhad':      {tipo:'merit',val:2,desc:'+2 dados para comprender maniobras políticas entre clanes o sectas.'},
+  'Artista natural':       {tipo:'merit',val:1,desc:'+2 dados en la expresión artística elegida.'},
+  'Buena reputación':      {tipo:'merit',val:2,desc:'+2 dados en situaciones sociales con vampiros de tu secta.'},
+  'Contactos en los bajos fondos':{tipo:'merit',val:1,desc:'Información o servicios ilegales sin tirada si el tiempo lo permite.'},
+  'Cómplice humano':       {tipo:'merit',val:1,desc:'Un mortal de confianza que sabe sobre los vampiros y ayuda.'},
+  'Status social heredado':{tipo:'merit',val:2,desc:'+1 Status inicial en la ciudad de origen.'},
+  'Mascarada impecable':   {tipo:'merit',val:2,desc:'+2 dados a tiradas de Actuación para parecer mortal.'},
+  'Conciencia de la Bestia':{tipo:'merit',val:2,desc:'+2 dados en tiradas de control de frenesí.'},
+  'Sangre potente':        {tipo:'merit',val:3,desc:'Sangre especialmente potente. Ghouls más fuertes, vínculos más difíciles de romper.'},
+  'Sueño ligero':          {tipo:'merit',val:1,desc:'Puede despertar durante el día ante peligros. Per+Alerta dif.8.'},
+  'Afinidad con el clan':  {tipo:'merit',val:2,desc:'Disciplinas del clan al 80% del costo de XP normal.'},
+  'Adicción':              {tipo:'defect',val:1,desc:'Compulsión por una sustancia o comportamiento. Autocontrol dif.6 para resistir.'},
+  'Enemigo declarado':     {tipo:'defect',val:1,desc:'Un vampiro poderoso lo tiene en la mira. Antagonista recurrente.'},
+  'Fobia':                 {tipo:'defect',val:2,desc:'Terror irracional. Rötschreck automático ante el objeto de la fobia.'},
+  'Apariencia perturbadora':{tipo:'defect',val:2,desc:'-2 dados en interacciones sociales con mortales no acostumbrados.'},
+  'Oscuro secreto':        {tipo:'defect',val:1,desc:'Algo que si se revela destruye su reputación. Palanca narrativa.'},
+  'Torpeza':               {tipo:'defect',val:1,desc:'-1 dado en tiradas de Destreza con coordinación fina.'},
+  'Incapacidad':           {tipo:'defect',val:2,desc:'Una habilidad específica es imposible para el personaje.'},
+  'Comportamiento compulsivo':{tipo:'defect',val:1,desc:'Rutina que debe completar. Si se interrumpe, -2 a todas las acciones.'},
+  'Instinto predatorio':   {tipo:'defect',val:2,desc:'-1 a dificultad de frenesí en todas las situaciones provocadoras.'},
+  'Aliado mortal en peligro':{tipo:'defect',val:1,desc:'Alguien que le importa es vulnerable. Palanca de presión narrativa.'},
+  'Olvidos':               {tipo:'defect',val:2,desc:'Lagunas de memoria frecuentes. Int dif.7 para recordar bajo presión.'},
+  'Deuda de sangre':       {tipo:'defect',val:1,desc:'Debe un favor enorme a otro vampiro. El acreedor puede cobrarlo en el peor momento.'},
+};
+
+const TRAS_DATA = {
+  'Aliados':    {desc:'Humanos que colaboran activamente. Por nivel: desde 1 contacto a grupos que controlan organizaciones.'},
+  'Contactos':  {desc:'Red de informantes. Por nivel: desde 1 contacto en un área a omnipresencia informativa en la ciudad.'},
+  'Dominio':    {desc:'Territorio reconocido para cazar. Por nivel: desde 1 manzana a zonas extensas reconocidas por todos.'},
+  'Generación': {desc:'Generación más baja (poderosa). Nivel 1=8ª · Nivel 2=7ª · Nivel 3=6ª · Nivel 4=5ª · Nivel 5=4ª.'},
+  'Influencia': {desc:'Poder en círculos humanos. Por nivel: desde influencia menor a dominar un sector completo de la ciudad.'},
+  'Manada':     {desc:'(Sabbat) Grupo de vampiros de confianza total unidos por la Vaulderie.'},
+  'Mentor':     {desc:'Vampiro más antiguo que guía y protege. Por nivel: desde consejo ocasional a anciano que pone recursos.'},
+  'Recursos':   {desc:'Riqueza material. Nivel 1=clase trabajadora · 3=clase alta · 5=millonario sin límite presupuestario.'},
+  'Refugio':    {desc:'Lugar seguro para el día. Por nivel: desde básico y discreto a fortaleza prácticamente inexpugnable.'},
+  'Rebaño':     {desc:'Humanos disponibles para alimentarse. Por nivel: desde 1-2 personas a grupo extenso, nunca pasa hambre.'},
+  'Status':     {desc:'Reconocimiento en la secta. Nivel 1=reconocido · 3=influyente · 5=pilar de la secta.'},
+};
+
+// State for current PJ form
+let _formDiscs = [];
+let _formTras = [];
+let _formMerDef = [];
+
+function initFormLists(ficha) {
+  // Parse existing data
+  _formDiscs = ficha.DiscList ? JSON.parse(ficha.DiscList) : 
+    ficha.Disciplinas ? ficha.Disciplinas.split(',').map(s=>{const p=s.trim().split(':');return{name:p[0].trim(),level:parseInt(p[1])||0};}).filter(d=>d.name) : [];
+  _formTras = ficha.TrasList ? JSON.parse(ficha.TrasList) :
+    ficha.Trasfondos ? ficha.Trasfondos.split(',').map(s=>{const p=s.trim().split(':');return{name:p[0].trim(),level:parseInt(p[1])||0};}).filter(t=>t.name) : [];
+  _formMerDef = ficha.MerDefList ? JSON.parse(ficha.MerDefList) : [];
+  renderFormDiscs();
+  renderFormTras();
+  renderFormMerDef();
+}
+
+function onClanChange(clan) {
+  if(!clan) return;
+  const discNames = CLAN_DISC[clan] || [];
+  // Only auto-add if disc list is empty
+  if(_formDiscs.length === 0) {
+    _formDiscs = discNames.map(n=>({name:n, level:0}));
+    renderFormDiscs();
+  }
+}
+
+function renderFormDiscs() {
+  const el = document.getElementById('disc-list-form');
+  if(!el) return;
+  if(!_formDiscs.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text3);margin-bottom:.4rem">Sin disciplinas. Elegí clan para cargar las básicas o agregá manualmente.</div>'; return; }
+  el.innerHTML = '<div class="chip-list">' + _formDiscs.map((d,i)=>`
+    <span class="chip disc">
+      ${d.name}
+      <span class="chip-dots" title="Nivel">${'●'.repeat(d.level)||'○'}</span>
+      <span class="chip-dot-btn" onclick="changeDiscLevel(${i},-1)">−</span>
+      <span class="chip-dot-btn" onclick="changeDiscLevel(${i},1)">+</span>
+      <span class="chip-del" onclick="removeDisc(${i})">✕</span>
+    </span>`).join('') + '</div>';
+}
+
+function changeDiscLevel(i, delta) {
+  _formDiscs[i].level = Math.max(0, Math.min(5, (_formDiscs[i].level||0) + delta));
+  renderFormDiscs();
+}
+
+function removeDisc(i) { _formDiscs.splice(i,1); renderFormDiscs(); }
+
+function addDisc() {
+  const sel = document.getElementById('disc-selector');
+  const name = sel.value;
+  if(!name) return;
+  if(_formDiscs.find(d=>d.name===name)) { toast('Ya tiene esa disciplina'); return; }
+  _formDiscs.push({name, level:0});
+  renderFormDiscs();
+  sel.value = '';
+}
+
+function renderFormTras() {
+  const el = document.getElementById('tras-list-form');
+  if(!el) return;
+  if(!_formTras.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text3);margin-bottom:.4rem">Sin trasfondos.</div>'; return; }
+  el.innerHTML = '<div class="chip-list">' + _formTras.map((t,i)=>`
+    <span class="chip tras" title="${TRAS_DATA[t.name]?.desc||''}">
+      ${t.name}
+      <span class="chip-dots">${'●'.repeat(t.level)||'○'}</span>
+      <span class="chip-dot-btn" onclick="changeTrasLevel(${i},-1)">−</span>
+      <span class="chip-dot-btn" onclick="changeTrasLevel(${i},1)">+</span>
+      <span class="chip-info" onclick="showChipInfo('tras','${t.name}')" title="Ver descripción">ℹ</span>
+      <span class="chip-del" onclick="removeTras(${i})">✕</span>
+    </span>`).join('') + '</div>';
+}
+
+function changeTrasLevel(i, delta) {
+  _formTras[i].level = Math.max(0, Math.min(5, (_formTras[i].level||0) + delta));
+  renderFormTras();
+}
+
+function removeTras(i) { _formTras.splice(i,1); renderFormTras(); }
+
+function addTras() {
+  const sel = document.getElementById('tras-selector');
+  const name = sel.value;
+  if(!name) return;
+  if(_formTras.find(t=>t.name===name)) { toast('Ya tiene ese trasfondo'); return; }
+  _formTras.push({name, level:1});
+  renderFormTras();
+  sel.value = '';
+}
+
+function renderFormMerDef() {
+  const el = document.getElementById('merdef-list-form');
+  if(!el) return;
+  if(!_formMerDef.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text3);margin-bottom:.4rem">Sin méritos ni defectos.</div>'; return; }
+  el.innerHTML = '<div class="chip-list">' + _formMerDef.map((m,i)=>`
+    <span class="chip ${m.tipo}" title="${MERIT_DATA[m.name]?.desc||''}">
+      ${m.tipo==='defect'?'⚠ ':''}${m.name}
+      <span style="font-size:11px;opacity:.7">(${MERIT_DATA[m.name]?.val||'?'}pt)</span>
+      <span class="chip-info" onclick="showChipInfo('merit','${m.name}')" title="Ver descripción">ℹ</span>
+      <span class="chip-del" onclick="removeMerDef(${i})">✕</span>
+    </span>`).join('') + '</div>';
+}
+
+function removeMerDef(i) { _formMerDef.splice(i,1); renderFormMerDef(); }
+
+function addMerDef(tipo) {
+  const selId = tipo === 'merit' ? 'mer-selector' : 'def-selector';
+  const sel = document.getElementById(selId);
+  const val = sel.value;
+  if(!val) return;
+  const name = val.replace(/^(merit|defect):/, '');
+  if(_formMerDef.find(m=>m.name===name)) { toast('Ya tiene ese '+tipo); return; }
+  _formMerDef.push({name, tipo});
+  renderFormMerDef();
+  sel.value = '';
+}
+
+function showChipInfo(section, name) {
+  let data, title;
+  if(section === 'merit') {
+    data = MERIT_DATA[name];
+    title = (data?.tipo === 'defect' ? 'Defecto: ' : 'Mérito: ') + name;
+  } else {
+    data = TRAS_DATA[name];
+    title = 'Trasfondo: ' + name;
+  }
+  if(!data) return;
+  toast((data.desc || 'Sin descripción').substring(0, 120));
+}
 
 // ═══════════════════════════════
 // CHICAGO MAP
