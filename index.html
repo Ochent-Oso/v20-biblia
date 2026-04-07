@@ -66,22 +66,73 @@ header {
 }
 .admin-btn.active { color: var(--gold); border-color: var(--gold-dim); }
 
-/* NAV */
-nav {
-  background: var(--surface2); border-bottom: 1px solid var(--border);
-  overflow-x: auto; display: flex; scrollbar-width: none;
+/* BOTTOM TAB BAR */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: var(--surface); border-top: 1px solid var(--border2);
+  display: flex; align-items: stretch;
+  padding-bottom: env(safe-area-inset-bottom);
 }
-nav::-webkit-scrollbar { display: none; }
-.nav-btn {
-  flex-shrink: 0; padding: .65rem 1rem;
-  font-family: var(--font-title); font-size: 11px; letter-spacing: .08em;
-  color: var(--text3); background: none; border: none;
-  border-bottom: 2px solid transparent; cursor: pointer; transition: all .2s; white-space: nowrap;
+.tab-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px; padding: .5rem .25rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); transition: color .2s; position: relative;
 }
-.nav-btn.active { color: var(--gold); border-bottom-color: var(--red); }
+.tab-btn.active { color: var(--gold); }
+.tab-btn.active::before {
+  content: ''; position: absolute; top: 0; left: 20%; right: 20%;
+  height: 2px; background: var(--red); border-radius: 0 0 2px 2px;
+}
+.tab-icon { font-size: 18px; line-height: 1; }
+.tab-label { font-family: var(--font-title); font-size: 9px; letter-spacing: .06em; }
+
+/* DRAWER */
+.drawer-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7);
+  z-index: 300; display: none;
+}
+.drawer-overlay.open { display: block; }
+.drawer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
+  background: var(--surface); border-top: 1px solid var(--border2);
+  border-radius: 16px 16px 0 0;
+  padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  transform: translateY(100%); transition: transform .3s ease;
+}
+.drawer.open { transform: translateY(0); }
+.drawer-handle {
+  width: 36px; height: 4px; background: var(--border2);
+  border-radius: 2px; margin: 0 auto .75rem;
+}
+.drawer-title {
+  font-family: var(--font-title); font-size: 11px; color: var(--text3);
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: .75rem;
+  text-align: center;
+}
+.drawer-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem;
+}
+.drawer-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: .6rem .25rem; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all .15s;
+}
+.drawer-item:active { background: var(--surface3); border-color: var(--red-dim); }
+.drawer-item.active { border-color: var(--red-dim); background: var(--surface3); }
+.drawer-item .di-icon { font-size: 20px; }
+.drawer-item .di-label {
+  font-family: var(--font-title); font-size: 10px; letter-spacing: .05em;
+  color: var(--text2); text-align: center; line-height: 1.2;
+}
+.drawer-item.active .di-label { color: var(--gold); }
+
+/* Legacy nav-btn for anything that still uses it */
+.nav-btn { display: none; }
 
 /* MAIN */
-main { flex: 1; padding: 1rem; max-width: 800px; margin: 0 auto; width: 100%; }
+main { flex: 1; padding: 1rem 1rem 5rem; max-width: 800px; margin: 0 auto; width: 100%; }
 .section { display: none; animation: fadeIn .3s ease; }
 .section.active { display: block; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
@@ -348,6 +399,7 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <button class="admin-tab" onclick="adminTab('pjs',this)">Personajes</button>
       <button class="admin-tab" onclick="adminTab('wiki-admin',this)">Wiki</button>
       <button class="admin-tab" onclick="adminTab('diario-admin',this)">Diario</button>
+      <button class="admin-tab" onclick="adminTab('chicago-admin',this)">Chicago</button>
     </div>
 
     <!-- ADMIN: DIRECTORIO -->
@@ -372,6 +424,13 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
     <div class="admin-section" id="admin-diario-admin">
       <button class="btn btn-primary btn-full" onclick="openDiarioForm(null)" style="margin-bottom:1rem">+ Nueva sesión</button>
       <div id="admin-diario-list"></div>
+    </div>
+
+    <!-- ADMIN: CHICAGO -->
+    <div class="admin-section" id="admin-chicago-admin">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:.75rem">Agregá pins al mapa de Chicago. Podés tocar el mapa directamente o usar el botón.</p>
+      <button class="btn btn-primary btn-full" onclick="openPinForm(50,50)" style="margin-bottom:1rem">+ Nuevo pin</button>
+      <div id="admin-pins-list"></div>
     </div>
   </div>
 </div>
@@ -417,6 +476,17 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
   </div>
 </div>
 
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="modal-pin">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-pin-title">Pin</span>
+      <button class="modal-close" onclick="closeModal('modal-pin')">✕</button>
+    </div>
+    <div id="modal-pin-body"></div>
+  </div>
+</div>
+
 <!-- PJ DETAIL MODAL -->
 <div class="modal-overlay" id="modal-pj-detail">
   <div class="modal">
@@ -437,26 +507,74 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
       <p>Biblia · V20 · Chicago</p>
     </div>
   </div>
-  <button class="admin-btn" id="admin-toggle" onclick="toggleAdmin()">Narrador</button>
+  <div style="width:60px"></div>
 </header>
 
-<!-- NAV -->
-<nav>
-  <button class="nav-btn active" onclick="show('lore',this)">Lore</button>
-  <button class="nav-btn" onclick="show('clanes',this)">Clanes</button>
-  <button class="nav-btn" onclick="show('reglas',this)">Reglas</button>
-  <button class="nav-btn" onclick="show('combate',this)">Combate</button>
-  <button class="nav-btn" onclick="show('disciplinas',this)">Disciplinas</button>
-  <button class="nav-btn" onclick="show('sistemas',this)">Sistemas</button>
-  <button class="nav-btn" onclick="show('tiradas',this)">Tiradas</button>
-  <button class="nav-btn" onclick="show('meritos',this)">Méritos</button>
-  <button class="nav-btn" onclick="show('trasfondos',this)">Trasfondos</button>
-  <button class="nav-btn" onclick="show('directorio-sec',this)">Directorio</button>
-  <button class="nav-btn" onclick="show('pjs-sec',this)">Personajes</button>
-  <button class="nav-btn" onclick="show('wiki-sec',this)">Wiki</button>
-  <button class="nav-btn" onclick="show('diario-sec',this)">Diario</button>
-  <button class="nav-btn" onclick="show('refrapida',this)">Ref. Rápida</button>
-</nav>
+<!-- BOTTOM TAB BAR -->
+<div class="bottom-nav">
+  <button class="tab-btn active" id="tab-manual" onclick="showTab('manual',this)">
+    <span class="tab-icon">📖</span>
+    <span class="tab-label">Manual</span>
+  </button>
+  <button class="tab-btn" id="tab-campana" onclick="showTab('campana',this)">
+    <span class="tab-icon">🗺️</span>
+    <span class="tab-label">Campaña</span>
+  </button>
+  <button class="tab-btn" id="tab-pjs" onclick="show('pjs-sec',this);setActiveTab('tab-pjs')">
+    <span class="tab-icon">🧛</span>
+    <span class="tab-label">PJs</span>
+  </button>
+  <button class="tab-btn" id="tab-diario" onclick="show('diario-sec',this);setActiveTab('tab-diario')">
+    <span class="tab-icon">📜</span>
+    <span class="tab-label">Diario</span>
+  </button>
+  <button class="tab-btn" id="tab-mas" onclick="showTab('mas',this)">
+    <span class="tab-icon">☰</span>
+    <span class="tab-label">Más</span>
+  </button>
+</div>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER: MANUAL -->
+<div class="drawer" id="drawer-manual">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">Manual V20</div>
+  <div class="drawer-grid">
+    <div class="drawer-item" onclick="showFromDrawer('lore','tab-manual')"><span class="di-icon">🌑</span><span class="di-label">Lore & Mundo</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('clanes','tab-manual')"><span class="di-icon">🩸</span><span class="di-label">Clanes</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('disciplinas','tab-manual')"><span class="di-icon">✦</span><span class="di-label">Disciplinas</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('reglas','tab-manual')"><span class="di-icon">🎲</span><span class="di-label">Reglas</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('combate','tab-manual')"><span class="di-icon">⚔️</span><span class="di-label">Combate</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('sistemas','tab-manual')"><span class="di-icon">🕸️</span><span class="di-label">Sistemas</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('tiradas','tab-manual')"><span class="di-icon">📋</span><span class="di-label">Tiradas</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('meritos','tab-manual')"><span class="di-icon">⭐</span><span class="di-label">Méritos</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('trasfondos','tab-manual')"><span class="di-icon">🏛️</span><span class="di-label">Trasfondos</span></div>
+  </div>
+</div>
+
+<!-- DRAWER: CAMPAÑA -->
+<div class="drawer" id="drawer-campana">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">Campaña</div>
+  <div class="drawer-grid">
+    <div class="drawer-item" onclick="showFromDrawer('directorio-sec','tab-campana')"><span class="di-icon">🕴️</span><span class="di-label">Directorio</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('chicago-sec','tab-campana')"><span class="di-icon">🗺️</span><span class="di-label">Chicago</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('wiki-sec','tab-campana')"><span class="di-icon">📚</span><span class="di-label">Wiki</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('refrapida','tab-campana')"><span class="di-icon">⚡</span><span class="di-label">Ref. Rápida</span></div>
+  </div>
+</div>
+
+<!-- DRAWER: MÁS -->
+<div class="drawer" id="drawer-mas">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">Más opciones</div>
+  <div class="drawer-grid">
+    <div class="drawer-item" onclick="closeDrawer();toggleAdmin()"><span class="di-icon">🔐</span><span class="di-label">Narrador</span></div>
+    <div class="drawer-item" onclick="showFromDrawer('refrapida','tab-mas')"><span class="di-icon">⚡</span><span class="di-label">Ref. Rápida</span></div>
+  </div>
+</div>
 
 <main>
 
@@ -839,6 +957,126 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
   <div id="trasfondos-list"></div>
 </div>
 
+<!-- CHICAGO MAP -->
+<div id="chicago-sec" class="section">
+  <h2>Chicago</h2>
+  <p>Mapa de las zonas de influencia y puntos de interés de la crónica. Tocá una zona para ver su descripción. Como Narrador podés agregar pins desde el panel.</p>
+
+  <div id="chicago-map-wrap" style="position:relative;margin-bottom:1rem">
+    <!-- SVG MAP -->
+    <svg id="chicago-svg" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;display:block">
+      <defs>
+        <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <!-- Background - Lake Michigan -->
+      <rect width="400" height="520" fill="#060d14"/>
+      <!-- Lake shore line (right side) -->
+      <path d="M300,0 Q310,60 308,120 Q312,180 305,240 Q310,300 308,360 Q312,420 306,520 L400,520 L400,0 Z" fill="#0a1a2e" opacity="0.8"/>
+      <!-- Grid lines subtle -->
+      <line x1="0" y1="130" x2="310" y2="130" stroke="#1a2a1a" stroke-width="0.5"/>
+      <line x1="0" y1="230" x2="310" y2="230" stroke="#1a2a1a" stroke-width="0.5"/>
+      <line x1="0" y1="330" x2="310" y2="330" stroke="#1a2a1a" stroke-width="0.5"/>
+      <line x1="0" y1="430" x2="310" y2="430" stroke="#1a2a1a" stroke-width="0.5"/>
+      <line x1="100" y1="0" x2="100" y2="520" stroke="#1a2a1a" stroke-width="0.5"/>
+      <line x1="200" y1="0" x2="200" y2="520" stroke="#1a2a1a" stroke-width="0.5"/>
+
+      <!-- ZONE 1: Downtown Core (Loop) - center top, near lake -->
+      <path id="zone-downtown" d="M200,60 L300,60 L305,160 L195,165 Z"
+        fill="#3d1a0a" stroke="#c0392b" stroke-width="1.5" opacity="0.85"
+        onclick="selectZone('downtown')" style="cursor:pointer"/>
+      <text x="248" y="108" text-anchor="middle" fill="#e88" font-size="9" font-family="serif" font-weight="bold">DOWNTOWN</text>
+      <text x="248" y="120" text-anchor="middle" fill="#e88" font-size="8" font-family="serif">CORE</text>
+
+      <!-- ZONE 2: North Lakefront -->
+      <path id="zone-north" d="M200,0 L300,0 L300,60 L200,60 Z"
+        fill="#1a2a3d" stroke="#3a6fa8" stroke-width="1.5" opacity="0.85"
+        onclick="selectZone('north')" style="cursor:pointer"/>
+      <text x="248" y="34" text-anchor="middle" fill="#7ab" font-size="8" font-family="serif" font-weight="bold">NORTH</text>
+      <text x="248" y="45" text-anchor="middle" fill="#7ab" font-size="7" font-family="serif">LAKEFRONT</text>
+
+      <!-- ZONE 3: Creative Belt (West Loop, Wicker, Pilsen) -->
+      <path id="zone-creative" d="M80,80 L200,60 L195,200 L75,205 Z"
+        fill="#1a2d1a" stroke="#4a8a4a" stroke-width="1.5" opacity="0.85"
+        onclick="selectZone('creative')" style="cursor:pointer"/>
+      <text x="135" y="128" text-anchor="middle" fill="#8c8" font-size="9" font-family="serif" font-weight="bold">CREATIVE</text>
+      <text x="135" y="140" text-anchor="middle" fill="#8c8" font-size="7" font-family="serif">BELT</text>
+
+      <!-- ZONE 4: Northwest Far North -->
+      <path id="zone-northwest" d="M0,0 L200,0 L200,60 L80,80 L75,205 L0,205 Z"
+        fill="#1f1f2a" stroke="#6a6a9a" stroke-width="1.5" opacity="0.85"
+        onclick="selectZone('northwest')" style="cursor:pointer"/>
+      <text x="80" y="90" text-anchor="middle" fill="#aab" font-size="8" font-family="serif" font-weight="bold">NORTHWEST</text>
+      <text x="80" y="101" text-anchor="middle" fill="#aab" font-size="7" font-family="serif">&amp; FAR NORTH</text>
+
+      <!-- ZONE 5: West Side Pressure Zone -->
+      <path id="zone-west" d="M0,205 L75,205 L195,200 L200,340 L0,345 Z"
+        fill="#2d1a1a" stroke="#8b1c1c" stroke-width="1.5" opacity="0.85"
+        onclick="selectZone('west')" style="cursor:pointer"/>
+      <text x="100" y="268" text-anchor="middle" fill="#c88" font-size="9" font-family="serif" font-weight="bold">WEST SIDE</text>
+      <text x="100" y="280" text-anchor="middle" fill="#c88" font-size="7" font-family="serif">PRESSURE ZONE</text>
+
+      <!-- ZONE 6: South Side & Calumet -->
+      <path id="zone-south" d="M0,345 L200,340 L305,350 L305,520 L0,520 Z"
+        fill="#1a1f1a" stroke="#4a6a4a" stroke-width="1.5" opacity="0.85"
+        onclick="selectZone('south')" style="cursor:pointer"/>
+      <text x="150" y="430" text-anchor="middle" fill="#8a8" font-size="9" font-family="serif" font-weight="bold">SOUTH SIDE</text>
+      <text x="150" y="442" text-anchor="middle" fill="#8a8" font-size="7" font-family="serif">&amp; CALUMET</text>
+
+      <!-- Downtown continuation south -->
+      <path d="M195,165 L305,160 L305,350 L200,340 L195,200 Z"
+        fill="#251510" stroke="#c0392b" stroke-width="1" opacity="0.6"
+        onclick="selectZone('downtown')" style="cursor:pointer"/>
+
+      <!-- Lake Michigan label -->
+      <text x="355" y="250" text-anchor="middle" fill="#1a3a5a" font-size="9" font-family="serif" transform="rotate(90,355,250)">LAGO MÍCHIGAN</text>
+
+      <!-- Shore line accent -->
+      <path d="M305,0 Q312,100 308,200 Q313,300 306,400 Q310,460 307,520" stroke="#1a4a7a" stroke-width="2" fill="none" opacity="0.6"/>
+
+      <!-- Compass -->
+      <g transform="translate(358,30)">
+        <circle cx="0" cy="0" r="14" fill="#0d0608" stroke="#3a2a2a" stroke-width="1"/>
+        <text x="0" y="-5" text-anchor="middle" fill="#c9a84c" font-size="10" font-family="serif">N</text>
+        <line x1="0" y1="2" x2="0" y2="10" stroke="#c0392b" stroke-width="1.5"/>
+        <line x1="0" y1="-2" x2="0" y2="-10" stroke="#888" stroke-width="1"/>
+      </g>
+
+      <!-- Pins layer (rendered by JS) -->
+      <g id="pins-layer"></g>
+    </svg>
+  </div>
+
+  <!-- Zone info card -->
+  <div id="zone-info" class="card card-red" style="display:none;margin-bottom:.75rem">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div id="zone-name" style="font-family:var(--font-title);font-size:15px;color:var(--gold)"></div>
+        <div id="zone-sub" style="font-size:12px;color:var(--text3);margin-top:2px"></div>
+      </div>
+      <button onclick="document.getElementById('zone-info').style.display='none'" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;margin:.5rem 0">
+      <span style="color:var(--text3)">Ingreso</span><span id="zone-ingreso"></span>
+      <span style="color:var(--text3)">Riesgo Mascarada</span><span id="zone-riesgo"></span>
+      <span style="color:var(--text3)">Poder dominante</span><span id="zone-poder"></span>
+    </div>
+    <p id="zone-desc" style="font-size:13px;margin-top:.3rem"></p>
+  </div>
+
+  <!-- Pins legend -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.75rem;font-size:12px">
+    <span style="color:var(--text3)">Pins:</span>
+    <span>🧛 PJ</span>
+    <span>📍 Lugar</span>
+    <span>⚔️ Conflicto</span>
+    <span>⭐ Interés</span>
+    <span>✓ Visitado</span>
+  </div>
+
+  <!-- Pins list -->
+  <div id="pins-list"><div class="loading">Cargando mapa...</div></div>
+</div>
+
 <!-- DIRECTORIO -->
 <div id="directorio-sec" class="section">
   <h2>El Directorio</h2>
@@ -958,6 +1196,10 @@ function toggleAdmin() {
   updatePinDots();
 }
 
+function toggleAdminFromHeader() {
+  toggleAdmin();
+}
+
 function pinInput(d) {
   if (pinBuffer.length >= 4) return;
   pinBuffer += d;
@@ -993,7 +1235,6 @@ function openAdmin() {
 function closeAdmin() {
   isAdmin = false;
   document.getElementById('admin-overlay').classList.remove('open');
-  document.getElementById('admin-toggle').classList.remove('active');
 }
 
 function adminTab(id, btn) {
@@ -1015,16 +1256,54 @@ function toast(msg, type='') {
 // ═══════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════
+// ── NAVIGATION ──────────────────────────────────────────────────────────
+let currentSection = 'lore';
+
 function show(id, btn) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+  currentSection = id;
   window.scrollTo(0,0);
   if(id==='directorio-sec') loadDirectorio();
   if(id==='pjs-sec') loadPJs();
   if(id==='wiki-sec') loadWiki();
   if(id==='diario-sec') loadDiario();
+  if(id==='chicago-sec') loadChicago();
+}
+
+function setActiveTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const t = document.getElementById(tabId);
+  if(t) t.classList.add('active');
+}
+
+function showTab(drawer, tabBtn) {
+  // Update active tab
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const t = document.getElementById('tab-'+tabBtn.replace('tab-',''));
+  if(t) t.classList.add('active');
+  else tabBtn && tabBtn.classList && tabBtn.classList.add('active');
+  // Open drawer
+  closeDrawer();
+  const d = document.getElementById('drawer-'+drawer);
+  if(d) {
+    document.getElementById('drawer-overlay').classList.add('open');
+    setTimeout(()=>d.classList.add('open'),10);
+  }
+}
+
+function showFromDrawer(sectionId, tabId) {
+  closeDrawer();
+  show(sectionId, null);
+  setActiveTab(tabId);
+  // Update active drawer items
+  document.querySelectorAll('.drawer-item').forEach(i=>i.classList.remove('active'));
+}
+
+function closeDrawer() {
+  document.querySelectorAll('.drawer').forEach(d=>d.classList.remove('open'));
+  document.getElementById('drawer-overlay').classList.remove('open');
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -1239,19 +1518,66 @@ async function openPJDetail(id) {
   if(!data) return;
   document.getElementById('modal-pj-detail-title').textContent = data.nombre;
   const ficha = data.ficha || {};
+  const sf = data.ficha || {};
+  const gf = (k,d='—') => sf[k]||d;
+  const dotView = (v,max=5) => Array.from({length:max},(_,i)=>`<span style="font-size:14px;color:${i<v?'#c9a84c':'#2a1a1a'}">●</span>`).join('');
   document.getElementById('modal-pj-detail-body').innerHTML = `
-    ${data.foto_url ? `<img src="${data.foto_url}" style="width:100%;max-height:260px;object-fit:cover;object-position:top;border-radius:8px;margin-bottom:1rem">` : ''}
+    ${data.foto_url ? `<img src="${data.foto_url}" style="width:100%;max-height:260px;object-fit:cover;object-position:top;border-radius:8px;margin-bottom:1rem" onclick="openLightbox('${data.foto_url}','${data.nombre}')">` : ''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem">
       ${data.clan ? `<span class="badge b-red">${data.clan}</span>` : ''}
       ${data.generacion ? `<span class="badge b-gold">${data.generacion} Gen.</span>` : ''}
-      ${data.jugador ? `<span class="badge b-gray">Jugador: ${data.jugador}</span>` : ''}
+      ${data.jugador ? `<span class="badge b-gray">${data.jugador}</span>` : ''}
     </div>
-    ${data.descripcion ? `<p style="margin-bottom:1rem">${data.descripcion}</p>` : ''}
-    ${Object.keys(ficha).length ? `
-      <h3 style="margin-top:.5rem">Ficha</h3>
-      <div class="card">
-        <table>${Object.entries(ficha).map(([k,v])=>`<tr><td style="font-weight:500">${k}</td><td>${v}</td></tr>`).join('')}</table>
-      </div>` : ''}`;
+    ${gf('Concepto','') ? `<p style="font-style:italic;margin-bottom:.75rem">${gf('Concepto')}</p>` : ''}
+    ${data.descripcion ? `<p style="margin-bottom:1rem;font-size:14px">${data.descripcion}</p>` : ''}
+
+    <h3>Atributos</h3>
+    <div class="card">
+      <table>
+        <tr><th colspan="2">Físico</th><th colspan="2">Social</th><th colspan="2">Mental</th></tr>
+        <tr>
+          <td style="font-size:12px">Fuerza</td><td>${dotView(gf('Fuerza',1))}</td>
+          <td style="font-size:12px">Carisma</td><td>${dotView(gf('Carisma',1))}</td>
+          <td style="font-size:12px">Percepción</td><td>${dotView(gf('Percepcion',1))}</td>
+        </tr>
+        <tr>
+          <td style="font-size:12px">Destreza</td><td>${dotView(gf('Destreza',1))}</td>
+          <td style="font-size:12px">Manip.</td><td>${dotView(gf('Manipulacion',1))}</td>
+          <td style="font-size:12px">Inteligencia</td><td>${dotView(gf('Inteligencia',1))}</td>
+        </tr>
+        <tr>
+          <td style="font-size:12px">Resistencia</td><td>${dotView(gf('Resistencia',1))}</td>
+          <td style="font-size:12px">Apariencia</td><td>${dotView(gf('Apariencia',1))}</td>
+          <td style="font-size:12px">Astucia</td><td>${dotView(gf('Astucia',1))}</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Habilidades destacadas</h3>
+    <div class="card">
+      <table>
+        ${['Alerta','Atletismo','Callejeo','Subterfugio','Intimidacion','Pelea','Armas de Fuego','Sigilo','Ocultismo','Medicina','Investigacion'].filter(k=>gf(k,0)>0).map(k=>`
+          <tr><td style="font-size:13px">${k}</td><td>${dotView(gf(k,0))}</td></tr>`).join('')}
+      </table>
+    </div>
+
+    ${gf('Disciplinas','') ? `<h3>Disciplinas</h3><div class="card"><p style="font-size:14px">${gf('Disciplinas')}</p></div>` : ''}
+    ${gf('Trasfondos','') ? `<h3>Trasfondos</h3><div class="card"><p style="font-size:14px">${gf('Trasfondos')}</p></div>` : ''}
+
+    <h3>Virtudes y Estado</h3>
+    <div class="card">
+      <table>
+        <tr><td>Humanidad</td><td>${dotView(gf('Humanidad',7))}</td></tr>
+        <tr><td>Fuerza de Voluntad</td><td>${dotView(gf('FuerzaVoluntad',5))}</td></tr>
+        <tr><td>Conciencia</td><td>${dotView(gf('Conciencia',1))}</td></tr>
+        <tr><td>Autocontrol</td><td>${dotView(gf('Autocontrol',1))}</td></tr>
+        <tr><td>Coraje</td><td>${dotView(gf('Coraje',1))}</td></tr>
+        <tr><td>Sangre</td><td style="font-size:14px">${gf('SangreActual','?')} / ${gf('SangreMax','?')}</td></tr>
+        ${gf('Salud','') ? `<tr><td>Heridas</td><td style="font-size:13px;color:var(--red-light)">${gf('Salud')}</td></tr>` : ''}
+      </table>
+    </div>
+
+    ${gf('Notas','') ? `<h3>Notas</h3><div class="rule-box" style="font-size:14px;white-space:pre-wrap">${gf('Notas')}</div>` : ''}`;
   openModal('modal-pj-detail');
 }
 
@@ -1277,6 +1603,8 @@ async function openPJForm(id) {
   let pendingFile = null;
   const ficha = pj.ficha || {};
 
+  const f = pj.ficha || {};
+  const g = (k,d=0) => f[k]||d;
   document.getElementById('modal-pj-body').innerHTML = `
     <div class="form-group">
       <div class="img-upload-area" onclick="document.getElementById('pj-img').click()" style="height:140px;overflow:hidden">
@@ -1284,19 +1612,101 @@ async function openPJForm(id) {
         <input type="file" id="pj-img" accept="image/*" style="display:none">
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="pj-nombre" value="${pj.nombre||''}"></div>
-    <div class="form-group"><label class="form-label">Jugador</label><input class="form-input" id="pj-jugador" value="${pj.jugador||''}"></div>
-    <div class="form-group"><label class="form-label">Clan</label><input class="form-input" id="pj-clan" value="${pj.clan||''}"></div>
-    <div class="form-group"><label class="form-label">Generación</label><input class="form-input" id="pj-gen" value="${pj.generacion||''}"></div>
-    <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-textarea" id="pj-desc">${pj.descripcion||''}</textarea></div>
-    <h4 style="margin:.75rem 0 .5rem">Ficha (rasgos clave)</h4>
-    <div class="form-group"><label class="form-label">Humanidad</label><input class="form-input" id="f-hum" value="${ficha.Humanidad||''}"></div>
-    <div class="form-group"><label class="form-label">Fuerza de Voluntad</label><input class="form-input" id="f-fv" value="${ficha['Fuerza de Voluntad']||''}"></div>
-    <div class="form-group"><label class="form-label">Puntos de Sangre</label><input class="form-input" id="f-sangre" value="${ficha['Puntos de Sangre']||''}"></div>
-    <div class="form-group"><label class="form-label">Disciplinas</label><input class="form-input" id="f-disc" value="${ficha.Disciplinas||''}"></div>
-    <div class="form-group"><label class="form-label">Trasfondos</label><input class="form-input" id="f-tras" value="${ficha.Trasfondos||''}"></div>
-    <div class="form-group"><label class="form-label">Notas</label><textarea class="form-textarea" id="f-notas">${ficha.Notas||''}</textarea></div>
-    <button class="btn btn-primary btn-full" onclick="savePJ(${id||'null'})">Guardar</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+      <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="pj-nombre" value="${pj.nombre||''}"></div>
+      <div class="form-group"><label class="form-label">Jugador</label><input class="form-input" id="pj-jugador" value="${pj.jugador||''}"></div>
+      <div class="form-group"><label class="form-label">Clan</label><input class="form-input" id="pj-clan" value="${pj.clan||''}"></div>
+      <div class="form-group"><label class="form-label">Generación</label><input class="form-input" id="pj-gen" value="${pj.generacion||''}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Concepto</label><input class="form-input" id="f-concepto" value="${g('Concepto','')}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+      <div class="form-group"><label class="form-label">Naturaleza</label><input class="form-input" id="f-naturaleza" value="${g('Naturaleza','')}"></div>
+      <div class="form-group"><label class="form-label">Conducta</label><input class="form-input" id="f-conducta" value="${g('Conducta','')}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Descripción / Historia</label><textarea class="form-textarea" id="pj-desc">${pj.descripcion||''}</textarea></div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem;margin-top:.5rem">Atributos Físicos</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <div><label class="form-label">Fuerza</label><div id="attr-fuerza-wrap">${dotRating('attr-fuerza',g('Fuerza',1))}</div></div>
+      <div><label class="form-label">Destreza</label><div>${dotRating('attr-destreza',g('Destreza',1))}</div></div>
+      <div><label class="form-label">Resistencia</label><div>${dotRating('attr-resistencia',g('Resistencia',1))}</div></div>
+    </div>
+    <h3>Atributos Sociales</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <div><label class="form-label">Carisma</label><div>${dotRating('attr-carisma',g('Carisma',1))}</div></div>
+      <div><label class="form-label">Manipulación</label><div>${dotRating('attr-manipulacion',g('Manipulacion',1))}</div></div>
+      <div><label class="form-label">Apariencia</label><div>${dotRating('attr-apariencia',g('Apariencia',1))}</div></div>
+    </div>
+    <h3>Atributos Mentales</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <div><label class="form-label">Percepción</label><div>${dotRating('attr-percepcion',g('Percepcion',1))}</div></div>
+      <div><label class="form-label">Inteligencia</label><div>${dotRating('attr-inteligencia',g('Inteligencia',1))}</div></div>
+      <div><label class="form-label">Astucia</label><div>${dotRating('attr-astucia',g('Astucia',1))}</div></div>
+    </div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Talentos</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">
+      ${['Alerta','Atletismo','Callejeo','Empatia','Esquivar','Intimidacion','Liderazgo','Subterfugio'].map(t=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px">
+          <label class="form-label" style="margin:0;font-size:10px">${t}</label>
+          ${dotRating('tal-'+t.toLowerCase().replace('ó','o').replace('í','i'),g(t,0))}
+        </div>`).join('')}
+    </div>
+    <h3>Técnicas</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">
+      ${['Conducir','Etiqueta','Latrocinio','Melee','Pelea','Armas de Fuego','Seguridad','Sigilo'].map(t=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px">
+          <label class="form-label" style="margin:0;font-size:10px">${t}</label>
+          ${dotRating('tec-'+t.toLowerCase().replace(/ /g,'_'),g(t,0))}
+        </div>`).join('')}
+    </div>
+    <h3>Conocimientos</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">
+      ${['Burocracia','Ciencias','Finanzas','Informatica','Investigacion','Medicina','Ocultismo','Politica'].map(t=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px">
+          <label class="form-label" style="margin:0;font-size:10px">${t}</label>
+          ${dotRating('con-'+t.toLowerCase().replace('ó','o').replace('á','a'),g(t,0))}
+        </div>`).join('')}
+    </div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Disciplinas</h3>
+    <div class="form-group"><label class="form-label">Disciplinas (nombre: nivel, separadas por coma)</label>
+      <input class="form-input" id="f-disc" value="${g('Disciplinas','')}"></div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Trasfondos</h3>
+    <div class="form-group"><label class="form-label">Trasfondos (nombre: nivel)</label>
+      <input class="form-input" id="f-tras" value="${g('Trasfondos','')}"></div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Virtudes</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <div><label class="form-label">Conciencia</label><div>${dotRating('virt-conciencia',g('Conciencia',1))}</div></div>
+      <div><label class="form-label">Autocontrol</label><div>${dotRating('virt-autocontrol',g('Autocontrol',1))}</div></div>
+      <div><label class="form-label">Coraje</label><div>${dotRating('virt-coraje',g('Coraje',1))}</div></div>
+    </div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Estado</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <div><label class="form-label">Humanidad</label><div>${dotRating('virt-humanidad',g('Humanidad',7))}</div></div>
+      <div><label class="form-label">Fuerza de Voluntad</label><div>${dotRating('virt-fv',g('FuerzaVoluntad',5))}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <div class="form-group"><label class="form-label">Sangre actual</label><input class="form-input" id="f-sangre-actual" type="number" min="0" max="20" value="${g('SangreActual',10)}"></div>
+      <div class="form-group"><label class="form-label">Sangre máxima</label><input class="form-input" id="f-sangre-max" type="number" min="0" max="50" value="${g('SangreMax',10)}"></div>
+    </div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Salud</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      ${['Magullado','Lastimado','Lesionado','Herido','Malherido','Tullido','Incapacitado'].map((lvl,i)=>`
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="salud-${i}" ${g('Salud','').includes(lvl)?'checked':''} style="width:16px;height:16px;accent-color:var(--red)">
+          <label for="salud-${i}" style="font-size:13px;color:var(--text2)">${lvl}</label>
+        </div>`).join('')}
+    </div>
+
+    <h3 style="border-top:1px solid var(--border);padding-top:.75rem">Notas</h3>
+    <div class="form-group"><textarea class="form-textarea" id="f-notas" style="min-height:80px">${g('Notas','')}</textarea></div>
+
+    <button class="btn btn-primary btn-full" onclick="savePJ(${id||'null'})">Guardar ficha</button>
     ${id ? `<button class="btn btn-danger btn-full" style="margin-top:.5rem" onclick="deletePJ(${id})">Eliminar personaje</button>` : ''}`;
 
   document.getElementById('pj-img').addEventListener('change', e => {
@@ -1316,6 +1726,8 @@ async function openPJForm(id) {
 }
 
 async function savePJ(id) {
+  const saludLvls = ['Magullado','Lastimado','Lesionado','Herido','Malherido','Tullido','Incapacitado'];
+  const saludActual = saludLvls.filter((_,i)=>document.getElementById('salud-'+i)?.checked).join(', ');
   const record = {
     nombre: document.getElementById('pj-nombre').value,
     jugador: document.getElementById('pj-jugador').value,
@@ -1323,12 +1735,53 @@ async function savePJ(id) {
     generacion: document.getElementById('pj-gen').value,
     descripcion: document.getElementById('pj-desc').value,
     ficha: {
-      'Humanidad': document.getElementById('f-hum').value,
-      'Fuerza de Voluntad': document.getElementById('f-fv').value,
-      'Puntos de Sangre': document.getElementById('f-sangre').value,
-      'Disciplinas': document.getElementById('f-disc').value,
-      'Trasfondos': document.getElementById('f-tras').value,
-      'Notas': document.getElementById('f-notas').value,
+      'Concepto': document.getElementById('f-concepto')?.value||'',
+      'Naturaleza': document.getElementById('f-naturaleza')?.value||'',
+      'Conducta': document.getElementById('f-conducta')?.value||'',
+      'Fuerza': getDot('attr-fuerza'),
+      'Destreza': getDot('attr-destreza'),
+      'Resistencia': getDot('attr-resistencia'),
+      'Carisma': getDot('attr-carisma'),
+      'Manipulacion': getDot('attr-manipulacion'),
+      'Apariencia': getDot('attr-apariencia'),
+      'Percepcion': getDot('attr-percepcion'),
+      'Inteligencia': getDot('attr-inteligencia'),
+      'Astucia': getDot('attr-astucia'),
+      'Alerta': getDot('tal-alerta'),
+      'Atletismo': getDot('tal-atletismo'),
+      'Callejeo': getDot('tal-callejeo'),
+      'Empatia': getDot('tal-empatia'),
+      'Esquivar': getDot('tal-esquivar'),
+      'Intimidacion': getDot('tal-intimidacion'),
+      'Liderazgo': getDot('tal-liderazgo'),
+      'Subterfugio': getDot('tal-subterfugio'),
+      'Conducir': getDot('tec-conducir'),
+      'Etiqueta': getDot('tec-etiqueta'),
+      'Latrocinio': getDot('tec-latrocinio'),
+      'Melee': getDot('tec-melee'),
+      'Pelea': getDot('tec-pelea'),
+      'Armas de Fuego': getDot('tec-armas_de_fuego'),
+      'Seguridad': getDot('tec-seguridad'),
+      'Sigilo': getDot('tec-sigilo'),
+      'Burocracia': getDot('con-burocracia'),
+      'Ciencias': getDot('con-ciencias'),
+      'Finanzas': getDot('con-finanzas'),
+      'Informatica': getDot('con-informatica'),
+      'Investigacion': getDot('con-investigacion'),
+      'Medicina': getDot('con-medicina'),
+      'Ocultismo': getDot('con-ocultismo'),
+      'Politica': getDot('con-politica'),
+      'Disciplinas': document.getElementById('f-disc')?.value||'',
+      'Trasfondos': document.getElementById('f-tras')?.value||'',
+      'Conciencia': getDot('virt-conciencia'),
+      'Autocontrol': getDot('virt-autocontrol'),
+      'Coraje': getDot('virt-coraje'),
+      'Humanidad': getDot('virt-humanidad'),
+      'FuerzaVoluntad': getDot('virt-fv'),
+      'SangreActual': document.getElementById('f-sangre-actual')?.value||10,
+      'SangreMax': document.getElementById('f-sangre-max')?.value||10,
+      'Salud': saludActual,
+      'Notas': document.getElementById('f-notas')?.value||'',
     }
   };
   // Get file directly from input — more reliable
