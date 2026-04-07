@@ -1870,7 +1870,7 @@ async function openPJForm(id) {
     <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem">
       <select class="form-select" id="disc-selector" style="flex:1">
         <option value="">— Agregar disciplina —</option>
-        ${['Animalismo','Auspex','Celeridad','Dominación','Fortaleza','Obtenebración','Ofuscación','Potencia','Presencia','Protean','Taumaturgia','Vicisitud','Nigromancia','Quietud','Serpentis','Animismo'].map(d=>`<option value="${d}">${d}</option>`).join('')}
+        ${['Animalismo','Animismo','Auspex','Celeridad','Dominación','Fortaleza','Nigromancia','Obtenebración','Ofuscación','Potencia','Presencia','Protean','Quietud','Serpentis','Taumaturgia','Vicisitud'].map(d=>`<option value="${d}">${d}</option>`).join('')}
       </select>
       <button class="btn btn-secondary btn-sm" onclick="addDisc()" style="flex-shrink:0">+ Agregar</button>
     </div>
@@ -1890,14 +1890,14 @@ async function openPJForm(id) {
     <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.25rem">
       <select class="form-select" id="mer-selector" style="flex:1">
         <option value="">— Agregar mérito —</option>
-        ${['Ambidextro','Apariencia llamativa','Resistencia al dolor','Sentidos agudos','Tolerancia al fuego','Digestión rápida','Memoria eidética','Concentración','Mente analítica','Conciencia Jyhad','Artista natural','Buena reputación','Contactos en los bajos fondos','Cómplice humano','Status social heredado','Mascarada impecable','Conciencia de la Bestia','Sangre potente','Sueño ligero','Afinidad con el clan'].map(m=>`<option value="merit:${m}">${m}</option>`).join('')}
+        ${['Afinidad con el clan','Ambidextro','Apariencia llamativa','Artista natural','Buena reputación','Celeridad Natural','Cómplice humano','Concentración','Conciencia de la Bestia','Conciencia Jyhad','Contactos en los bajos fondos','Digestión rápida','Mascarada impecable','Memoria eidética','Mente analítica','Mentes múltiples','Resistencia a Dominación','Resistencia al dolor','Sangre Dulce','Sangre potente','Sentidos agudos','Status social heredado','Sueño ligero','Tolerancia al fuego'].map(m=>`<option value="merit:${m}">${m}</option>`).join('')}
       </select>
       <button class="btn btn-secondary btn-sm" onclick="addMerDef('merit')" style="flex-shrink:0">+ Mérito</button>
     </div>
     <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem">
       <select class="form-select" id="def-selector" style="flex:1">
         <option value="">— Agregar defecto —</option>
-        ${['Adicción','Enemigo declarado','Fobia','Apariencia perturbadora','Oscuro secreto','Torpeza','Incapacidad','Comportamiento compulsivo','Instinto predatorio','Aliado mortal en peligro','Olvidos','Deuda de sangre'].map(d=>`<option value="defect:${d}">${d}</option>`).join('')}
+        ${['Adicción','Aliado mortal en peligro','Apariencia perturbadora','Comportamiento compulsivo','Deuda de sangre','Enemigo declarado','Fobia','Incapacidad','Instinto predatorio','Intolerancia','Marcado','Olvidos','Oscuro secreto','Sin clan (Caitiff)','Sueño pesado','Torpeza','Vinculo parcial'].map(d=>`<option value="defect:${d}">${d}</option>`).join('')}
       </select>
       <button class="btn btn-secondary btn-sm" onclick="addMerDef('defect')" style="flex-shrink:0">+ Defecto</button>
     </div>
@@ -2439,274 +2439,190 @@ const clanes=[
 
 const disciplinas=[
   {name:"Animalismo",clanes:"Gangrel, Nosferatu, Tzimisce",
-   desc:"Permite al vampiro conectar con la Bestia interior de animales y otros seres. A niveles bajos es comunicación; a niveles altos es control total e incluso posesión. Los vampiros sin esta disciplina repelen a los animales.",
+   desc:"Permite al vampiro conectar con la Bestia interior de animales y otros seres. A niveles bajos es comunicación; a niveles altos es control total e incluso posesión.",
    poderes:[
-     {n:"●",nom:"Susurros Salvajes",pool:"Man/Car+Trato c/Animales",dif:6,
-      ef:"Comunicación telepática con un animal. El vampiro puede transmitir órdenes simples y recibir información sensorial básica. Requiere contacto visual sostenido."},
-     {n:"●●",nom:"El Llamado de la Bestia",pool:"Car+Trato c/Animales",dif:6,
-      ef:"Convoca animales de la zona (1 por éxito). Los animales convocados obedecen órdenes sencillas. El radio de convocatoria aumenta con los éxitos."},
-     {n:"●●●",nom:"Fuerza del Animal",pool:"Man+Empatía",dif:7,
-      ef:"Domina la Bestia interior de mortales o vampiros. En mortales provoca miedo o rabia; en vampiros puede forzar frenesí o calmar uno existente. El objetivo resiste con Fuerza de Voluntad."},
-     {n:"●●●●",nom:"Subsumirse en la Bestia",pool:"—",dif:"—",
-      ef:"El vampiro proyecta su mente dentro de un animal, controlándolo completamente mientras su propio cuerpo queda en torpor. Puede ver, oír y actuar a través del animal indefinidamente."},
-     {n:"●●●●●",nom:"Espíritu de la Bestia",pool:"—",dif:"—",
-      ef:"Control masivo de animales en una zona amplia, o unión profunda con la Bestia propia para ganar capacidades bestiales durante un tiempo. El vampiro puede coordinar manadas enteras."},
+     {n:"●",nom:"Susurros Salvajes",pool:"Man/Car+Trato c/Animales",dif:6,ef:"Comunicación telepática con un animal. Requiere contacto visual sostenido."},
+     {n:"●●",nom:"El Llamado de la Bestia",pool:"Car+Trato c/Animales",dif:6,ef:"Convoca animales de la zona (1 por éxito). Los animales obedecen órdenes sencillas."},
+     {n:"●●●",nom:"Fuerza del Animal",pool:"Man+Empatía",dif:7,ef:"Domina la Bestia interior de mortales o vampiros. En vampiros puede forzar o calmar frenesí."},
+     {n:"●●●●",nom:"Subsumirse en la Bestia",pool:"—",dif:"—",ef:"El vampiro proyecta su mente dentro de un animal, controlándolo completamente."},
+     {n:"●●●●●",nom:"Espíritu de la Bestia",pool:"—",dif:"—",ef:"Control masivo de animales en zona amplia. Puede coordinar manadas enteras."},
+   ]},
+  {name:"Animismo",clanes:"Ravnos",
+   desc:"Disciplina exclusiva Ravnos. Permite crear ilusiones y fantasmas convincentes, y eventualmente poseer animales o humanos.",
+   poderes:[
+     {n:"●",nom:"El Disfraz",pool:"Man+Actuación",dif:6,ef:"Altera sutilmente la apariencia de un objeto o persona. Engaño menor a la percepción."},
+     {n:"●●",nom:"La Ilusión",pool:"Man+Actuación",dif:6,ef:"Crea imágenes sensoriales completas que pueden engañar a todos los sentidos."},
+     {n:"●●●",nom:"El Espejismo",pool:"Man+Actuación",dif:7,ef:"Ilusiones persistentes que duran incluso sin concentración activa."},
+     {n:"●●●●",nom:"Controlar el Alma",pool:"Man+Intimidación",dif:"FV víctima",ef:"Posee temporalmente el cuerpo de un animal o mortal."},
+     {n:"●●●●●",nom:"Despertar la Bestia",pool:"Man+Empatía",dif:8,ef:"Convierte una ilusión en algo semi-real que puede causar daño físico real."},
    ]},
   {name:"Auspex",clanes:"Toreador, Tremere, Tzimisce, Nosferatu, Malkavian",
-   desc:"Agudiza los sentidos más allá de lo sobrenatural, permitiendo percibir auras, leer mentes y proyectar el espíritu. Contrarresta parcialmente la Ofuscación (tirada enfrentada de Auspex vs Ofuscación).",
+   desc:"Agudiza los sentidos más allá de lo sobrenatural. Contrarresta parcialmente la Ofuscación (tirada enfrentada).",
    poderes:[
-     {n:"●",nom:"Sentidos Agudizados",pool:"Per+Alerta",dif:6,
-      ef:"Potencia todos los sentidos de forma sobrenatural. Ver en la oscuridad casi total, oír conversaciones a distancia, detectar olores sutiles. Los estímulos intensos pueden abrumar al vampiro (+1 dif. en esas situaciones)."},
-     {n:"●●",nom:"Aura Vampírica",pool:"Per+Empatía",dif:8,
-      ef:"El vampiro ve el aura de una persona como colores y patrones de luz. Revela estado emocional, si miente, si es vampiro, ghoul, mago u otro sobrenatural, y pistas sobre su naturaleza. Los éxitos determinan el detalle."},
-     {n:"●●●",nom:"La Mente Está Dispuesta",pool:"Int+Empatía",dif:"FV víctima",
-      ef:"Lectura de pensamientos superficiales. Con 1 éxito se captan emociones e imágenes vagas; con más éxitos se accede a pensamientos más específicos. El objetivo puede notar la intrusión si supera Percepción+Alerta dif.8."},
-     {n:"●●●●",nom:"Proyección Astral",pool:"Per+Ocultismo",dif:7,
-      ef:"El espíritu abandona el cuerpo y viaja en el plano astral. Puede moverse a gran velocidad, pasar paredes y observar sin ser visto. Vulnerable en el plano astral: si el hilo astral se corta, el vampiro entra en torpor."},
-     {n:"●●●●●",nom:"Mente Colmena",pool:"—",dif:"—",
-      ef:"El vampiro puede fundir su percepción con la de otro a cualquier distancia, compartiendo sentidos completamente. También puede usar todos los niveles anteriores de Auspex sobre objetivos a gran distancia."},
+     {n:"●",nom:"Sentidos Agudizados",pool:"Per+Alerta",dif:6,ef:"Potencia todos los sentidos. Ver en oscuridad casi total, oír a distancia, detectar olores sutiles."},
+     {n:"●●",nom:"Aura Vampírica",pool:"Per+Empatía",dif:8,ef:"Ve el aura: estado emocional, si miente, si es vampiro/ghoul/mago, pistas sobre naturaleza."},
+     {n:"●●●",nom:"La Mente Está Dispuesta",pool:"Int+Empatía",dif:"FV víctima",ef:"Lectura de pensamientos superficiales. El objetivo puede notar la intrusión (Per+Alerta dif.8)."},
+     {n:"●●●●",nom:"Proyección Astral",pool:"Per+Ocultismo",dif:7,ef:"El espíritu abandona el cuerpo. Puede moverse a gran velocidad y observar sin ser visto."},
+     {n:"●●●●●",nom:"Mente Colmena",pool:"—",dif:"—",ef:"Fusionar percepción con la de otro a cualquier distancia. Usar todos los niveles anteriores a distancia."},
    ]},
   {name:"Celeridad",clanes:"Brujah, Assamita, Toreador",
-   desc:"Velocidad sobrehumana que permite al vampiro actuar múltiples veces mientras los demás apenas se mueven. A diferencia de las Acciones Múltiples normales, no reduce los dados de la reserva.",
+   desc:"Velocidad sobrehumana. Cada nivel otorga acciones extra SIN reducir dados. Diferente a Acciones Múltiples normales.",
    poderes:[
-     {n:"●",nom:"Celeridad 1",pool:"—",dif:"—",
-      ef:"+1 acción adicional por turno sin penalización de dados. En combate esto es devastador: atacar y esquivar en el mismo turno con reservas completas."},
-     {n:"●●",nom:"Celeridad 2",pool:"—",dif:"—",
-      ef:"+2 acciones adicionales. El vampiro empieza a moverse más rápido de lo que el ojo humano puede seguir. Puede actuar antes que casi cualquier oponente."},
-     {n:"●●●",nom:"Celeridad 3",pool:"—",dif:"—",
-      ef:"+3 acciones. El vampiro es un borrón para los humanos. Puede recorrer habitaciones enteras antes de que alguien reaccione."},
-     {n:"●●●●",nom:"Celeridad 4",pool:"—",dif:"—",
-      ef:"+4 acciones. Velocidad que desafía la física normal. Las balas son evitables. El movimiento es imperceptible para mortales."},
-     {n:"●●●●●",nom:"La Flor de la Muerte",pool:"—",dif:"—",
-      ef:"+5 acciones. Además, el vampiro puede concentrar todos sus dados de Celeridad en un único ataque devastador (La Flor), sumando todos esos dados extra a la reserva de daño de un solo golpe."},
+     {n:"●",nom:"Celeridad 1",pool:"—",dif:"—",ef:"+1 acción extra por turno sin penalización de dados."},
+     {n:"●●",nom:"Celeridad 2",pool:"—",dif:"—",ef:"+2 acciones extra. El vampiro empieza a moverse más rápido de lo que el ojo sigue."},
+     {n:"●●●",nom:"Celeridad 3",pool:"—",dif:"—",ef:"+3 acciones. El vampiro es un borrón para los humanos."},
+     {n:"●●●●",nom:"Celeridad 4",pool:"—",dif:"—",ef:"+4 acciones. Las balas son evitables. Movimiento imperceptible para mortales."},
+     {n:"●●●●●",nom:"La Flor de la Muerte",pool:"—",dif:"—",ef:"+5 acciones. Puede concentrar TODOS los dados de Celeridad en un único ataque devastador."},
    ]},
   {name:"Dominación",clanes:"Ventrue, Tremere, Lasombra, Malkavian",
-   desc:"Control mental directo. Requiere contacto visual y que la víctima entienda el idioma del vampiro. No funciona en vampiros de generación menor (número más bajo) que el dominador.",
+   desc:"Control mental directo. Requiere contacto visual y que la víctima entienda el idioma. No funciona en vampiros de generación MENOR (número más bajo) que el dominador.",
    poderes:[
-     {n:"●",nom:"Compeler",pool:"Man+Intimidación",dif:"FV víctima",
-      ef:"Orden de una sola palabra que la víctima ejecuta inmediatamente. La orden debe ser simple y directa. La víctima no recuerda haber sido dominada. Ejemplo: 'Duerme', 'Corre', 'Habla'."},
-     {n:"●●",nom:"Mandar",pool:"Man+Liderazgo",dif:"FV víctima",
-      ef:"Orden compleja de varias frases. La víctima la cumple al pie de la letra, como un autómata. Si la orden contradice su instinto de supervivencia, recibe dados extra para resistir."},
-     {n:"●●●",nom:"Mesmerismo",pool:"Man+Liderazgo",dif:"FV víctima",
-      ef:"Implanta una sugestión post-hipnótica profunda que se activa ante un disparador específico. La víctima puede no recordar nada hasta que el disparador ocurra. Las sugestiones pueden durar meses."},
-     {n:"●●●●",nom:"Cas. de Recuerdos",pool:"Man+Medicina",dif:7,
-      ef:"Borra, altera o implanta recuerdos específicos. Con suficientes éxitos puede reescribir una noche completa en la memoria de la víctima. Los recuerdos implantados se sienten completamente reales."},
-     {n:"●●●●●",nom:"Marioneta",pool:"Man+Medicina",dif:8,
-      ef:"Control total del cuerpo de la víctima como si fuera una marioneta. El vampiro puede hacer que la víctima se mueva, hable y actúe según su voluntad mientras mantiene la concentración."},
+     {n:"●",nom:"Compeler",pool:"Man+Intimidación",dif:"FV víctima",ef:"Orden de una sola palabra ejecutada de inmediato. Ejemplo: 'Duerme', 'Corre', 'Habla'."},
+     {n:"●●",nom:"Mandar",pool:"Man+Liderazgo",dif:"FV víctima",ef:"Orden compleja que la víctima cumple al pie de la letra, como un autómata."},
+     {n:"●●●",nom:"Mesmerismo",pool:"Man+Liderazgo",dif:"FV víctima",ef:"Sugestión post-hipnótica profunda activada por un disparador específico. Dura meses."},
+     {n:"●●●●",nom:"Cas. de Recuerdos",pool:"Man+Medicina",dif:7,ef:"Borra, altera o implanta recuerdos. Con éxitos suficientes puede reescribir una noche entera."},
+     {n:"●●●●●",nom:"Marioneta",pool:"Man+Medicina",dif:8,ef:"Control total del cuerpo de la víctima mientras se mantiene la concentración."},
    ]},
   {name:"Fortaleza",clanes:"Ventrue, Gangrel",
-   desc:"Resistencia sobrenatural al daño físico. Cada nivel suma dados a la reserva de absorción, incluyendo daño agravado (que normalmente solo se absorbe con Fortaleza).",
+   desc:"Resistencia sobrenatural al daño. Cada nivel suma dados a la reserva de absorción, INCLUYENDO daño agravado.",
    poderes:[
-     {n:"●",nom:"Fortaleza 1",pool:"—",dif:"—",
-      ef:"+1 dado de absorción contra todo tipo de daño, incluyendo agravado (fuego, luz solar, garras sobrenaturales). Un vampiro con Resistencia 3 y Fortaleza 1 tiene 4 dados contra contundente/letal y 1 dado contra agravado."},
-     {n:"●●",nom:"Fortaleza 2",pool:"—",dif:"—",
-      ef:"+2 dados de absorción. El vampiro empieza a ignorar heridas que derribarían a cualquier otro."},
-     {n:"●●●",nom:"Fortaleza 3",pool:"—",dif:"—",
-      ef:"+3 dados de absorción. Las balas apenas molestan. El fuego duele pero no incapacita tan fácilmente."},
-     {n:"●●●●",nom:"Fortaleza 4",pool:"—",dif:"—",
-      ef:"+4 dados de absorción. El vampiro puede sobrevivir situaciones que destruirían a casi cualquier otro ser sobrenatural."},
-     {n:"●●●●●",nom:"Fortaleza 5",pool:"—",dif:"—",
-      ef:"+5 dados de absorción. La resistencia es casi legendaria. Incluso la luz solar directa requiere exposición prolongada para causar daño significativo."},
+     {n:"●",nom:"Fortaleza 1",pool:"—",dif:"—",ef:"+1 dado de absorción contra todo tipo de daño, incluyendo agravado."},
+     {n:"●●",nom:"Fortaleza 2",pool:"—",dif:"—",ef:"+2 dados de absorción. El vampiro empieza a ignorar heridas que derribarían a otros."},
+     {n:"●●●",nom:"Fortaleza 3",pool:"—",dif:"—",ef:"+3 dados. Las balas apenas molestan. El fuego duele pero no incapacita tan fácilmente."},
+     {n:"●●●●",nom:"Fortaleza 4",pool:"—",dif:"—",ef:"+4 dados. Puede sobrevivir situaciones que destruirían a casi cualquier sobrenatural."},
+     {n:"●●●●●",nom:"Fortaleza 5",pool:"—",dif:"—",ef:"+5 dados. Resistencia legendaria. Incluso la luz solar requiere exposición prolongada."},
+   ]},
+  {name:"Nigromancia",clanes:"Giovanni (exclusiva)",
+   desc:"Magia mortuoria que permite comunicarse y controlar a los muertos. Se organiza en Sendas. La Senda del Espectro es la principal.",
+   sendas:[
+     {nombre:"Senda del Espectro",poderes:[
+       {n:"●",nom:"Vista Espectral",pool:"Per+Ocultismo",dif:5,ef:"Percibir y comunicarse con fantasmas y espíritus en la zona."},
+       {n:"●●",nom:"Invocar al Espíritu",pool:"Man+Ocultismo",dif:7,ef:"Invocar el fantasma de una persona específica conocida."},
+       {n:"●●●",nom:"Coaccionar al Fantasma",pool:"Man+Intimidación",dif:"FV fantasma",ef:"Obligar a un fantasma a obedecer órdenes directas."},
+       {n:"●●●●",nom:"Posesión Espectral",pool:"Man+Ocultismo",dif:8,ef:"Permitir que un fantasma posea un cadáver o un objeto."},
+       {n:"●●●●●",nom:"Tormento",pool:"Man+Ocultismo",dif:9,ef:"Destruir permanentemente un fantasma o enviarlo al Submundo profundo."},
+     ]},
+     {nombre:"Senda de los Huesos",poderes:[
+       {n:"●",nom:"Sentir la Muerte",pool:"Per+Medicina",dif:5,ef:"Detectar si alguien morirá pronto, cuándo murió algo, o la causa de muerte."},
+       {n:"●●",nom:"Control del Cadáver",pool:"Man+Ocultismo",dif:6,ef:"Animar y controlar cadáveres frescos como si fueran zombis simples."},
+       {n:"●●●",nom:"El Calor de la Carne",pool:"Man+Medicina",dif:7,ef:"Hacer que un cadáver parezca vivo: temperatura, color, pulso artificial."},
+       {n:"●●●●",nom:"Forma de Hueso",pool:"—",dif:8,ef:"Transformar partes del propio cuerpo en hueso duro (absorción adicional)."},
+       {n:"●●●●●",nom:"Ascenso de los Muertos",pool:"Man+Ocultismo",dif:9,ef:"Crear sirvientes no-muertos permanentes y poderosos de cadáveres."},
+     ]},
+   ],
+   poderes:[
+     {n:"●",nom:"Vista Espectral (Esp.)",pool:"Per+Ocultismo",dif:5,ef:"Ver y comunicarse con fantasmas. Ver auras de muerte."},
+     {n:"●●",nom:"Invocar al Espíritu (Esp.)",pool:"Man+Ocultismo",dif:7,ef:"Invocar el fantasma de una persona específica."},
+     {n:"●●●",nom:"Coaccionar al Fantasma (Esp.)",pool:"Man+Intimidación",dif:"FV fantasma",ef:"Forzar a un fantasma a obedecer órdenes directas."},
+     {n:"●●●●",nom:"Posesión Espectral (Esp.)",pool:"Man+Ocultismo",dif:8,ef:"Permitir que un fantasma posea un cadáver u objeto."},
+     {n:"●●●●●",nom:"Tormento (Esp.)",pool:"Man+Ocultismo",dif:9,ef:"Destruir permanentemente un fantasma o enviarlo al Submundo profundo."},
    ]},
   {name:"Obtenebración",clanes:"Lasombra (exclusiva)",
-   desc:"Control de las sombras como entidades físicas reales. Las sombras creadas son frías, oscuras y tangibles. Esta disciplina no funciona en lugares de completa oscuridad natural.",
+   desc:"Control de las sombras como entidades físicas reales. Las sombras son frías y tangibles. No funciona en oscuridad natural completa.",
    poderes:[
-     {n:"●",nom:"Manto de Sombras",pool:"—",dif:"—",
-      ef:"El vampiro envuelve un área de hasta 3 metros en oscuridad sobrenatural. Las luces normales no la penetran. El vampiro ve con claridad dentro; todos los demás sufren +2 a dificultades de acciones visuales."},
-     {n:"●●",nom:"Manos de la Oscuridad",pool:"Man+Ocultismo",dif:7,
-      ef:"Invoca tentáculos de sombra que pueden atacar, agarrar o estrangular. Cada éxito crea un tentáculo (Fuerza 3, daño Fuerza+2 letal). Los tentáculos pueden ser atacados pero solo con daño agravado."},
-     {n:"●●●",nom:"Sudario de la Noche",pool:"—",dif:"—",
-      ef:"Oscuridad total en una zona amplia (radio en metros = nivel del vampiro × 3). El vampiro y quienes desee pueden ver con claridad. El resto está completamente ciego, incluso con visión nocturna artificial."},
-     {n:"●●●●",nom:"Armadura de la Noche",pool:"—",dif:"—",
-      ef:"Las sombras envuelven al vampiro como armadura. Suman dados de absorción igual al nivel de Obtenebración, incluyendo contra daño agravado. El vampiro parece una silueta oscura en movimiento."},
-     {n:"●●●●●",nom:"El Abyecto",pool:"Man+Intimidación",dif:7,
-      ef:"Abre un portal a la oscuridad absoluta y convoca una entidad. La entidad ataca todo lo que no sea el vampiro. Cuesta 1 Fuerza de Voluntad invocarla y otra mantenerla cada turno."},
+     {n:"●",nom:"Manto de Sombras",pool:"—",dif:"—",ef:"Oscuridad sobrenatural en zona de 3m. Luces normales no la penetran. El vampiro ve con claridad."},
+     {n:"●●",nom:"Manos de la Oscuridad",pool:"Man+Ocultismo",dif:7,ef:"Tentáculos de sombra (Fuerza 3, daño Fue+2 letal). Solo dañables con daño agravado."},
+     {n:"●●●",nom:"Sudario de la Noche",pool:"—",dif:"—",ef:"Oscuridad total en zona amplia. Solo el vampiro y quien desee ven con claridad."},
+     {n:"●●●●",nom:"Armadura de la Noche",pool:"—",dif:"—",ef:"Sombras como armadura. Suma dados absorción = nivel de Obtenebración, incluyendo agravado."},
+     {n:"●●●●●",nom:"El Abyecto",pool:"Man+Intimidación",dif:7,ef:"Abre portal a oscuridad absoluta e invoca entidad destructiva. Cuesta 1 FV invocar y 1 FV/turno mantener."},
    ]},
   {name:"Ofuscación",clanes:"Nosferatu, Malkavian, Assamita",
-   desc:"Invisibilidad y engaño de la percepción. No es magia visual sino mental: engaña a la mente de los observadores. No funciona con cámaras, sensores electrónicos ni animales (a menos que también se use Animalismo).",
+   desc:"Invisibilidad y engaño mental. No engaña cámaras, sensores electrónicos ni animales (a menos que se combine con Animalismo).",
    poderes:[
-     {n:"●",nom:"Camuflaje",pool:"—",dif:"—",
-      ef:"El vampiro se vuelve 'no notable': la gente simplemente no presta atención a su presencia. No es invisibilidad, pero el vampiro puede estar en una habitación y ser ignorado. Se rompe con cualquier acción agresiva."},
-     {n:"●●",nom:"Desdibujado",pool:"—",dif:"—",
-      ef:"Invisibilidad activa mientras el vampiro no ataque. Puede moverse, abrir puertas, incluso hablar en susurros sin ser detectado. Los observadores atentos pueden intentar Per+Alerta dif.9 para notar algo extraño."},
-     {n:"●●●",nom:"Máscara de Mil Rostros",pool:"Man+Actuación",dif:6,
-      ef:"El vampiro asume la apariencia de una persona específica o crea un disfraz mental convincente. La ilusión afecta todos los sentidos. No cambia el cuerpo físico, solo la percepción."},
-     {n:"●●●●",nom:"Velo de Oscuridad",pool:"Man+Subterfugio",dif:7,
-      ef:"Extiende la ofuscación a múltiples personas o a un grupo entero. Todos en el grupo son ignorados simultáneamente. Útil para infiltrar un equipo completo."},
-     {n:"●●●●●",nom:"Mente Indetectable",pool:"—",dif:"—",
-      ef:"El vampiro desaparece de la percepción sobrenatural además de la mundana. Ni Auspex, ni magia, ni poderes de detección pueden ubicarlo. Es prácticamente un fantasma incluso para otros vampiros."},
+     {n:"●",nom:"Camuflaje",pool:"—",dif:"—",ef:"El vampiro se vuelve 'no notable'. La gente lo ignora. Se rompe con cualquier acción agresiva."},
+     {n:"●●",nom:"Desdibujado",pool:"—",dif:"—",ef:"Invisibilidad activa mientras no ataque. Detectar requiere Per+Alerta dif.9."},
+     {n:"●●●",nom:"Máscara de Mil Rostros",pool:"Man+Actuación",dif:6,ef:"Asume apariencia de persona específica o crea disfraz mental. Afecta todos los sentidos."},
+     {n:"●●●●",nom:"Velo de Oscuridad",pool:"Man+Subterfugio",dif:7,ef:"Extiende la ofuscación a múltiples personas simultáneamente."},
+     {n:"●●●●●",nom:"Mente Indetectable",pool:"—",dif:"—",ef:"Desaparece de la percepción sobrenatural. Ni Auspex ni magia pueden ubicarlo."},
    ]},
   {name:"Potencia",clanes:"Brujah, Nosferatu, Giovanni",
-   desc:"Fuerza sobrehumana que va más allá de lo que el cuerpo físico debería permitir. Cada nivel suma efectivamente a la puntuación de Fuerza para cálculos de daño, carga y acciones físicas.",
+   desc:"Fuerza sobrehumana. Cada nivel suma efectivamente a la Fuerza para daño, carga y acciones físicas.",
    poderes:[
-     {n:"●",nom:"Potencia 1",pool:"—",dif:"—",
-      ef:"+1 Fuerza efectiva. El vampiro puede doblar barras de metal, romper cadenas gruesas y cargar el doble de lo normal."},
-     {n:"●●",nom:"Potencia 2",pool:"—",dif:"—",
-      ef:"+2 Fuerza. Puede lanzar un automóvil pequeño varios metros o atravesar paredes de ladrillo de un puñetazo."},
-     {n:"●●●",nom:"Potencia 3",pool:"—",dif:"—",
-      ef:"+3 Fuerza. Puede derribar muros de concreto, detener vehículos en movimiento."},
-     {n:"●●●●",nom:"Potencia 4",pool:"—",dif:"—",
-      ef:"+4 Fuerza. Puede destruir estructuras enteras, levantar camiones."},
-     {n:"●●●●●",nom:"Potencia 5",pool:"—",dif:"—",
-      ef:"+5 Fuerza. Fuerza casi ilimitada. Las hazañas físicas son legendarias incluso entre vampiros antiguos."},
+     {n:"●",nom:"Potencia 1",pool:"—",dif:"—",ef:"+1 Fuerza efectiva. Puede doblar barras de metal, romper cadenas gruesas."},
+     {n:"●●",nom:"Potencia 2",pool:"—",dif:"—",ef:"+2 Fuerza. Puede lanzar un automóvil pequeño varios metros."},
+     {n:"●●●",nom:"Potencia 3",pool:"—",dif:"—",ef:"+3 Fuerza. Puede derribar muros de concreto, detener vehículos en movimiento."},
+     {n:"●●●●",nom:"Potencia 4",pool:"—",dif:"—",ef:"+4 Fuerza. Puede destruir estructuras enteras, levantar camiones."},
+     {n:"●●●●●",nom:"Potencia 5",pool:"—",dif:"—",ef:"+5 Fuerza. Hazañas físicas legendarias incluso entre vampiros muy antiguos."},
    ]},
   {name:"Presencia",clanes:"Toreador, Ventrue, Brujah",
-   desc:"Aura sobrenatural de carisma, terror o atracción que afecta a todos en el entorno. A diferencia de la Dominación, no requiere contacto visual y puede afectar a múltiples personas simultáneamente.",
+   desc:"Aura sobrenatural de carisma o terror. A diferencia de la Dominación, no requiere contacto visual y puede afectar grupos enteros.",
    poderes:[
-     {n:"●",nom:"Fascinación",pool:"Ap+Actuación",dif:7,
-      ef:"Un individuo queda cautivado por el vampiro y lo sigue o atiende. No es control, sino una atracción irresistible. El objetivo puede resistir con Fuerza de Voluntad dif.8 si la situación es claramente peligrosa."},
-     {n:"●●",nom:"Deslumbrar",pool:"Car+Actuación",dif:7,
-      ef:"Todos en el área quedan paralizados de admiración o terror durante un turno por éxito. El vampiro elige si el efecto es de belleza sublime o presencia aterradora. Afecta hasta 10 personas por éxito."},
-     {n:"●●●",nom:"La Voz",pool:"Man+Intimidación",dif:"FV víctima",
-      ef:"Provoca miedo intenso en el objetivo: huye, se paraliza o hace lo que el vampiro indique. Puede usarse en múltiples objetivos a la vez. El efecto dura hasta que el vampiro lo cancele o la víctima gaste FV."},
-     {n:"●●●●",nom:"Magnificencia",pool:"—",dif:"—",
-      ef:"Aura imponente y permanente mientras esté activa. Todos los que estén cerca quieren agradar al vampiro, ceden en discusiones, evitan confrontaciones. Cuesta 1 FV activarla; dura la escena."},
-     {n:"●●●●●",nom:"Llamada",pool:"Man+Liderazgo",dif:6,
-      ef:"El vampiro llama telepáticamente a una persona conocida, quien siente una compulsión irresistible de acudir. La persona viajará días si hace falta. Puede resistirse con FV dif.8 pero la compulsión regresa."},
+     {n:"●",nom:"Fascinación",pool:"Ap+Actuación",dif:7,ef:"Un individuo queda cautivado y sigue al vampiro. Resiste con FV dif.8 si hay peligro claro."},
+     {n:"●●",nom:"Deslumbrar",pool:"Car+Actuación",dif:7,ef:"Todos en el área quedan paralizados de admiración o terror. Hasta 10 personas por éxito."},
+     {n:"●●●",nom:"La Voz",pool:"Man+Intimidación",dif:"FV víctima",ef:"Provoca miedo: huida, parálisis o acatamiento. Puede afectar múltiples objetivos."},
+     {n:"●●●●",nom:"Magnificencia",pool:"—",dif:"—",ef:"Aura imponente permanente (1 FV para activar). Todos quieren agradar al vampiro."},
+     {n:"●●●●●",nom:"Llamada",pool:"Man+Liderazgo",dif:6,ef:"Llama telepáticamente a una persona conocida. Sentirá compulsión irresistible de acudir."},
    ]},
   {name:"Protean",clanes:"Gangrel",
-   desc:"Transformación del cuerpo físico. Permite al vampiro adaptar su forma a la del mundo animal. Las formas adoptadas son siempre de color oscuro o negro, marcadas por la naturaleza vampírica.",
+   desc:"Transformación del cuerpo físico. Las formas adoptadas siempre tienen tonos oscuros, marcadas por la naturaleza vampírica.",
    poderes:[
-     {n:"●",nom:"Ojos de la Bestia",pool:"—",dif:"—",
-      ef:"Los ojos del vampiro brillan con luz animal (roja, amarilla o verde) y pueden ver en la oscuridad absoluta sin penalización. Los humanos que vean estos ojos en la oscuridad deben tirar Valor dif.4 o retroceder."},
-     {n:"●●",nom:"Garras Salvajes",pool:"—",dif:"—",
-      ef:"Las manos del vampiro se transforman en garras bestiales que causan daño agravado. Son lo suficientemente fuertes para escalar superficies lisas y lo suficientemente afiladas para atravesar armadura ligera."},
-     {n:"●●●",nom:"Tierra de Caín",pool:"—",dif:"—",
-      ef:"El vampiro puede fundirse con la tierra o superficie sobre la que duerme. Queda en torpor seguro durante el día. Nada puede detectarlo en este estado salvo medios mágicos muy poderosos."},
-     {n:"●●●●",nom:"Cambiaformas",pool:"Man+Supervivencia",dif:7,
-      ef:"El vampiro adopta la forma de un lobo grande o de niebla. En forma de lobo tiene Fuerza+2 y Destreza+2. En forma de niebla es inmune al daño físico pero no puede atacar ni usar Disciplinas físicas."},
-     {n:"●●●●●",nom:"Forma de la Bestia",pool:"—",dif:"—",
-      ef:"El vampiro puede adoptar cualquier forma animal (tamaño entre ratón y caballo). Las estadísticas cambian según el animal. Puede usar esta forma indefinidamente pero cada amanecer en forma animal agrava la Bestia."},
+     {n:"●",nom:"Ojos de la Bestia",pool:"—",dif:"—",ef:"Los ojos brillan con luz animal. Ve en oscuridad absoluta. Los humanos pueden asustarse (Valor dif.4)."},
+     {n:"●●",nom:"Garras Salvajes",pool:"—",dif:"—",ef:"Garras bestiales que causan daño agravado. Suficientes para escalar superficies lisas."},
+     {n:"●●●",nom:"Tierra de Caín",pool:"—",dif:"—",ef:"Se funde con la tierra para el torpor diurno. Indetectable salvo medios mágicos muy poderosos."},
+     {n:"●●●●",nom:"Cambiaformas",pool:"Man+Supervivencia",dif:7,ef:"Forma de lobo grande (Fue+2, Des+2) o niebla (inmune a daño físico pero no puede atacar)."},
+     {n:"●●●●●",nom:"Forma de la Bestia",pool:"—",dif:"—",ef:"Cualquier forma animal (tamaño entre ratón y caballo). Cada amanecer en forma animal agrava la Bestia."},
+   ]},
+  {name:"Quietud",clanes:"Assamita (exclusiva)",
+   desc:"Disciplina de sigilo y muerte silenciosa. Permite al Assamita volverse completamente imperceptible y atacar con precisión mortal.",
+   poderes:[
+     {n:"●",nom:"Silencio de la Muerte",pool:"—",dif:"—",ef:"El vampiro no produce ningún sonido. Sus movimientos, ropa y equipo son completamente silenciosos."},
+     {n:"●●",nom:"Paso Etéreo",pool:"Des+Sigilo",dif:6,ef:"Se mueve sin dejar rastro: sin huellas, sin olor, sin perturbación del entorno."},
+     {n:"●●●",nom:"Manto de las Sombras",pool:"Man+Sigilo",dif:7,ef:"Invisibilidad similar a Ofuscación pero basada en sigilo físico real. Engaña cámaras."},
+     {n:"●●●●",nom:"El Golpe Fantasma",pool:"Des+Sigilo",dif:7,ef:"Puede atacar desde la invisibilidad sin revelar su posición. El objetivo no sabe de dónde vino."},
+     {n:"●●●●●",nom:"La Muerte sin Nombre",pool:"—",dif:"—",ef:"Completamente indetectable por cualquier medio sobrenatural o tecnológico mientras no ataque."},
+   ]},
+  {name:"Serpentis",clanes:"Seguidores de Set (exclusiva)",
+   desc:"Disciplina de corrupción y transformación serpentina. Permite al Setita manipular, corromper y adoptar aspectos de serpiente.",
+   poderes:[
+     {n:"●",nom:"Los Ojos de la Serpiente",pool:"Man+Ocultismo",dif:7,ef:"Mirada hipnótica que paraliza o fascina a la víctima. Requiere contacto visual."},
+     {n:"●●",nom:"La Lengua de la Serpiente",pool:"Man+Subterfugio",dif:6,ef:"Lengua de serpiente bífida. Puede lamer objetos para detectar venenos, emociones o rastros."},
+     {n:"●●●",nom:"El Skin del Áspid",pool:"—",dif:"—",ef:"Piel escamosa que otorga +2 dados de absorción. Las escamas son visibles."},
+     {n:"●●●●",nom:"El Corazón de las Tinieblas",pool:"Man+Ocultismo",dif:8,ef:"Extrae el corazón de una víctima sin matarla. Usarlo como palanca de control total."},
+     {n:"●●●●●",nom:"El Cuerpo del Áspid",pool:"—",dif:8,ef:"Transformación completa en una serpiente enorme o adoptar forma híbrida serpiente-humano."},
    ]},
   {name:"Taumaturgia",clanes:"Tremere (exclusiva)",
-   desc:"Magia de sangre ritual que solo los Tremere dominan. Se organiza en Sendas (especializaciones) y Rituales. Cada Senda se compra por separado. La Senda de Sangre es la principal.",
+   desc:"Magia de sangre ritual. Se organiza en Sendas y Rituales. Requiere entrenamiento formal Tremere. La Senda de Sangre es la principal pero existen muchas otras.",
+   sendas:[
+     {nombre:"Senda de Sangre",poderes:[
+       {n:"●",nom:"Sabor de Sangre",pool:"Per+Ocultismo",dif:3,ef:"Toca sangre y sabe si es humana/vampírica, generación aproximada, enfermedades, si fue usada en rituales."},
+       {n:"●●",nom:"Agonía Sanguínea",pool:"Man+Intimidación",dif:6,ef:"Hace hervir la sangre en las venas. La víctima sufre -2 a acciones. Requiere haber probado su sangre."},
+       {n:"●●●",nom:"Hervir la Sangre",pool:"Man+Medicina",dif:7,ef:"Hierve literalmente la sangre dentro del cuerpo. Daño agravado (1 nivel por éxito)."},
+       {n:"●●●●",nom:"Control de la Mente Sanguínea",pool:"Int+Ocultismo",dif:8,ef:"Control completo de la sangre en el cuerpo de otro. Puede inmovilizarlo o hacerlo sangrar."},
+       {n:"●●●●●",nom:"Vampirismo",pool:"Int+Ocultismo",dif:9,ef:"Drena toda la sangre de una víctima a distancia. Vaciar a un vampiro lo manda al torpor."},
+     ]},
+     {nombre:"Senda del Movimiento de la Mente",poderes:[
+       {n:"●",nom:"Levitación",pool:"Int+Ocultismo",dif:5,ef:"El vampiro flota y se mueve lentamente en el aire."},
+       {n:"●●",nom:"Telekinesis Básica",pool:"Int+Ocultismo",dif:6,ef:"Mueve objetos pequeños con la mente (hasta Fuerza 1)."},
+       {n:"●●●",nom:"Telekinesis Avanzada",pool:"Int+Ocultismo",dif:7,ef:"Mueve objetos medianos con precisión (hasta Fuerza 3)."},
+       {n:"●●●●",nom:"Vuelo",pool:"Int+Ocultismo",dif:7,ef:"Vuelo controlado a velocidad normal de carrera."},
+       {n:"●●●●●",nom:"Telekinesis Maestra",pool:"Int+Ocultismo",dif:8,ef:"Mueve objetos muy pesados o múltiples objetos simultáneamente (Fuerza 5+)."},
+     ]},
+     {nombre:"Senda de la Conjuración",poderes:[
+       {n:"●",nom:"Objetos Simples",pool:"Int+Ocultismo",dif:4,ef:"Conjura objetos pequeños y simples de la nada."},
+       {n:"●●",nom:"Objetos Complejos",pool:"Int+Ocultismo",dif:6,ef:"Conjura objetos complejos o mecánicos simples."},
+       {n:"●●●",nom:"Peso en la Mano",pool:"Int+Ocultismo",dif:7,ef:"Los objetos conjurados tienen peso y consistencia real."},
+       {n:"●●●●",nom:"Conjurar lo Vivo",pool:"Int+Ocultismo",dif:8,ef:"Conjura animales o personas (copias temporales sin libre albedrío)."},
+       {n:"●●●●●",nom:"Permanencia",pool:"Int+Ocultismo",dif:9,ef:"Los objetos conjurados son permanentes hasta ser destruidos."},
+     ]},
+   ],
    poderes:[
-     {n:"●",nom:"Senda de Sangre 1 — Sabor de Sangre",pool:"Per+Ocultismo",dif:3,
-      ef:"Tocando sangre, el vampiro puede saber si es humana o vampírica, la generación aproximada del dador, si tiene enfermedades o sustancias, y si ha sido usada en rituales recientes."},
-     {n:"●●",nom:"Senda de Sangre 2 — Agonía Sanguínea",pool:"Man+Intimidación",dif:6,
-      ef:"El vampiro hace hervir la sangre en las venas de la víctima causando dolor intenso. La víctima sufre -2 a todas sus acciones mientras dure el efecto. Requiere haber probado la sangre del objetivo previamente."},
-     {n:"●●●",nom:"Senda de Sangre 3 — Hervir la Sangre",pool:"Man+Medicina",dif:7,
-      ef:"Hace hervir literalmente la sangre dentro del cuerpo. Causa daño agravado (1 nivel por éxito). Devastador contra vampiros. La víctima debe estar a la vista del lanzador."},
-     {n:"●●●●",nom:"Senda de Sangre 4 — Movimiento de la Mente Sanguínea",pool:"Int+Ocultismo",dif:8,
-      ef:"Control completo de la sangre en el cuerpo de otro. Puede inmovilizarlo, obligarlo a sangrar por los poros o extraer su sangre vampírica. El objetivo puede resistir con Fuerza de Voluntad."},
-     {n:"●●●●●",nom:"Senda de Sangre 5 — Vampirismo",pool:"Int+Ocultismo",dif:9,
-      ef:"Drenar toda la sangre de una víctima a distancia. El proceso toma varios turnos. Si se vacía completamente a un vampiro, este entra en torpor profundo. El Tremere absorbe esa sangre."},
+     {n:"●",nom:"Sabor de Sangre (S. Sangre)",pool:"Per+Ocultismo",dif:3,ef:"Detecta propiedades de sangre tocada: origen, generación, rituales previos."},
+     {n:"●●",nom:"Agonía Sanguínea (S. Sangre)",pool:"Man+Intimidación",dif:6,ef:"Provoca dolor intenso usando la sangre de la víctima."},
+     {n:"●●●",nom:"Hervir la Sangre (S. Sangre)",pool:"Man+Medicina",dif:7,ef:"Hierve la sangre dentro del cuerpo. Daño agravado (1 nivel/éxito)."},
+     {n:"●●●●",nom:"Control Sanguíneo (S. Sangre)",pool:"Int+Ocultismo",dif:8,ef:"Control total del movimiento de sangre en el cuerpo de otro."},
+     {n:"●●●●●",nom:"Vampirismo (S. Sangre)",pool:"Int+Ocultismo",dif:9,ef:"Drena toda la sangre de una víctima a distancia."},
+   ]},
+  {name:"Vicisitud",clanes:"Tzimisce (exclusiva)",
+   desc:"Maestría sobre la carne y el hueso. Permite remodelar cuerpos — propio y ajeno — de maneras grotescas o artísticas. El daño de Vicisitud es agravado.",
+   poderes:[
+     {n:"●",nom:"Modelar Carne",pool:"Man+Medicina",dif:6,ef:"Remodela tejido blando (piel, músculo, grasa) como arcilla. Cambios permanentes si se desea."},
+     {n:"●●",nom:"Modelar Hueso",pool:"Man+Medicina",dif:7,ef:"Remodela huesos. Puede crear protuberancias óseas, armas de hueso o deformaciones severas."},
+     {n:"●●●",nom:"Escultura de Carne",pool:"Man+Medicina",dif:8,ef:"Fusiona o separa partes de cuerpos diferentes. Puede crear criaturas combinadas."},
+     {n:"●●●●",nom:"Horrorosa Forma",pool:"—",dif:8,ef:"Transforma el propio cuerpo en una forma monstruosa que otorga bonificaciones físicas."},
+     {n:"●●●●●",nom:"Vicisitud Maestra",pool:"Man+Medicina",dif:9,ef:"Transforma completamente un cuerpo en cualquier forma imaginable. Remodelar a nivel celular."},
    ]},
 ];
 
-// ═══════════════════════════════
-// MERITOS Y DEFECTOS DATA
-// ═══════════════════════════════
-const meritosData=[
-  // FÍSICOS
-  {tipo:"merit",cat:"fisico",nombre:"Ambidextro",val:1,desc:"Puede usar ambas manos con igual habilidad. Sin penalización por mano débil en ataques con dos armas."},
-  {tipo:"merit",cat:"fisico",nombre:"Apariencia llamativa",val:1,desc:"Aspecto memorable que llama la atención positivamente. +1 dado en situaciones donde la apariencia importa."},
-  {tipo:"merit",cat:"fisico",nombre:"Resistencia al dolor",val:2,desc:"Ignora las penalizaciones de Magullado y Lastimado. Las heridas menores simplemente no le afectan."},
-  {tipo:"merit",cat:"fisico",nombre:"Sentidos agudos",val:1,desc:"Percepción natural excepcional. +2 a tiradas de Percepción que involucren ese sentido específico."},
-  {tipo:"merit",cat:"fisico",nombre:"Tolerancia al fuego",val:3,desc:"Resistencia natural inusual al fuego. El vampiro puede tirar Fortaleza contra daño de fuego aunque no tenga la disciplina."},
-  {tipo:"merit",cat:"fisico",nombre:"Digestión rápida",val:1,desc:"Puede gastar sangre a razón de 2 puntos por turno aunque su generación normalmente solo permita 1."},
-  // MENTALES
-  {tipo:"merit",cat:"mental",nombre:"Memoria eidética",val:2,desc:"Recuerda perfectamente todo lo que ha visto o escuchado. Sin tirada para recordar detalles; dif. reducida para información compleja."},
-  {tipo:"merit",cat:"mental",nombre:"Mentes múltiples",val:3,desc:"Puede procesar información en paralelo. +1 acción declarada por turno sin penalización en situaciones de análisis o planificación."},
-  {tipo:"merit",cat:"mental",nombre:"Concentración",val:1,desc:"Puede mantener la concentración bajo presión. Sin penalización por distracciones menores en tiradas mentales."},
-  {tipo:"merit",cat:"mental",nombre:"Mente analítica",val:1,desc:"Excelente capacidad de razonamiento lógico. +1 dado en investigación y análisis de patrones o pistas."},
-  {tipo:"merit",cat:"mental",nombre:"Conciencia Jyhad",val:2,desc:"Conocimiento amplio de la política vampírica. +2 dados al intentar comprender maniobras políticas entre clanes o sectas."},
-  {tipo:"merit",cat:"mental",nombre:"Artista natural",val:1,desc:"Talento artístico innato. +2 dados en la expresión artística elegida (música, pintura, escritura, etc.)."},
-  // SOCIALES
-  {tipo:"merit",cat:"social",nombre:"Buena reputación",val:2,desc:"Conocido positivamente en los círculos vampíricos. +2 dados en situaciones sociales con vampiros de tu secta."},
-  {tipo:"merit",cat:"social",nombre:"Contactos en los bajos fondos",val:1,desc:"Conexiones con el crimen organizado mortal. Puede obtener información o servicios ilegales sin tirada si el tiempo lo permite."},
-  {tipo:"merit",cat:"social",nombre:"Cómplice humano",val:1,desc:"Un mortal de confianza que sabe sobre los vampiros y los ayuda. El Narrador crea el PNJ conjuntamente."},
-  {tipo:"merit",cat:"social",nombre:"Status social heredado",val:2,desc:"Reconocimiento automático en la corte vampírica. +1 Status inicial en la ciudad de origen."},
-  {tipo:"merit",cat:"social",nombre:"Mascarada impecable",val:2,desc:"Experiencia en mantener la apariencia humana. +2 dados a tiradas de Actuación para parecer mortal."},
-  // SOBRENATURALES
-  {tipo:"merit",cat:"sobrenatural",nombre:"Conciencia de la Bestia",val:2,desc:"El vampiro siente cuando la Bestia amenaza con tomar el control. +2 dados en tiradas de control de frenesí."},
-  {tipo:"merit",cat:"sobrenatural",nombre:"Sangre potente",val:3,desc:"La sangre del vampiro es especialmente potente. Sus ghouls son más fuertes y los vínculos de sangre que crea son más difíciles de romper."},
-  {tipo:"merit",cat:"sobrenatural",nombre:"Sueño ligero",val:1,desc:"Puede despertar más rápidamente durante el día ante peligros. Tira Per+Alerta dif.8 para reaccionar durante las horas de luz."},
-  {tipo:"merit",cat:"sobrenatural",nombre:"Afinidad con el clan",val:2,desc:"Comprensión especial de su propio clan. Aprende las Disciplinas del clan al 80% del costo normal de XP."},
-  // DEFECTOS
-  {tipo:"defect",cat:"defecto",nombre:"Adicción",val:1,desc:"Compulsión por una sustancia o comportamiento. Debe superar Autocontrol dif.6 para resistir cuando esté disponible la sustancia."},
-  {tipo:"defect",cat:"defecto",nombre:"Enemigo declarado",val:1,desc:"Un vampiro poderoso lo tiene en la mira. El Narrador puede introducirlo como antagonista recurrente."},
-  {tipo:"defect",cat:"defecto",nombre:"Fobia",val:2,desc:"Terror irracional ante algo específico. Rötschreck automático ante el objeto de la fobia, sin tirada de control."},
-  {tipo:"defect",cat:"defecto",nombre:"Apariencia perturbadora",val:2,desc:"Algo en su presencia inquieta a los humanos. -2 dados en interacciones sociales con mortales que no estén acostumbrados."},
-  {tipo:"defect",cat:"defecto",nombre:"Oscuro secreto",val:1,desc:"Algo que si se revelara destruiría su reputación o su vida. El Narrador puede presionar esta palanca narrativamente."},
-  {tipo:"defect",cat:"defecto",nombre:"Torpeza",val:1,desc:"Propenso a accidentes físicos menores. -1 dado en tiradas de Destreza que impliquen coordinación fina."},
-  {tipo:"defect",cat:"defecto",nombre:"Incapacidad",val:2,desc:"Una habilidad específica es imposible para el personaje, independientemente del aprendizaje."},
-  {tipo:"defect",cat:"defecto",nombre:"Comportamiento compulsivo",val:1,desc:"Una rutina que debe completar siempre. Si se interrumpe, sufre -2 a todas las acciones hasta completarla."},
-  {tipo:"defect",cat:"defecto",nombre:"Instinto predatorio",val:2,desc:"La Bestia es especialmente cercana a la superficie. -1 a dificultad de frenesí en todas las situaciones provocadoras."},
-  {tipo:"defect",cat:"defecto",nombre:"Aliado mortal en peligro",val:1,desc:"Alguien que le importa es vulnerable. El Narrador puede usarlo como palanca de presión narrativa."},
-  {tipo:"defect",cat:"defecto",nombre:"Olvidos",val:2,desc:"Lagunas de memoria frecuentes. Puede olvidar información importante en los peores momentos (tirada Int dif.7 para recordar bajo presión)."},
-  {tipo:"defect",cat:"defecto",nombre:"Deuda de sangre",val:1,desc:"Debe un favor enorme a otro vampiro. El acreedor puede cobrarlo en el peor momento posible."},
-];
-
-const trasfondosData=[
-  {nombre:"Aliados",desc:"Humanos (o grupos) que colaboran activamente con el vampiro: detectives, médicos, abogados, periodistas. No son ghouls, actúan por amistad, dinero o deuda.",
-   niveles:["1 — Un contacto confiable con recursos limitados","2 — Un grupo pequeño o individuo muy competente","3 — Varios aliados o uno extremadamente poderoso","4 — Una red de aliados con recursos sustanciales","5 — Aliados que controlan organizaciones enteras"]},
-  {nombre:"Contactos",desc:"Red de informantes en distintos sectores. A diferencia de los Aliados, los Contactos dan información pero no actúan directamente.",
-   niveles:["1 — Un contacto en un área específica","2 — Contactos en 2-3 sectores","3 — Red moderada, información frecuente","4 — Red amplia, pocas áreas sin cobertura","5 — Omnipresencia informativa en la ciudad"]},
-  {nombre:"Dominio",desc:"Territorio reconocido donde el vampiro puede cazar sin pedir permiso. El Príncipe lo reconoce (con mayor o menor entusiasmo).",
-   niveles:["1 — Una manzana o edificio","2 — Un barrio pequeño","3 — Un barrio completo","4 — Varios barrios o zona importante","5 — Territorio extenso reconocido por todos"]},
-  {nombre:"Generación",desc:"Comprarse una generación más baja que la estándar (8ª). Costoso en puntos gratuitos pero fundamental para algunos builds.",
-   niveles:["1 — 8ª generación (estándar)","2 — 7ª generación","3 — 6ª generación","4 — 5ª generación","5 — 4ª generación (requiere aprobación del Narrador)"]},
-  {nombre:"Influencia",desc:"Poder en círculos humanos: política, medios, crimen organizado, iglesia, etc. Permite mover piezas en el mundo mortal sin exponerse.",
-   niveles:["1 — Influencia menor en un sector","2 — Influencia moderada, puede hacer favores","3 — Influencia significativa, puede torcer decisiones menores","4 — Influencia fuerte, puede afectar política local","5 — Domina un sector completo de la ciudad"]},
-  {nombre:"Manada",desc:"Para personajes del Sabbat: el grupo de vampiros de confianza total con quienes comparten el vínculo de la Vaulderie.",
-   niveles:["1 — 1-2 compañeros de confianza","2 — Manada pequeña pero cohesionada","3 — Manada bien establecida con recursos","4 — Manada grande y leal","5 — Manada legendaria con territorio propio"]},
-  {nombre:"Mentor",desc:"Un vampiro más antiguo que guía, protege y ocasionalmente ayuda al personaje. A mayor nivel, más poderoso e involucrado.",
-   niveles:["1 — Mentor distante, consejo ocasional","2 — Mentor activo que comparte conocimiento","3 — Mentor poderoso con conexiones","4 — Mentor muy influyente dispuesto a intervenir","5 — Anciano que pone sus recursos al servicio del personaje"]},
-  {nombre:"Recursos",desc:"Riqueza y bienes materiales. Un vampiro sin recursos depende de otros para refugio, transporte y equipamiento.",
-   niveles:["1 — Clase trabajadora, lo básico cubierto","2 — Clase media, cómodo sin lujos","3 — Clase alta, vive bien","4 — Rico, acceso a recursos considerables","5 — Millonario, prácticamente sin límite presupuestario"]},
-  {nombre:"Refugio",desc:"Lugar seguro para descansar durante el día. La calidad y seguridad varía enormemente.",
-   niveles:["1 — Lugar básico y discreto (sótano, almacén)","2 — Lugar seguro con protecciones básicas","3 — Refugio bien protegido, difícil de encontrar","4 — Fortaleza personal con múltiples medidas de seguridad","5 — Refugio prácticamente inexpugnable"]},
-  {nombre:"Rebaño",desc:"Grupo de humanos que el vampiro puede alimentarse regularmente sin necesidad de cazar. No son ghouls pero están bajo su influencia.",
-   niveles:["1 — 1-2 personas dispuestas","2 — Pequeño grupo de 3-5 personas","3 — Grupo de 6-10, variado","4 — Grupo grande de 10-20 con disponibilidad amplia","5 — Rebaño extenso, nunca pasa hambre"]},
-  {nombre:"Status",desc:"Reconocimiento y reputación dentro de la secta vampírica. Alto Status abre puertas; Status 0 significa ser ignorado o despreciado.",
-   niveles:["1 — Reconocido, se sabe quién es","2 — Respetado, se toman en cuenta sus opiniones","3 — Influyente, su presencia cambia dinámicas","4 — Muy influyente, los demás buscan su aprobación","5 — Pilar de la secta, figura de autoridad indiscutida"]},
-];
-
-
-function filterMeritos(cat, btn) {
-  document.querySelectorAll('#merit-cat-btns button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderMeritos(cat);
-}
-
-function renderMeritos(cat) {
-  const el = document.getElementById('meritos-list');
-  const filtered = cat === 'todos' ? meritosData : meritosData.filter(m=>m.cat===cat);
-  const merits = filtered.filter(m=>m.tipo==='merit');
-  const defects = filtered.filter(m=>m.tipo==='defect');
-  let html = '';
-  if(merits.length) {
-    html += `<h3 style="margin-top:.5rem">Méritos</h3>`;
-    html += `<div class="card"><table><tr><th>Nombre</th><th>Valor</th><th>Descripción</th></tr>`;
-    html += merits.map(m=>`<tr><td style="font-weight:500;white-space:nowrap">${m.nombre}</td><td style="color:var(--gold);white-space:nowrap">${m.val} pt${m.val>1?'s':''}</td><td style="font-size:13px">${m.desc}</td></tr>`).join('');
-    html += `</table></div>`;
-  }
-  if(defects.length) {
-    html += `<h3>Defectos</h3>`;
-    html += `<div class="card"><table><tr><th>Nombre</th><th>Valor</th><th>Descripción</th></tr>`;
-    html += defects.map(m=>`<tr><td style="font-weight:500;white-space:nowrap">${m.nombre}</td><td style="color:var(--red-light);white-space:nowrap">+${m.val} pt${m.val>1?'s':''}</td><td style="font-size:13px">${m.desc}</td></tr>`).join('');
-    html += `</table></div>`;
-  }
-  el.innerHTML = html || '<div class="empty-state">Sin resultados</div>';
-}
-
-function renderTrasfondos() {
-  const el = document.getElementById('trasfondos-list');
-  el.innerHTML = trasfondosData.map((t,i)=>`
-    <div class="card" style="margin-bottom:.5rem">
-      <div class="coll-header" onclick="toggleColl('tf${i}',this)">
-        <h3 style="margin:0">${t.nombre}</h3>
-        <span class="coll-arrow">▼</span>
-      </div>
-      <div class="coll-body" id="tf${i}">
-        <p style="font-size:14px;margin-bottom:.5rem">${t.desc}</p>
-        <table>
-          ${t.niveles.map(n=>`<tr><td style="font-size:13px;color:var(--text2)">${n}</td></tr>`).join('')}
-        </table>
-      </div>
-    </div>`).join('');
-}
 
 function filterClanes(v) {
   const f = v.toLowerCase();
@@ -2742,7 +2658,32 @@ function filterDiscs(v) {
   const f = v.toLowerCase();
   const el = document.getElementById('disc-list');
   const filtered = disciplinas.filter(d=>!f||d.name.toLowerCase().includes(f)||d.clanes.toLowerCase().includes(f)||d.poderes.some(p=>p.nom.toLowerCase().includes(f)));
-  el.innerHTML = filtered.map((d,i)=>`
+  el.innerHTML = filtered.map((d,i)=>{
+    const sendasHtml = d.sendas ? `
+      <div style="margin-top:.75rem;border-top:1px solid var(--border);padding-top:.6rem">
+        <div style="font-size:11px;color:var(--gold-dim);font-family:var(--font-title);letter-spacing:.08em;margin-bottom:.4rem">SENDAS DISPONIBLES</div>
+        ${d.sendas.map((s,si)=>`
+          <div class="card" style="margin-bottom:.4rem;background:var(--surface3)">
+            <div class="coll-header" onclick="toggleColl('ds${i}_${si}',this)" style="border:none;padding:.4rem 0">
+              <span style="font-size:13px;color:var(--text);font-family:var(--font-title)">${s.nombre}</span>
+              <span class="coll-arrow" style="font-size:10px">▼</span>
+            </div>
+            <div class="coll-body" id="ds${i}_${si}">
+              <table style="margin-top:.4rem">
+                <tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>
+                ${s.poderes.map(p=>`
+                  <tr>
+                    <td style="color:var(--red-light);font-size:12px">${p.n}</td>
+                    <td style="font-size:12px">${p.nom}</td>
+                    <td style="color:#e88;font-style:italic;font-size:11px">${p.pool}</td>
+                    <td style="font-size:12px">${p.dif}</td>
+                  </tr>
+                  <tr><td colspan="4" style="font-size:11px;color:var(--text3);padding-bottom:5px">${p.ef}</td></tr>`).join('')}
+              </table>
+            </div>
+          </div>`).join('')}
+      </div>` : '';
+    return `
     <div class="card" style="margin-bottom:.5rem">
       <div class="coll-header" onclick="toggleColl('dc${i}',this)">
         <div>
@@ -2753,6 +2694,7 @@ function filterDiscs(v) {
       </div>
       <div class="coll-body" id="dc${i}">
         <p style="font-size:13px;margin-bottom:.5rem">${d.desc}</p>
+        <div style="font-size:11px;color:var(--gold-dim);font-family:var(--font-title);letter-spacing:.08em;margin-bottom:.3rem">PODERES PRINCIPALES</div>
         <table>
           <tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>
           ${d.poderes.map(p=>`
@@ -2764,8 +2706,10 @@ function filterDiscs(v) {
             </tr>
             <tr><td colspan="4" style="font-size:12px;color:var(--text3);padding-bottom:6px">${p.ef}</td></tr>`).join('')}
         </table>
+        ${sendasHtml}
       </div>
-    </div>`).join('') || '<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
+    </div>`;
+  }).join('') || '<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
 }
 
 // ═══════════════════════════════
@@ -2839,6 +2783,11 @@ const MERIT_DATA = {
   'Aliado mortal en peligro':{tipo:'defect',val:1,desc:'Alguien que le importa es vulnerable. Palanca de presión narrativa.'},
   'Olvidos':               {tipo:'defect',val:2,desc:'Lagunas de memoria frecuentes. Int dif.7 para recordar bajo presión.'},
   'Deuda de sangre':       {tipo:'defect',val:1,desc:'Debe un favor enorme a otro vampiro. El acreedor puede cobrarlo en el peor momento.'},
+  'Marcado':               {tipo:'defect',val:2,desc:'Tiene una característica vampírica visible que dificulta mantener la Mascarada. +2 dif. para pasar por humano.'},
+  'Vinculo parcial':       {tipo:'defect',val:2,desc:'Ya tiene el primer nivel de vínculo de sangre con otro vampiro. Sentirá atracción hacia ese vampiro.'},
+  'Intolerancia':          {tipo:'defect',val:1,desc:'Aversión intensa a algo cotidiano (ajo, cruces, espejos, etc.) según los mitos vampíricos clásicos.'},
+  'Sueño pesado':          {tipo:'defect',val:2,desc:'Tarda mucho en despertar ante peligros durante el día. Per+Alerta dif.10 para reaccionar.'},
+  'Sin clan (Caitiff)':    {tipo:'defect',val:3,desc:'Sin clan reconocido. -2 Status automático en círculos vampíricos formales. Las Disciplinas cuestan más XP.'},
 };
 
 const TRAS_DATA = {
