@@ -1297,7 +1297,7 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
 
 
 <!-- REFERENCE PANEL -->
-<div id="ref-panel" style="display:none;position:fixed;bottom:5rem;left:.75rem;right:.75rem;max-width:500px;margin:0 auto;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1rem;z-index:150;box-shadow:0 -4px 24px rgba(0,0,0,.5)"></div>
+<div id="ref-panel" style="display:none;position:fixed;bottom:5.5rem;left:.5rem;right:.5rem;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1rem 1rem .75rem;z-index:600;box-shadow:0 -8px 32px rgba(0,0,0,.7);max-height:60vh;overflow-y:auto"></div>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -1658,13 +1658,16 @@ async function loadPJs() {
     </div>`).join('')}</div>`;
 }
 
+let _currentDetailFicha = {};
+
 async function openPJDetail(id) {
   const { data } = await sb.from('personajes_pj').select('*').eq('id',id).single();
   if(!data) return;
+  _currentDetailFicha = data.ficha || {};
   document.getElementById('modal-pj-detail-title').textContent = data.nombre;
   const ficha = data.ficha || {};
   const sf = data.ficha || {};
-  const gf = (k,d='—') => sf[k]||d;
+  const gf = (k,d=0) => (sf[k] !== undefined && sf[k] !== '') ? sf[k] : d;
   const dotView = (v,max=5) => Array.from({length:max},(_,i)=>`<span style="font-size:14px;color:${i<v?'#c9a84c':'#2a1a1a'}">●</span>`).join('');
   document.getElementById('modal-pj-detail-body').innerHTML = `
     ${data.foto_url ? `<img src="${data.foto_url}" style="width:100%;max-height:260px;object-fit:cover;object-position:top;border-radius:8px;margin-bottom:1rem" onclick="openLightbox('${data.foto_url}','${data.nombre}')">` : ''}
@@ -1681,67 +1684,60 @@ async function openPJDetail(id) {
       <table>
         <tr><th colspan="2">Físico</th><th colspan="2">Social</th><th colspan="2">Mental</th></tr>
         <tr>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Fuerza',${gf('Fuerza',1)})">Fuerza</td><td>${dotView(gf('Fuerza',1))}</td>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Carisma',${gf('Carisma',1)})">Carisma</td><td>${dotView(gf('Carisma',1))}</td>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Percepción',${gf('Percepcion',1)})">Percepción</td><td>${dotView(gf('Percepcion',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Fuerza" data-lkey="Fuerza">Fuerza</td><td>${dotView(gf('Fuerza',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Carisma" data-lkey="Carisma">Carisma</td><td>${dotView(gf('Carisma',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Percepción" data-lkey="Percepcion">Percepción</td><td>${dotView(gf('Percepcion',1))}</td>
         </tr>
         <tr>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Destreza',${gf('Destreza',1)})">Destreza</td><td>${dotView(gf('Destreza',1))}</td>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Manipulación',${gf('Manipulacion',1)})">Manip.</td><td>${dotView(gf('Manipulacion',1))}</td>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Inteligencia',${gf('Inteligencia',1)})">Inteligencia</td><td>${dotView(gf('Inteligencia',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Destreza" data-lkey="Destreza">Destreza</td><td>${dotView(gf('Destreza',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Manipulación" data-lkey="Manipulacion">Manip.</td><td>${dotView(gf('Manipulacion',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Inteligencia" data-lkey="Inteligencia">Inteligencia</td><td>${dotView(gf('Inteligencia',1))}</td>
         </tr>
         <tr>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Resistencia',${gf('Resistencia',1)})">Resistencia</td><td>${dotView(gf('Resistencia',1))}</td>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Apariencia',${gf('Apariencia',1)})">Apariencia</td><td>${dotView(gf('Apariencia',1))}</td>
-          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Astucia',${gf('Astucia',1)})">Astucia</td><td>${dotView(gf('Astucia',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Resistencia" data-lkey="Resistencia">Resistencia</td><td>${dotView(gf('Resistencia',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Apariencia" data-lkey="Apariencia">Apariencia</td><td>${dotView(gf('Apariencia',1))}</td>
+          <td style="font-size:12px" class="ref-link" data-ref="attr" data-key="Astucia" data-lkey="Astucia">Astucia</td><td>${dotView(gf('Astucia',1))}</td>
         </tr>
       </table>
     </div>
-
     <h3>Habilidades destacadas</h3>
     <div class="card">
       <table>
         ${['Alerta','Atletismo','Callejeo','Subterfugio','Intimidacion','Pelea','Armas de Fuego','Sigilo','Ocultismo','Medicina','Investigacion'].filter(k=>gf(k,0)>0).map(k=>`
           <tr>
-            <td style="font-size:13px" class="ref-link" onclick="showRef('skill','${k}',${gf(k,0)})">${k}</td>
+            <td style="font-size:13px" class="ref-link" data-ref="skill" data-key="${k}" data-lkey="${k}">${k}</td>
             <td>${dotView(gf(k,0))}</td>
           </tr>`).join('')}
       </table>
     </div>
-
-    ${gf('DiscList','[]') !== '[]' || gf('Disciplinas','') ? `
-      <h3>Disciplinas</h3>
+    <h3>Disciplinas</h3>
       <div class="card">
         <div class="chip-list">
-          ${(JSON.parse(gf('DiscList','[]') || '[]')).map(d=>`
-            <span class="chip disc ref-link" onclick="showRef('disc','${d.name}',${d.level||0})">${d.name} ${'●'.repeat(d.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Disciplinas')}</p>`}
+          ${(()=>{const dl=JSON.parse(gf('DiscList','[]')||'[]');return dl.length?dl.map(d=>'<span class="chip disc ref-link" data-ref="disc" data-key="'+d.name+'" data-level="'+(d.level||0)+'">'+d.name+' '+'●'.repeat(d.level||0)+'</span>').join(''):'<p style="font-size:14px">'+gf('Disciplinas','—')+'</p>';})()}
         </div>
-      </div>` : ''}
-    ${gf('TrasList','[]') !== '[]' || gf('Trasfondos','') ? `
-      <h3>Trasfondos</h3>
-      <div class="card">
-        <div class="chip-list">
-          ${(JSON.parse(gf('TrasList','[]') || '[]')).map(t=>`
-            <span class="chip tras ref-link" onclick="showRef('tras','${t.name}',${t.level||0})">${t.name} ${'●'.repeat(t.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Trasfondos')}</p>`}
-        </div>
-      </div>` : ''}
-    ${gf('MerDefList','[]') !== '[]' ? `
-      <h3>Méritos y Defectos</h3>
-      <div class="card">
-        <div class="chip-list">
-          ${(JSON.parse(gf('MerDefList','[]') || '[]')).map(m=>`
-            <span class="chip ${m.tipo} ref-link" onclick="showRef('merit','${m.name}',0)">${m.tipo==='defect'?'⚠ ':''}${m.name}</span>`).join('')}
-        </div>
-      </div>` : ''}
+      </div>
+    ${(()=>{
+      const tl=JSON.parse(gf('TrasList','[]')||'[]');
+      const tstr=gf('Trasfondos','');
+      if(!tl.length && !tstr) return '';
+      const chips=tl.length ? tl.map(t=>'<span class="chip tras ref-link" data-ref="tras" data-key="'+t.name+'" data-level="'+(t.level||0)+'">'+t.name+' '+'●'.repeat(t.level||0)+'</span>').join('') : '<p style="font-size:14px">'+tstr+'</p>';
+      return '<h3>Trasfondos</h3><div class="card"><div class="chip-list">'+chips+'</div></div>';
+    })()}
+    ${(()=>{
+      const ml=JSON.parse(gf('MerDefList','[]')||'[]');
+      if(!ml.length) return '';
+      const chips=ml.map(m=>'<span class="chip '+m.tipo+' ref-link" data-ref="merit" data-key="'+m.name+'">'+(m.tipo==='defect'?'⚠ ':'')+m.name+'</span>').join('');
+      return '<h3>Méritos y Defectos</h3><div class="card"><div class="chip-list">'+chips+'</div></div>';
+    })()}
 
     <h3>Virtudes y Estado</h3>
     <div class="card">
       <table>
         <tr><td>Humanidad</td><td>${dotView(gf('Humanidad',7),10)}</td></tr>
         <tr><td>Fuerza de Voluntad</td><td>${dotView(gf('FuerzaVoluntad',5),10)}</td></tr>
-        <tr><td class="ref-link" onclick="showRef('virtue','Conciencia',${gf('Conciencia',1)})">Conciencia</td><td>${dotView(gf('Conciencia',1))}</td></tr>
-        <tr><td class="ref-link" onclick="showRef('virtue','Autocontrol',${gf('Autocontrol',1)})">Autocontrol</td><td>${dotView(gf('Autocontrol',1))}</td></tr>
-        <tr><td class="ref-link" onclick="showRef('virtue','Coraje',${gf('Coraje',1)})">Coraje</td><td>${dotView(gf('Coraje',1))}</td></tr>
+        <tr><td class="ref-link" data-ref="virtue" data-key="Conciencia" data-lkey="Conciencia">Conciencia</td><td>${dotView(gf('Conciencia',1))}</td></tr>
+        <tr><td class="ref-link" data-ref="virtue" data-key="Autocontrol" data-lkey="Autocontrol">Autocontrol</td><td>${dotView(gf('Autocontrol',1))}</td></tr>
+        <tr><td class="ref-link" data-ref="virtue" data-key="Coraje" data-lkey="Coraje">Coraje</td><td>${dotView(gf('Coraje',1))}</td></tr>
         <tr><td>Sangre</td><td style="font-size:14px">${gf('SangreActual','?')} / ${gf('SangreMax','?')}</td></tr>
         ${gf('Salud','') ? `<tr><td>Heridas</td><td style="font-size:13px;color:var(--red-light)">${gf('Salud')}</td></tr>` : ''}
       </table>
@@ -1749,6 +1745,23 @@ async function openPJDetail(id) {
 
     ${gf('Notas','') ? `<h3>Notas</h3><div class="rule-box" style="font-size:14px;white-space:pre-wrap">${gf('Notas')}</div>` : ''}`;
   openModal('modal-pj-detail');
+  // Setup ref-link delegation on the detail body
+  setTimeout(() => {
+    const body = document.getElementById('modal-pj-detail-body');
+    if(body) {
+      body.onclick = function(e) {
+        const el = e.target.closest('.ref-link[data-ref]');
+        if(!el) return;
+        const type = el.dataset.ref;
+        const key = el.dataset.key;
+        const lkey = el.dataset.lkey || key;
+        // Get level from current ficha
+        const rawLevel = _currentDetailFicha[lkey];
+        const level = rawLevel !== undefined ? parseInt(rawLevel) || 0 : parseInt(el.dataset.level||'0');
+        showRef(type, key, level);
+      };
+    }
+  }, 100);
 }
 
 async function loadAdminPJs() {
@@ -3323,18 +3336,24 @@ async function deletePin(id) {
 // ═══════════════════════════════
 function dotRating(id, value, max=5) {
   const dots = Array.from({length:max},(_,i)=>
-    `<span onclick="setDot('${id}',${i+1})" style="cursor:pointer;font-size:16px;color:${i<value?'#c9a84c':'#3a2a2a'};margin-right:2px">●</span>`
+    `<span onclick="setDot('${id}',${i+1})" style="cursor:pointer;font-size:20px;color:${i<value?'#c9a84c':'#2a1a1a'};padding:2px 3px;display:inline-block">●</span>`
   ).join('');
-  return `<div id="dots-${id}" style="display:flex;align-items:center">${dots}</div><input type="hidden" id="${id}" value="${value}">`;
+  // Add −/+ buttons flanking the dots for easy tap access
+  return `<div style="display:flex;align-items:center;gap:2px">
+    <button onclick="setDot('${id}', Math.max(0, parseInt(document.getElementById('${id}').value||0)-1))" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text3);width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">−</button>
+    <div id="dots-${id}" style="display:flex;align-items:center">${dots}</div>
+    <button onclick="setDot('${id}', Math.min(${max}, parseInt(document.getElementById('${id}').value||0)+1))" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text3);width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">+</button>
+  </div><input type="hidden" id="${id}" value="${value}">`;
 }
 
 function setDot(id, val) {
+  val = Math.max(0, val); // Allow 0
   const input = document.getElementById(id);
   if(input) input.value = val;
   const container = document.getElementById('dots-'+id);
   if(!container) return;
   Array.from(container.children).forEach((span,i) => {
-    span.style.color = (i+1) <= val ? '#c9a84c' : '#3a2a2a';
+    if(span.tagName === 'SPAN') span.style.color = (i+1) <= val ? '#c9a84c' : '#2a1a1a';
   });
 }
 
