@@ -512,23 +512,23 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
 
 <!-- BOTTOM TAB BAR -->
 <div class="bottom-nav">
-  <button class="tab-btn active" id="tab-manual" onclick="showTab('manual',this)">
+  <button class="tab-btn active" id="tab-manual" onclick="showTab('manual','tab-manual')">
     <span class="tab-icon">📖</span>
     <span class="tab-label">Manual</span>
   </button>
-  <button class="tab-btn" id="tab-campana" onclick="showTab('campana',this)">
+  <button class="tab-btn" id="tab-campana" onclick="showTab('campana','tab-campana')">
     <span class="tab-icon">🗺️</span>
     <span class="tab-label">Campaña</span>
   </button>
-  <button class="tab-btn" id="tab-pjs" onclick="show('pjs-sec',this);setActiveTab('tab-pjs')">
+  <button class="tab-btn" id="tab-pjs" onclick="showDirect('pjs-sec','tab-pjs')">
     <span class="tab-icon">🧛</span>
     <span class="tab-label">PJs</span>
   </button>
-  <button class="tab-btn" id="tab-diario" onclick="show('diario-sec',this);setActiveTab('tab-diario')">
+  <button class="tab-btn" id="tab-diario" onclick="showDirect('diario-sec','tab-diario')">
     <span class="tab-icon">📜</span>
     <span class="tab-label">Diario</span>
   </button>
-  <button class="tab-btn" id="tab-mas" onclick="showTab('mas',this)">
+  <button class="tab-btn" id="tab-mas" onclick="showTab('mas','tab-mas')">
     <span class="tab-icon">☰</span>
     <span class="tab-label">Más</span>
   </button>
@@ -1278,32 +1278,35 @@ function setActiveTab(tabId) {
   if(t) t.classList.add('active');
 }
 
-function showTab(drawer, tabBtn) {
-  // Update active tab
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  const t = document.getElementById('tab-'+tabBtn.replace('tab-',''));
-  if(t) t.classList.add('active');
-  else tabBtn && tabBtn.classList && tabBtn.classList.add('active');
-  // Open drawer
-  closeDrawer();
-  const d = document.getElementById('drawer-'+drawer);
-  if(d) {
-    document.getElementById('drawer-overlay').classList.add('open');
-    setTimeout(()=>d.classList.add('open'),10);
+function showTab(drawerId, tabId) {
+  // Set active tab
+  setActiveTab(tabId);
+  // Close any open drawer first
+  document.querySelectorAll('.drawer').forEach(d=>d.classList.remove('open'));
+  // Open target drawer
+  const overlay = document.getElementById('drawer-overlay');
+  const drawer = document.getElementById('drawer-'+drawerId);
+  if(drawer && overlay) {
+    overlay.classList.add('open');
+    setTimeout(()=>drawer.classList.add('open'), 10);
   }
+}
+
+function showDirect(sectionId, tabId) {
+  setActiveTab(tabId);
+  show(sectionId, null);
 }
 
 function showFromDrawer(sectionId, tabId) {
   closeDrawer();
   show(sectionId, null);
   setActiveTab(tabId);
-  // Update active drawer items
-  document.querySelectorAll('.drawer-item').forEach(i=>i.classList.remove('active'));
 }
 
 function closeDrawer() {
   document.querySelectorAll('.drawer').forEach(d=>d.classList.remove('open'));
-  document.getElementById('drawer-overlay').classList.remove('open');
+  const overlay = document.getElementById('drawer-overlay');
+  if(overlay) overlay.classList.remove('open');
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
