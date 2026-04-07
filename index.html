@@ -327,6 +327,10 @@ td:first-child { color: var(--text); }
 
 
 /* CHIPS / TAGS */
+
+.ref-link { cursor: pointer; border-bottom: 1px dotted var(--text3); transition: color .15s; }
+.ref-link:active { color: var(--gold); }
+
 .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: .4rem; }
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -1291,6 +1295,10 @@ footer { text-align: center; padding: 1rem; font-size: 11px; color: var(--text3)
 
 </main>
 
+
+<!-- REFERENCE PANEL -->
+<div id="ref-panel" style="display:none;position:fixed;bottom:5rem;left:.75rem;right:.75rem;max-width:500px;margin:0 auto;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1rem;z-index:150;box-shadow:0 -4px 24px rgba(0,0,0,.5)"></div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -1673,19 +1681,19 @@ async function openPJDetail(id) {
       <table>
         <tr><th colspan="2">Físico</th><th colspan="2">Social</th><th colspan="2">Mental</th></tr>
         <tr>
-          <td style="font-size:12px">Fuerza</td><td>${dotView(gf('Fuerza',1))}</td>
-          <td style="font-size:12px">Carisma</td><td>${dotView(gf('Carisma',1))}</td>
-          <td style="font-size:12px">Percepción</td><td>${dotView(gf('Percepcion',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Fuerza',${gf('Fuerza',1)})">Fuerza</td><td>${dotView(gf('Fuerza',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Carisma',${gf('Carisma',1)})">Carisma</td><td>${dotView(gf('Carisma',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Percepción',${gf('Percepcion',1)})">Percepción</td><td>${dotView(gf('Percepcion',1))}</td>
         </tr>
         <tr>
-          <td style="font-size:12px">Destreza</td><td>${dotView(gf('Destreza',1))}</td>
-          <td style="font-size:12px">Manip.</td><td>${dotView(gf('Manipulacion',1))}</td>
-          <td style="font-size:12px">Inteligencia</td><td>${dotView(gf('Inteligencia',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Destreza',${gf('Destreza',1)})">Destreza</td><td>${dotView(gf('Destreza',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Manipulación',${gf('Manipulacion',1)})">Manip.</td><td>${dotView(gf('Manipulacion',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Inteligencia',${gf('Inteligencia',1)})">Inteligencia</td><td>${dotView(gf('Inteligencia',1))}</td>
         </tr>
         <tr>
-          <td style="font-size:12px">Resistencia</td><td>${dotView(gf('Resistencia',1))}</td>
-          <td style="font-size:12px">Apariencia</td><td>${dotView(gf('Apariencia',1))}</td>
-          <td style="font-size:12px">Astucia</td><td>${dotView(gf('Astucia',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Resistencia',${gf('Resistencia',1)})">Resistencia</td><td>${dotView(gf('Resistencia',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Apariencia',${gf('Apariencia',1)})">Apariencia</td><td>${dotView(gf('Apariencia',1))}</td>
+          <td style="font-size:12px" class="ref-link" onclick="showRef('attr','Astucia',${gf('Astucia',1)})">Astucia</td><td>${dotView(gf('Astucia',1))}</td>
         </tr>
       </table>
     </div>
@@ -1694,7 +1702,10 @@ async function openPJDetail(id) {
     <div class="card">
       <table>
         ${['Alerta','Atletismo','Callejeo','Subterfugio','Intimidacion','Pelea','Armas de Fuego','Sigilo','Ocultismo','Medicina','Investigacion'].filter(k=>gf(k,0)>0).map(k=>`
-          <tr><td style="font-size:13px">${k}</td><td>${dotView(gf(k,0))}</td></tr>`).join('')}
+          <tr>
+            <td style="font-size:13px" class="ref-link" onclick="showRef('skill','${k}',${gf(k,0)})">${k}</td>
+            <td>${dotView(gf(k,0))}</td>
+          </tr>`).join('')}
       </table>
     </div>
 
@@ -1703,7 +1714,7 @@ async function openPJDetail(id) {
       <div class="card">
         <div class="chip-list">
           ${(JSON.parse(gf('DiscList','[]') || '[]')).map(d=>`
-            <span class="chip disc">${d.name} ${'●'.repeat(d.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Disciplinas')}</p>`}
+            <span class="chip disc ref-link" onclick="showRef('disc','${d.name}',${d.level||0})">${d.name} ${'●'.repeat(d.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Disciplinas')}</p>`}
         </div>
       </div>` : ''}
     ${gf('TrasList','[]') !== '[]' || gf('Trasfondos','') ? `
@@ -1711,7 +1722,7 @@ async function openPJDetail(id) {
       <div class="card">
         <div class="chip-list">
           ${(JSON.parse(gf('TrasList','[]') || '[]')).map(t=>`
-            <span class="chip tras">${t.name} ${'●'.repeat(t.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Trasfondos')}</p>`}
+            <span class="chip tras ref-link" onclick="showRef('tras','${t.name}',${t.level||0})">${t.name} ${'●'.repeat(t.level||0)}</span>`).join('') || `<p style="font-size:14px">${gf('Trasfondos')}</p>`}
         </div>
       </div>` : ''}
     ${gf('MerDefList','[]') !== '[]' ? `
@@ -1719,7 +1730,7 @@ async function openPJDetail(id) {
       <div class="card">
         <div class="chip-list">
           ${(JSON.parse(gf('MerDefList','[]') || '[]')).map(m=>`
-            <span class="chip ${m.tipo}">${m.tipo==='defect'?'⚠ ':''}${m.name}</span>`).join('')}
+            <span class="chip ${m.tipo} ref-link" onclick="showRef('merit','${m.name}',0)">${m.tipo==='defect'?'⚠ ':''}${m.name}</span>`).join('')}
         </div>
       </div>` : ''}
 
@@ -1728,9 +1739,9 @@ async function openPJDetail(id) {
       <table>
         <tr><td>Humanidad</td><td>${dotView(gf('Humanidad',7),10)}</td></tr>
         <tr><td>Fuerza de Voluntad</td><td>${dotView(gf('FuerzaVoluntad',5),10)}</td></tr>
-        <tr><td>Conciencia</td><td>${dotView(gf('Conciencia',1))}</td></tr>
-        <tr><td>Autocontrol</td><td>${dotView(gf('Autocontrol',1))}</td></tr>
-        <tr><td>Coraje</td><td>${dotView(gf('Coraje',1))}</td></tr>
+        <tr><td class="ref-link" onclick="showRef('virtue','Conciencia',${gf('Conciencia',1)})">Conciencia</td><td>${dotView(gf('Conciencia',1))}</td></tr>
+        <tr><td class="ref-link" onclick="showRef('virtue','Autocontrol',${gf('Autocontrol',1)})">Autocontrol</td><td>${dotView(gf('Autocontrol',1))}</td></tr>
+        <tr><td class="ref-link" onclick="showRef('virtue','Coraje',${gf('Coraje',1)})">Coraje</td><td>${dotView(gf('Coraje',1))}</td></tr>
         <tr><td>Sangre</td><td style="font-size:14px">${gf('SangreActual','?')} / ${gf('SangreMax','?')}</td></tr>
         ${gf('Salud','') ? `<tr><td>Heridas</td><td style="font-size:13px;color:var(--red-light)">${gf('Salud')}</td></tr>` : ''}
       </table>
@@ -2957,6 +2968,162 @@ function showChipInfo(section, name) {
   toast((data.desc || 'Sin descripción').substring(0, 120));
 }
 
+
+// ═══════════════════════════════
+// REFERENCE PANEL — ficha vinculada al manual
+// ═══════════════════════════════
+const REF_DATA = {
+  // ── ATRIBUTOS ──────────────────────────────────────────────────────────
+  attrs: {
+    'Fuerza': {
+      desc: 'Poder físico bruto. Determina cuánto daño hacés en combate cuerpo a cuerpo y cuánto podés cargar o levantar.',
+      niveles: ['1 — Débil. Por debajo del promedio humano.','2 — Promedio humano normal.','3 — Atlético, notablemente fuerte.','4 — Muy fuerte, entrenamiento intenso.','5 — Pico humano. Levanta enormes pesos.']
+    },
+    'Destreza': {
+      desc: 'Coordinación, agilidad y reflejos. Afecta la mayoría de las acciones físicas, ataques y esquivas.',
+      niveles: ['1 — Torpe, movimientos inseguros.','2 — Coordinación promedio.','3 — Ágil y coordinado.','4 — Muy ágil, reflejos rápidos.','5 — Pico humano. Gracia casi sobrenatural.']
+    },
+    'Resistencia': {
+      desc: 'Aguante físico y capacidad de absorber daño. Determina tu reserva de absorción base.',
+      niveles: ['1 — Frágil, se cansa rápido.','2 — Aguante promedio.','3 — Resistente, se recupera bien.','4 — Muy resistente, difícil de tumbar.','5 — Pico humano. Aguanta castigos brutales.']
+    },
+    'Carisma': {
+      desc: 'Presencia natural y capacidad de atraer a otros. Usado para inspirar, liderar y seducir sin manipular.',
+      niveles: ['1 — Sin carisma particular.','2 — Agradable, la gente lo escucha.','3 — Carismático, inspira confianza.','4 — Muy carismático, la gente lo sigue.','5 — Presencia magnética. Llena una sala.']
+    },
+    'Manipulación': {
+      desc: 'Capacidad de torcer la voluntad ajena mediante engaño, persuasión o presión. La base de la Dominación social.',
+      niveles: ['1 — Poco convincente.','2 — Puede convencer en situaciones simples.','3 — Hábil en el engaño y la persuasión.','4 — Muy difícil de resistirle.','5 — Maestro de la manipulación. Raramente falla.']
+    },
+    'Apariencia': {
+      desc: 'Atractivo físico y presencia visual. Afecta primeras impresiones y situaciones donde la imagen importa.',
+      niveles: ['1 — Por debajo del promedio, repele.','2 — Apariencia normal.','3 — Atractivo, llama la atención positivamente.','4 — Muy atractivo. Difícil no notar.','5 — Belleza extraordinaria o presencia imponente.']
+    },
+    'Percepción': {
+      desc: 'Capacidad de notar detalles, detectar mentiras y leer el entorno. Base para Auspex y muchas tiradas de alerta.',
+      niveles: ['1 — Distraído, se le escapa mucho.','2 — Percepción normal.','3 — Observador, difícil de engañar.','4 — Muy perceptivo, nota casi todo.','5 — Casi nada escapa a su atención.']
+    },
+    'Inteligencia': {
+      desc: 'Capacidad de razonamiento, memoria y análisis. Base para conocimientos, investigación y taumaturgia.',
+      niveles: ['1 — Pensamiento lento o limitado.','2 — Inteligencia promedio.','3 — Inteligente, aprende rápido.','4 — Muy inteligente, analítico.','5 — Genio. Mente excepcional.']
+    },
+    'Astucia': {
+      desc: 'Agudeza mental, ingenio y velocidad de reacción. Útil para improvisar, cazar y detectar amenazas.',
+      niveles: ['1 — Lento para reaccionar, previsible.','2 — Ingenio normal.','3 — Astuto, difícil de sorprender.','4 — Muy astuto, siempre tiene un plan B.','5 — Mente rápida como un rayo. Casi imposible de engañar.']
+    },
+  },
+
+  // ── HABILIDADES ────────────────────────────────────────────────────────
+  skills: {
+    'Alerta':        {desc:'Capacidad de notar peligros, detectar emboscadas y mantener atención al entorno. Se usa con Percepción.',niveles:['0 — Sin entrenamiento.','1 — Sentidos básicos.','2 — Atento, difícil de sorprender.','3 — Muy alerta, raramente lo agarran desprevenido.','4 — Casi nunca lo toman por sorpresa.','5 — Reflejos de depredador nato.']},
+    'Atletismo':     {desc:'Capacidad física general: correr, saltar, escalar, nadar. Usado en persecuciones y acciones físicas.',niveles:['0 — Sedentario.','1 — En forma básica.','2 — Atlético.','3 — Muy atlético, rendimiento destacado.','4 — Nivel competitivo alto.','5 — Pico atlético, hazañas extraordinarias.']},
+    'Callejeo':      {desc:'Conocimiento de la calle, contactos en los bajos fondos, saber moverse en zonas peligrosas.',niveles:['0 — Foráneo total.','1 — Conoce lo básico.','2 — Se maneja bien en la ciudad.','3 — Conectado con los circuitos marginales.','4 — Conocido y respetado en los bajos fondos.','5 — Autoridad en el submundo urbano.']},
+    'Empatia':       {desc:'Comprensión de las emociones ajenas. Útil para detectar mentiras, leer estados de ánimo y conectar.',niveles:['0 — Incapaz de leer a otros.','1 — Comprensión básica.','2 — Buen lector de personas.','3 — Rara vez se equivoca sobre lo que siente alguien.','4 — Casi siempre detecta el estado real.','5 — Lee a las personas como libros abiertos.']},
+    'Esquivar':      {desc:'Capacidad de evitar golpes, balas y ataques físicos. Se usa para defensas activas en combate.',niveles:['0 — Sin entrenamiento en evasión.','1 — Instinto básico de esquivar.','2 — Evasión funcional.','3 — Esquiva con fluidez.','4 — Difícil de golpear.','5 — Casi imposible de acertar.']},
+    'Intimidación':  {desc:'Capacidad de infundir miedo o doblegar la voluntad ajena mediante presión psicológica o física.',niveles:['0 — No inspira miedo.','1 — Puede intimidar a civiles.','2 — Intimidador efectivo.','3 — Presencia que hace dudar.','4 — Muy pocos se atreven a contradecirlo.','5 — Su sola mirada puede paralizar.']},
+    'Liderazgo':     {desc:'Capacidad de inspirar, organizar y dirigir grupos. Usado en discursos, negociaciones y mando.',niveles:['0 — No inspira a nadie.','1 — Puede organizar grupos pequeños.','2 — Líder funcional.','3 — Inspira confianza natural.','4 — Liderazgo fuerte, la gente lo sigue.','5 — Líder carismático nato.']},
+    'Subterfugio':   {desc:'Arte del engaño, la mentira y la manipulación sutil. Incluye actuar, disimular y crear falsas apariencias.',niveles:['0 — Pésimo mintiendo.','1 — Miente ocasionalmente.','2 — Engaña con soltura.','3 — Mentiroso convincente.','4 — Casi imposible detectarle la mentira.','5 — Maestro del engaño, puede fingir cualquier cosa.']},
+    'Conducir':      {desc:'Habilidad para manejar vehículos terrestres, incluyendo persecuciones y maniobras de riesgo.',niveles:['0 — No sabe manejar.','1 — Maneja lo básico.','2 — Conductor competente.','3 — Buen conductor, cómodo en situaciones difíciles.','4 — Conductor experto, persecuciones y maniobras avanzadas.','5 — Piloto de nivel profesional.']},
+    'Etiqueta':      {desc:'Conocimiento de los códigos sociales, protocolos y convenciones, tanto mortales como vampíricos.',niveles:['0 — Sin modales.','1 — Maneja lo básico social.','2 — Correcto en situaciones formales.','3 — Cómodo en altas esferas.','4 — Domina los códigos vampíricos y mortales.','5 — Autoridad en etiqueta. Su comportamiento define la norma.']},
+    'Latrocinio':    {desc:'Capacidad para robar, forzar cerraduras, hacer trampas y moverse sin ser detectado en entornos urbanos.',niveles:['0 — Sin habilidades de ladrón.','1 — Puede forzar cerraduras simples.','2 — Ladrón funcional.','3 — Experto en entrar y salir sin dejar rastro.','4 — Habilidades de ladrón profesional.','5 — Maestro del robo, prácticamente indetectable.']},
+    'Melee':         {desc:'Combate con armas cuerpo a cuerpo: espadas, cuchillos, garras, etc.',niveles:['0 — Sin entrenamiento.','1 — Maneja armas básicas.','2 — Combatiente funcional con armas.','3 — Hábil con el arma elegida.','4 — Experto, peligroso en combate.','5 — Maestro del combate armado.']},
+    'Pelea':         {desc:'Combate sin armas: puñetazos, patadas, presas, artes marciales. Base para los ataques sin arma.',niveles:['0 — Sin entrenamiento.','1 — Pelea de bar básica.','2 — Combatiente capaz.','3 — Entrenado, peligroso sin armas.','4 — Experto en combate sin armas.','5 — Artista marcial de nivel superior.']},
+    'Armas de Fuego':{desc:'Manejo, disparo y mantenimiento de armas de fuego. Pistolas, rifles, escopetas.',niveles:['0 — No sabe disparar.','1 — Maneja armas básicas.','2 — Tirador competente.','3 — Buen tirador, preciso bajo presión.','4 — Experto. Raras veces falla.','5 — Francotirador o artista del arma de fuego.']},
+    'Seguridad':     {desc:'Conocimiento de sistemas de seguridad: alarmas, cámaras, puertas blindadas, y cómo sortearlos.',niveles:['0 — Sin conocimiento de seguridad.','1 — Conoce sistemas básicos.','2 — Puede sortear seguridad estándar.','3 — Experto en sistemas modernos.','4 — Puede penetrar instalaciones muy protegidas.','5 — Prácticamente ningún sistema lo detiene.']},
+    'Sigilo':        {desc:'Capacidad de moverse sin ser detectado, esconderse y seguir a alguien sin ser visto.',niveles:['0 — Torpe y ruidoso.','1 — Puede ocultarse en situaciones simples.','2 — Se mueve con discreción.','3 — Difícil de detectar.','4 — Casi invisible en movimiento.','5 — Fantasma. Prácticamente indetectable.']},
+    'Burocracia':    {desc:'Conocimiento de trámites, papeleo, instituciones gubernamentales y cómo navegar sistemas oficiales.',niveles:['0 — Perdido en cualquier trámite.','1 — Entiende lo básico.','2 — Navega bien el sistema.','3 — Experto en obtener lo que necesita del sistema.','4 — Domina la burocracia como herramienta.','5 — Puede hacer que el sistema trabaje para él.']},
+    'Ciencias':      {desc:'Conocimiento científico: biología, química, física. Útil para análisis forenses y investigación.',niveles:['0 — Sin conocimiento científico.','1 — Educación básica.','2 — Conocimiento universitario.','3 — Científico competente.','4 — Experto en su área.','5 — Autoridad científica de nivel mundial.']},
+    'Finanzas':      {desc:'Conocimiento de economía, contabilidad, mercados e inversiones. Clave para manejar recursos.',niveles:['0 — Sin conocimiento financiero.','1 — Maneja un presupuesto básico.','2 — Competente en finanzas personales.','3 — Hábil con finanzas corporativas.','4 — Experto financiero.','5 — Maestro de los mercados y las finanzas.']},
+    'Informatica':   {desc:'Programación, hacking, redes y sistemas digitales. Esencial para la Mascarada moderna.',niveles:['0 — Sin conocimiento digital.','1 — Usuario básico.','2 — Hábil con computadoras.','3 — Programador o hacker competente.','4 — Experto en sistemas y seguridad digital.','5 — Hacker de élite. Pocos sistemas lo detienen.']},
+    'Investigacion': {desc:'Capacidad de buscar pistas, analizar evidencia y resolver misterios. Clave en intrigas vampíricas.',niveles:['0 — Sin habilidades investigativas.','1 — Puede hacer preguntas básicas.','2 — Investigador competente.','3 — Metódico, encuentra lo que busca.','4 — Experto, difícil ocultar algo ante él.','5 — Detective de nivel maestro.']},
+    'Medicina':      {desc:'Conocimiento médico: anatomía, tratamiento de heridas, toxicología. Incluye forense.',niveles:['0 — Sin conocimiento médico.','1 — Primeros auxilios básicos.','2 — Competente médicamente.','3 — Médico entrenado.','4 — Especialista médico.','5 — Cirujano o médico forense de élite.']},
+    'Ocultismo':     {desc:'Conocimiento del mundo sobrenatural: rituales, simbolismo, historia vampírica, otras criaturas.',niveles:['0 — Sin conocimiento oculto.','1 — Conoce el folklore básico.','2 — Familiarizado con el mundo sobrenatural.','3 — Estudioso serio del ocultismo.','4 — Experto en lo sobrenatural.','5 — Autoridad en ocultismo. Conoce secretos muy antiguos.']},
+    'Politica':      {desc:'Comprensión de sistemas políticos, poder, alianzas e intrigas, tanto mortales como vampíricas.',niveles:['0 — Apolítico, sin comprensión política.','1 — Entiende la política básica.','2 — Competente políticamente.','3 — Hábil jugador político.','4 — Estratega político experto.','5 — Maestro de la intriga política.']},
+  },
+
+  // ── VIRTUDES ───────────────────────────────────────────────────────────
+  virtues: {
+    'Conciencia':      {desc:'Capacidad moral de distinguir el bien del mal. Determina cuándo el vampiro siente remordimiento. Base para calcular la Humanidad.',niveles:['1 — Prácticamente sin conciencia moral.','2 — Conciencia débil, rara vez actúa.','3 — Conciencia moderada.','4 — Conciencia fuerte, pesa sus actos.','5 — Conciencia muy desarrollada.']},
+    'Autocontrol':     {desc:'Capacidad de resistir la Bestia y los impulsos. Se usa para evitar el frenesí cuando hay sangre presente. Junto a Conciencia forma la Humanidad base.',niveles:['1 — Casi sin control, frenéticos frecuentes.','2 — Control básico.','3 — Buen autocontrol.','4 — Muy disciplinado.','5 — Control casi perfecto sobre la Bestia.']},
+    'Coraje':          {desc:'Valentía ante el peligro sobrenatural: fuego, luz solar, enemigos poderosos. Base de la Fuerza de Voluntad inicial.',niveles:['1 — Cobarde, huye ante el primer peligro.','2 — Valentía básica.','3 — Valiente, mantiene la calma.','4 — Muy valiente, raramente le domina el miedo.','5 — Indomable. Casi nada lo amedrenta.']},
+  },
+};
+
+// ── REFERENCE PANEL UI ─────────────────────────────────────────────────
+function showRef(type, key, level) {
+  let data;
+  if(type === 'attr') data = REF_DATA.attrs[key];
+  else if(type === 'skill') data = REF_DATA.skills[key];
+  else if(type === 'virtue') data = REF_DATA.virtues[key];
+  else if(type === 'disc') {
+    const d = disciplinas.find(x=>x.name===key);
+    if(d) { showDiscRef(d, level); return; }
+  }
+  else if(type === 'merit') {
+    const m = MERIT_DATA[key];
+    if(m) { showMeritRef(key, m); return; }
+  }
+  else if(type === 'tras') {
+    const t = TRAS_DATA[key];
+    if(t) { showTrasRef(key, t, level); return; }
+  }
+  if(!data) return;
+  const panel = document.getElementById('ref-panel');
+  const lvlDesc = level > 0 && data.niveles ? data.niveles[Math.min(level-1, data.niveles.length-1)] : '';
+  panel.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
+      <div style="font-family:var(--font-title);font-size:14px;color:var(--gold)">${key}</div>
+      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:.5rem">${data.desc}</p>
+    ${lvlDesc ? `<div style="background:var(--surface3);border-left:3px solid var(--gold-dim);border-radius:0 6px 6px 0;padding:.5rem .75rem;font-size:13px;color:var(--gold)">${lvlDesc}</div>` : ''}`;
+  panel.style.display = 'block';
+}
+
+function showDiscRef(disc, level) {
+  const panel = document.getElementById('ref-panel');
+  const poder = level > 0 ? disc.poderes[Math.min(level-1, disc.poderes.length-1)] : null;
+  panel.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
+      <div style="font-family:var(--font-title);font-size:14px;color:var(--gold)">${disc.name}</div>
+      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:.5rem">${disc.desc}</p>
+    ${poder ? `
+      <div style="background:var(--surface3);border-left:3px solid #aaf;border-radius:0 6px 6px 0;padding:.5rem .75rem;">
+        <div style="font-size:11px;color:#aaf;font-family:var(--font-title);margin-bottom:3px">Nivel ${level} — ${poder.nom}</div>
+        <div style="font-size:13px;color:var(--text2)">Pool: <em>${poder.pool}</em> · Dif: ${poder.dif}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:3px">${poder.ef}</div>
+      </div>` : ''}`;
+  panel.style.display = 'block';
+}
+
+function showMeritRef(name, data) {
+  const panel = document.getElementById('ref-panel');
+  panel.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
+      <div style="font-family:var(--font-title);font-size:14px;color:${data.tipo==='defect'?'#e88':'var(--gold)'}">${data.tipo==='defect'?'Defecto: ':'Mérito: '}${name}</div>
+      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:.4rem">${data.val} punto${data.val>1?'s':''} ${data.tipo==='defect'?'(otorga puntos extra)':'(cuesta puntos gratuitos)'}</div>
+    <p style="font-size:14px;color:var(--text2)">${data.desc}</p>`;
+  panel.style.display = 'block';
+}
+
+function showTrasRef(name, data, level) {
+  const panel = document.getElementById('ref-panel');
+  panel.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem">
+      <div style="font-family:var(--font-title);font-size:14px;color:#8d8">Trasfondo: ${name} ${'●'.repeat(level||0)}</div>
+      <button onclick="closeRefPanel()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--text2)">${data.desc}</p>`;
+  panel.style.display = 'block';
+}
+
+function closeRefPanel() {
+  document.getElementById('ref-panel').style.display = 'none';
+}
 // ═══════════════════════════════
 // CHICAGO MAP
 // ═══════════════════════════════
