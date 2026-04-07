@@ -1242,6 +1242,7 @@ function adminTab(id, btn) {
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('admin-'+id).classList.add('active');
+  if(id==='chicago-admin') loadAdminPins();
 }
 
 // ═══════════════════════════════
@@ -1269,7 +1270,7 @@ function show(id, btn) {
   if(id==='pjs-sec') loadPJs();
   if(id==='wiki-sec') loadWiki();
   if(id==='diario-sec') loadDiario();
-  if(id==='chicago-sec') loadChicago();
+  if(id==='chicago-sec') loadChicagoWithCache();
 }
 
 function setActiveTab(tabId) {
@@ -2546,6 +2547,208 @@ function openLightbox(src, name) {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+
+// ═══════════════════════════════
+// CHICAGO MAP
+// ═══════════════════════════════
+const zonesData = {
+  downtown: {name:"Downtown Core",sub:"Loop + River North / Streeterville",ingreso:"Alto",riesgo:"Máximo",poder:"Directorio, Príncipe",desc:"Centro financiero y político de Chicago vampírico. Sede del Elíseo principal. Máxima visibilidad — cualquier violación de la Mascarada aquí tiene consecuencias inmediatas."},
+  north: {name:"North Lakefront",sub:"Lincoln Park, Lakeview, Uptown",ingreso:"Alto-Medio",riesgo:"Medio-Alto",poder:"Toreador, Ventrue",desc:"Lujo, cultura y nightlife. Territorio Toreador. Galerías, teatros y clubes exclusivos. Muchos neonatos con ambiciones políticas."},
+  creative: {name:"Creative Belt",sub:"West Loop, Wicker Park, Logan, Pilsen, Hyde Park",ingreso:"Mixto",riesgo:"Medio",poder:"Brujah, Malkavian",desc:"Núcleo artístico y contracultural. Anarquistas y disidentes tienen presencia aquí. Tensión latente con la autoridad del Directorio."},
+  northwest: {name:"Northwest & Far North",sub:"Humboldt, Albany Park, Rogers Park",ingreso:"Trabajador/Migrante",riesgo:"Bajo-Medio",poder:"Gangrel, Nosferatu",desc:"Barrios migrantes y trabajadores. Menos vigilados por el Directorio. Buena zona para caza discreta y movimiento sin ser notado."},
+  west: {name:"West Side Pressure Zone",sub:"Austin, Garfield Park, North Lawndale",ingreso:"Bajo",riesgo:"Alto",poder:"Sabbat infiltrado",desc:"Zona de fractura social. Conflicto constante. Se sospecha infiltración del Sabbat. Peligroso para vampiros de la Camarilla sin respaldo."},
+  south: {name:"South Side & Calumet",sub:"Bronzeville, South Shore, Calumet",ingreso:"Bajo-Mixto",riesgo:"Variable",poder:"Independientes, Giovanni",desc:"Historia de fractura y abandono. Industria pesada en decadencia. Los Giovanni tienen presencia activa. Muertos inquietos son frecuentes."}
+};
+
+const PIN_ICONS = {pj:'🧛', lugar:'📍', conflicto:'⚔️', interes:'⭐', visitado:'✓'};
+const PIN_COLORS = {pj:'#e74c3c', lugar:'#c9a84c', conflicto:'#8b1c1c', interes:'#4a8a4a', visitado:'#6a6a9a'};
+
+function selectZone(zoneId) {
+  const z = zonesData[zoneId];
+  if(!z) return;
+  document.getElementById('zone-name').textContent = z.name;
+  document.getElementById('zone-sub').textContent = z.sub;
+  document.getElementById('zone-ingreso').textContent = z.ingreso;
+  document.getElementById('zone-riesgo').textContent = z.riesgo;
+  document.getElementById('zone-poder').textContent = z.poder;
+  document.getElementById('zone-desc').textContent = z.desc;
+  document.getElementById('zone-info').style.display = 'block';
+  // Dim all zones then highlight selected
+  document.querySelectorAll('#chicago-svg [id^="zone-"]').forEach(el => {
+    el.style.opacity = el.id === 'zone-' + zoneId ? '1' : '0.45';
+  });
+}
+
+async function loadChicago() {
+  const el = document.getElementById('pins-list');
+  if(!el) return;
+  const { data, error } = await sb.from('chicago_pins').select('*').order('creado_en');
+  if(error) { 
+    el.innerHTML = '<div class="empty-state">Error cargando pins</div>'; 
+    return; 
+  }
+  renderPinsOnMap(data || []);
+  renderPinsList(data || []);
+}
+
+function renderPinsOnMap(pins) {
+  const layer = document.getElementById('pins-layer');
+  if(!layer) return;
+  layer.innerHTML = pins.map(p => {
+    const x = (p.x_pct / 100) * 400;
+    const y = (p.y_pct / 100) * 520;
+    const color = PIN_COLORS[p.tipo] || '#c9a84c';
+    const icon = PIN_ICONS[p.tipo] || '📍';
+    return `<g style="cursor:pointer" onclick="event.stopPropagation();showPinInfo(${p.id})">
+      <circle cx="${x}" cy="${y}" r="11" fill="${color}" opacity="0.92" stroke="#0d0608" stroke-width="1.5" filter="url(#glow)"/>
+      <text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" style="pointer-events:none">${icon}</text>
+    </g>`;
+  }).join('');
+}
+
+function renderPinsList(pins) {
+  const el = document.getElementById('pins-list');
+  if(!el) return;
+  if(!pins.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📍</div>Sin pins aún.<br><span style="font-size:12px">El Narrador puede agregar lugares desde el panel (Más → Narrador → Chicago)</span></div>';
+    return;
+  }
+  el.innerHTML = '<h3>Puntos de interés</h3>' + pins.map(p => `
+    <div class="card" style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem">
+      <div style="width:34px;height:34px;border-radius:50%;background:${PIN_COLORS[p.tipo]||'#c9a84c'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${PIN_ICONS[p.tipo]||'📍'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;color:var(--text);font-family:var(--font-title)">${p.nombre}</div>
+        <div style="font-size:12px;color:var(--text3)">${p.zona||''} ${p.descripcion ? '· '+p.descripcion : ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+let _pinsCache = [];
+function showPinInfo(id) {
+  const p = _pinsCache.find(x=>x.id===id);
+  if(!p) return;
+  toast(p.nombre + (p.descripcion ? ' — '+p.descripcion : ''));
+}
+
+// Override loadChicago to cache pins
+const _origLoadChicago = loadChicago;
+async function loadChicagoWithCache() {
+  const el = document.getElementById('pins-list');
+  if(!el) return;
+  const { data } = await sb.from('chicago_pins').select('*').order('creado_en');
+  _pinsCache = data || [];
+  renderPinsOnMap(_pinsCache);
+  renderPinsList(_pinsCache);
+}
+
+// Admin: open pin form
+function openPinForm(x_pct, y_pct) {
+  document.getElementById('modal-pin-title').textContent = 'Nuevo pin';
+  document.getElementById('modal-pin-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Nombre</label>
+      <input class="form-input" id="pin-nombre" placeholder="Ej: Refugio de Pietro"></div>
+    <div class="form-group"><label class="form-label">Tipo</label>
+      <select class="form-select" id="pin-tipo">
+        <option value="pj">🧛 Personaje jugador</option>
+        <option value="lugar">📍 Lugar</option>
+        <option value="interes">⭐ Punto de interés</option>
+        <option value="conflicto">⚔️ Zona de conflicto</option>
+        <option value="visitado">✓ Lugar visitado</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Zona</label>
+      <select class="form-select" id="pin-zona">
+        <option value="">— Sin zona —</option>
+        <option value="Downtown Core">Downtown Core</option>
+        <option value="North Lakefront">North Lakefront</option>
+        <option value="Creative Belt">Creative Belt</option>
+        <option value="Northwest & Far North">Northwest & Far North</option>
+        <option value="West Side">West Side</option>
+        <option value="South Side & Calumet">South Side & Calumet</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Descripción</label>
+      <input class="form-input" id="pin-desc" placeholder="Breve descripción"></div>
+    <div class="form-group"><label class="form-label">Posición en el mapa</label>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:.4rem">Coordenadas (0-100)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <div><label class="form-label">X %</label><input class="form-input" id="pin-x" type="number" min="0" max="100" value="${Math.round(x_pct||50)}"></div>
+        <div><label class="form-label">Y %</label><input class="form-input" id="pin-y" type="number" min="0" max="100" value="${Math.round(y_pct||50)}"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="savePin()">Agregar pin</button>`;
+  openModal('modal-pin');
+}
+
+async function savePin() {
+  const record = {
+    nombre: document.getElementById('pin-nombre').value.trim(),
+    tipo: document.getElementById('pin-tipo').value,
+    zona: document.getElementById('pin-zona').value,
+    descripcion: document.getElementById('pin-desc').value.trim(),
+    x_pct: parseFloat(document.getElementById('pin-x').value)||50,
+    y_pct: parseFloat(document.getElementById('pin-y').value)||50,
+  };
+  if(!record.nombre) { toast('Ingresá un nombre','error'); return; }
+  const { error } = await sb.from('chicago_pins').insert(record);
+  if(error) { toast('Error: '+error.message,'error'); return; }
+  toast('Pin agregado ✓','success');
+  closeModal('modal-pin');
+  loadChicagoWithCache();
+}
+
+async function loadAdminPins() {
+  const { data } = await sb.from('chicago_pins').select('*').order('creado_en');
+  const el = document.getElementById('admin-pins-list');
+  if(!el) return;
+  if(!data||!data.length) { 
+    el.innerHTML = '<div class="empty-state" style="padding:1rem">Sin pins</div>'; 
+    return; 
+  }
+  el.innerHTML = data.map(p=>`
+    <div class="card" style="margin-bottom:.5rem;display:flex;align-items:center;gap:.75rem">
+      <div style="width:34px;height:34px;border-radius:50%;background:${PIN_COLORS[p.tipo]||'#c9a84c'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${PIN_ICONS[p.tipo]||'📍'}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;color:var(--text)">${p.nombre}</div>
+        <div style="font-size:12px;color:var(--text3)">${p.zona||''}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="deletePin(${p.id})">✕</button>
+    </div>`).join('');
+}
+
+async function deletePin(id) {
+  if(!confirm('¿Eliminar este pin?')) return;
+  await sb.from('chicago_pins').delete().eq('id',id);
+  toast('Eliminado','success');
+  loadChicagoWithCache();
+  loadAdminPins();
+}
+
+// ═══════════════════════════════
+// DOT RATING SYSTEM
+// ═══════════════════════════════
+function dotRating(id, value, max=5) {
+  const dots = Array.from({length:max},(_,i)=>
+    `<span onclick="setDot('${id}',${i+1})" style="cursor:pointer;font-size:16px;color:${i<value?'#c9a84c':'#3a2a2a'};margin-right:2px">●</span>`
+  ).join('');
+  return `<div id="dots-${id}" style="display:flex;align-items:center">${dots}</div><input type="hidden" id="${id}" value="${value}">`;
+}
+
+function setDot(id, val) {
+  const input = document.getElementById(id);
+  if(input) input.value = val;
+  const container = document.getElementById('dots-'+id);
+  if(!container) return;
+  Array.from(container.children).forEach((span,i) => {
+    span.style.color = (i+1) <= val ? '#c9a84c' : '#3a2a2a';
+  });
+}
+
+function getDot(id) {
+  const el = document.getElementById(id);
+  return el ? parseInt(el.value)||0 : 0;
 }
 
 window.addEventListener('load', () => {
