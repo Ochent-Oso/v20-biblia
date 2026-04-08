@@ -2701,6 +2701,121 @@ function filterDiscs(v) {
 }
 
 // ═══════════════════════════════
+// MERITOS, DEFECTOS Y TRASFONDOS
+// ═══════════════════════════════
+const meritosData=[
+  {tipo:"merit",cat:"fisico",nombre:"Ambidextro",val:1,desc:"Usa ambas manos sin penalización. Sin -1 por mano débil en ataques con dos armas."},
+  {tipo:"merit",cat:"fisico",nombre:"Apariencia llamativa",val:1,desc:"+1 dado en situaciones donde la apariencia importa. Aspecto memorable."},
+  {tipo:"merit",cat:"fisico",nombre:"Resistencia al dolor",val:2,desc:"Ignora penalizaciones de Magullado y Lastimado."},
+  {tipo:"merit",cat:"fisico",nombre:"Sentidos agudos",val:1,desc:"+2 a tiradas de Percepción con el sentido elegido."},
+  {tipo:"merit",cat:"fisico",nombre:"Tolerancia al fuego",val:3,desc:"Puede tirar Fortaleza contra fuego aunque no tenga la disciplina."},
+  {tipo:"merit",cat:"fisico",nombre:"Digestión rápida",val:1,desc:"Puede gastar 2 puntos de sangre por turno aunque su generación solo permita 1."},
+  {tipo:"merit",cat:"fisico",nombre:"Celeridad Natural",val:1,desc:"Velocidad innata superior. +1 a la tirada de iniciativa permanentemente."},
+  {tipo:"merit",cat:"mental",nombre:"Memoria eidética",val:2,desc:"Recuerda perfectamente todo lo visto o escuchado. Dif. reducida para información compleja."},
+  {tipo:"merit",cat:"mental",nombre:"Mentes múltiples",val:3,desc:"Puede procesar información en paralelo. +1 acción declarada por turno sin penalización en análisis."},
+  {tipo:"merit",cat:"mental",nombre:"Concentración",val:1,desc:"Sin penalización por distracciones menores en tiradas mentales."},
+  {tipo:"merit",cat:"mental",nombre:"Mente analítica",val:1,desc:"+1 dado en investigación y análisis de patrones o pistas."},
+  {tipo:"merit",cat:"mental",nombre:"Conciencia Jyhad",val:2,desc:"+2 dados para comprender maniobras políticas entre clanes o sectas."},
+  {tipo:"merit",cat:"mental",nombre:"Artista natural",val:1,desc:"+2 dados en la expresión artística elegida."},
+  {tipo:"merit",cat:"social",nombre:"Buena reputación",val:2,desc:"+2 dados en situaciones sociales con vampiros de tu secta."},
+  {tipo:"merit",cat:"social",nombre:"Contactos en los bajos fondos",val:1,desc:"Información o servicios ilegales sin tirada si el tiempo lo permite."},
+  {tipo:"merit",cat:"social",nombre:"Cómplice humano",val:1,desc:"Un mortal de confianza que sabe sobre los vampiros y ayuda."},
+  {tipo:"merit",cat:"social",nombre:"Status social heredado",val:2,desc:"+1 Status inicial en la ciudad de origen."},
+  {tipo:"merit",cat:"social",nombre:"Mascarada impecable",val:2,desc:"+2 dados a tiradas de Actuación para parecer mortal."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Conciencia de la Bestia",val:2,desc:"+2 dados en tiradas de control de frenesí."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Sangre potente",val:3,desc:"Sangre especialmente potente. Ghouls más fuertes, vínculos más difíciles de romper."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Sueño ligero",val:1,desc:"Puede despertar durante el día ante peligros. Per+Alerta dif.8."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Afinidad con el clan",val:2,desc:"Disciplinas del clan al 80% del costo de XP normal."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Sangre Dulce",val:1,desc:"La sangre del vampiro es especialmente atractiva para otros vampiros."},
+  {tipo:"merit",cat:"sobrenatural",nombre:"Resistencia a Dominación",val:3,desc:"+3 dados para resistir cualquier forma de Dominación, Presencia o control mental."},
+  {tipo:"defect",cat:"defecto",nombre:"Adicción",val:1,desc:"Compulsión por una sustancia o comportamiento. Autocontrol dif.6 para resistir."},
+  {tipo:"defect",cat:"defecto",nombre:"Enemigo declarado",val:1,desc:"Un vampiro poderoso lo tiene en la mira. Antagonista recurrente."},
+  {tipo:"defect",cat:"defecto",nombre:"Fobia",val:2,desc:"Terror irracional. Rötschreck automático ante el objeto de la fobia."},
+  {tipo:"defect",cat:"defecto",nombre:"Apariencia perturbadora",val:2,desc:"-2 dados en interacciones sociales con mortales no acostumbrados."},
+  {tipo:"defect",cat:"defecto",nombre:"Oscuro secreto",val:1,desc:"Algo que si se revela destruye su reputación. Palanca narrativa."},
+  {tipo:"defect",cat:"defecto",nombre:"Torpeza",val:1,desc:"-1 dado en tiradas de Destreza con coordinación fina."},
+  {tipo:"defect",cat:"defecto",nombre:"Incapacidad",val:2,desc:"Una habilidad específica es imposible para el personaje."},
+  {tipo:"defect",cat:"defecto",nombre:"Comportamiento compulsivo",val:1,desc:"Rutina que debe completar. Si se interrumpe, -2 a todas las acciones."},
+  {tipo:"defect",cat:"defecto",nombre:"Instinto predatorio",val:2,desc:"-1 a dificultad de frenesí en todas las situaciones provocadoras."},
+  {tipo:"defect",cat:"defecto",nombre:"Aliado mortal en peligro",val:1,desc:"Alguien que le importa es vulnerable. Palanca de presión narrativa."},
+  {tipo:"defect",cat:"defecto",nombre:"Olvidos",val:2,desc:"Lagunas de memoria frecuentes. Int dif.7 para recordar bajo presión."},
+  {tipo:"defect",cat:"defecto",nombre:"Deuda de sangre",val:1,desc:"Debe un favor enorme a otro vampiro. El acreedor puede cobrarlo en el peor momento."},
+  {tipo:"defect",cat:"defecto",nombre:"Marcado",val:2,desc:"Tiene una característica vampírica visible. +2 dif. para pasar por humano."},
+  {tipo:"defect",cat:"defecto",nombre:"Vinculo parcial",val:2,desc:"Ya tiene el primer nivel de vínculo de sangre con otro vampiro."},
+  {tipo:"defect",cat:"defecto",nombre:"Intolerancia",val:1,desc:"Aversión intensa a algo cotidiano (ajo, cruces, espejos, etc.)."},
+  {tipo:"defect",cat:"defecto",nombre:"Sueño pesado",val:2,desc:"Tarda mucho en despertar ante peligros durante el día. Per+Alerta dif.10."},
+  {tipo:"defect",cat:"defecto",nombre:"Sin clan (Caitiff)",val:3,desc:"Sin clan reconocido. -2 Status automático. Las Disciplinas cuestan más XP."},
+];
+
+const trasfondosData=[
+  {nombre:"Aliados",desc:"Humanos que colaboran activamente. Por nivel: desde 1 contacto a grupos que controlan organizaciones.",
+   niveles:["1 — Un contacto confiable con recursos limitados","2 — Un grupo pequeño o individuo muy competente","3 — Varios aliados o uno extremadamente poderoso","4 — Red de aliados con recursos sustanciales","5 — Aliados que controlan organizaciones enteras"]},
+  {nombre:"Contactos",desc:"Red de informantes. Por nivel: desde 1 contacto a omnipresencia informativa en la ciudad.",
+   niveles:["1 — Un contacto en un área específica","2 — Contactos en 2-3 sectores","3 — Red moderada, información frecuente","4 — Red amplia, pocas áreas sin cobertura","5 — Omnipresencia informativa en la ciudad"]},
+  {nombre:"Dominio",desc:"Territorio reconocido para cazar. Por nivel: desde 1 manzana a zona extensa.",
+   niveles:["1 — Una manzana o edificio","2 — Un barrio pequeño","3 — Un barrio completo","4 — Varios barrios o zona importante","5 — Territorio extenso reconocido por todos"]},
+  {nombre:"Generación",desc:"Generación más baja. Nivel 1=8ª · 2=7ª · 3=6ª · 4=5ª · 5=4ª (requiere aprobación del Narrador).",
+   niveles:["1 — 8ª generación","2 — 7ª generación","3 — 6ª generación","4 — 5ª generación","5 — 4ª generación (aprobación del Narrador)"]},
+  {nombre:"Influencia",desc:"Poder en círculos humanos. Por nivel: desde influencia menor a dominar un sector completo.",
+   niveles:["1 — Influencia menor en un sector","2 — Influencia moderada, puede hacer favores","3 — Influencia significativa, tuerce decisiones menores","4 — Influencia fuerte, afecta política local","5 — Domina un sector completo de la ciudad"]},
+  {nombre:"Manada",desc:"(Sabbat) Grupo de vampiros de confianza total unidos por la Vaulderie.",
+   niveles:["1 — 1-2 compañeros de confianza","2 — Manada pequeña pero cohesionada","3 — Manada bien establecida con recursos","4 — Manada grande y leal","5 — Manada legendaria con territorio propio"]},
+  {nombre:"Mentor",desc:"Vampiro más antiguo que guía y protege. Por nivel: desde consejo ocasional a anciano que interviene.",
+   niveles:["1 — Mentor distante, consejo ocasional","2 — Mentor activo que comparte conocimiento","3 — Mentor poderoso con conexiones","4 — Mentor muy influyente dispuesto a intervenir","5 — Anciano que pone sus recursos al servicio"]},
+  {nombre:"Recursos",desc:"Riqueza material. Nivel 1=clase trabajadora · 3=clase alta · 5=millonario.",
+   niveles:["1 — Clase trabajadora, lo básico cubierto","2 — Clase media, cómodo sin lujos","3 — Clase alta, vive bien","4 — Rico, acceso a recursos considerables","5 — Millonario, prácticamente sin límite"]},
+  {nombre:"Refugio",desc:"Lugar seguro para el día. Por nivel: desde básico a fortaleza inexpugnable.",
+   niveles:["1 — Lugar básico y discreto (sótano, almacén)","2 — Lugar seguro con protecciones básicas","3 — Refugio bien protegido, difícil de encontrar","4 — Fortaleza personal con múltiples medidas","5 — Refugio prácticamente inexpugnable"]},
+  {nombre:"Rebaño",desc:"Humanos disponibles para alimentarse regularmente sin cazar.",
+   niveles:["1 — 1-2 personas dispuestas","2 — Pequeño grupo de 3-5 personas","3 — Grupo de 6-10, variado","4 — Grupo grande de 10-20","5 — Rebaño extenso, nunca pasa hambre"]},
+  {nombre:"Status",desc:"Reconocimiento en la secta vampírica. Alto Status abre puertas; Status 0 significa ser ignorado.",
+   niveles:["1 — Reconocido, se sabe quién es","2 — Respetado, se toman en cuenta sus opiniones","3 — Influyente, su presencia cambia dinámicas","4 — Muy influyente, los demás buscan su aprobación","5 — Pilar de la secta, figura de autoridad indiscutida"]},
+];
+
+function filterMeritos(cat, btn) {
+  document.querySelectorAll('#merit-cat-btns button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderMeritos(cat);
+}
+
+function renderMeritos(cat) {
+  const el = document.getElementById('meritos-list');
+  if(!el) return;
+  const filtered = cat === 'todos' ? meritosData : meritosData.filter(m=>m.cat===cat);
+  const merits = filtered.filter(m=>m.tipo==='merit');
+  const defects = filtered.filter(m=>m.tipo==='defect');
+  let html = '';
+  if(merits.length) {
+    html += '<h3 style="margin-top:.5rem">Méritos</h3><div class="card"><table><tr><th>Nombre</th><th>Valor</th><th>Descripción</th></tr>';
+    html += merits.map(m=>'<tr><td style="font-weight:500;white-space:nowrap">'+m.nombre+'</td><td style="color:var(--gold);white-space:nowrap">'+m.val+' pt'+(m.val>1?'s':'')+'</td><td style="font-size:13px">'+m.desc+'</td></tr>').join('');
+    html += '</table></div>';
+  }
+  if(defects.length) {
+    html += '<h3>Defectos</h3><div class="card"><table><tr><th>Nombre</th><th>Valor</th><th>Descripción</th></tr>';
+    html += defects.map(m=>'<tr><td style="font-weight:500;white-space:nowrap">'+m.nombre+'</td><td style="color:var(--red-light);white-space:nowrap">+'+m.val+' pt'+(m.val>1?'s':'')+'</td><td style="font-size:13px">'+m.desc+'</td></tr>').join('');
+    html += '</table></div>';
+  }
+  el.innerHTML = html || '<div class="empty-state">Sin resultados</div>';
+}
+
+function renderTrasfondos() {
+  const el = document.getElementById('trasfondos-list');
+  if(!el) return;
+  el.innerHTML = trasfondosData.map((t,i)=>
+    '<div class="card" style="margin-bottom:.5rem">'+
+    '<div class="coll-header" onclick="toggleColl(this.dataset.id,this)" data-id="tf'+i+'">'+
+    '<h3 style="margin:0">'+t.nombre+'</h3>'+
+    '<span class="coll-arrow">▼</span></div>'+
+    '<div class="coll-body" id="tf'+i+'">'+
+    '<p style="font-size:14px;margin-bottom:.5rem">'+t.desc+'</p>'+
+    '<table>'+t.niveles.map(n=>'<tr><td style="font-size:13px;color:var(--text2)">'+n+'</td></tr>').join('')+'</table>'+
+    '</div></div>'
+  ).join('');
+}
+
+
+
+// ═══════════════════════════════
 // INIT
 // ═══════════════════════════════
 
