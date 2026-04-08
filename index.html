@@ -2658,57 +2658,45 @@ function filterDiscs(v) {
   const f = v.toLowerCase();
   const el = document.getElementById('disc-list');
   const filtered = disciplinas.filter(d=>!f||d.name.toLowerCase().includes(f)||d.clanes.toLowerCase().includes(f)||d.poderes.some(p=>p.nom.toLowerCase().includes(f)));
-  el.innerHTML = filtered.map((d,i)=>{
-    const sendasHtml = d.sendas ? `
-      <div style="margin-top:.75rem;border-top:1px solid var(--border);padding-top:.6rem">
-        <div style="font-size:11px;color:var(--gold-dim);font-family:var(--font-title);letter-spacing:.08em;margin-bottom:.4rem">SENDAS DISPONIBLES</div>
-        ${d.sendas.map((s,si)=>`
-          <div class="card" style="margin-bottom:.4rem;background:var(--surface3)">
-            <div class="coll-header" onclick="toggleColl('ds${i}_${si}',this)" style="border:none;padding:.4rem 0">
-              <span style="font-size:13px;color:var(--text);font-family:var(--font-title)">${s.nombre}</span>
-              <span class="coll-arrow" style="font-size:10px">▼</span>
-            </div>
-            <div class="coll-body" id="ds${i}_${si}">
-              <table style="margin-top:.4rem">
-                <tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>
-                ${s.poderes.map(p=>`
-                  <tr>
-                    <td style="color:var(--red-light);font-size:12px">${p.n}</td>
-                    <td style="font-size:12px">${p.nom}</td>
-                    <td style="color:#e88;font-style:italic;font-size:11px">${p.pool}</td>
-                    <td style="font-size:12px">${p.dif}</td>
-                  </tr>
-                  <tr><td colspan="4" style="font-size:11px;color:var(--text3);padding-bottom:5px">${p.ef}</td></tr>`).join('')}
-              </table>
-            </div>
-          </div>`).join('')}
-      </div>` : '';
-    return `
-    <div class="card" style="margin-bottom:.5rem">
-      <div class="coll-header" onclick="toggleColl('dc${i}',this)">
-        <div>
-          <div style="font-size:15px;color:var(--text);font-family:var(--font-title)">${d.name}</div>
-          <div style="font-size:12px;color:var(--text3)">${d.clanes}</div>
-        </div>
-        <span class="coll-arrow">▼</span>
-      </div>
-      <div class="coll-body" id="dc${i}">
-        <p style="font-size:13px;margin-bottom:.5rem">${d.desc}</p>
-        <div style="font-size:11px;color:var(--gold-dim);font-family:var(--font-title);letter-spacing:.08em;margin-bottom:.3rem">PODERES PRINCIPALES</div>
-        <table>
-          <tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>
-          ${d.poderes.map(p=>`
-            <tr>
-              <td style="color:var(--red-light);font-size:13px">${p.n}</td>
-              <td style="font-size:13px">${p.nom}</td>
-              <td style="color:#e88;font-style:italic;font-size:12px">${p.pool}</td>
-              <td style="font-size:13px">${p.dif}</td>
-            </tr>
-            <tr><td colspan="4" style="font-size:12px;color:var(--text3);padding-bottom:6px">${p.ef}</td></tr>`).join('')}
-        </table>
-        ${sendasHtml}
-      </div>
-    </div>`;
+  el.innerHTML = filtered.map((d,i) => {
+    const powerRows = d.poderes.map(p =>
+      '<tr><td style="color:var(--red-light);font-size:13px">'+p.n+'</td>'+
+      '<td style="font-size:13px">'+p.nom+'</td>'+
+      '<td style="color:#e88;font-style:italic;font-size:12px">'+p.pool+'</td>'+
+      '<td style="font-size:13px">'+p.dif+'</td></tr>'+
+      '<tr><td colspan="4" style="font-size:12px;color:var(--text3);padding-bottom:6px">'+p.ef+'</td></tr>'
+    ).join('');
+    let sendasHtml = '';
+    if(d.sendas && d.sendas.length) {
+      const sendaCards = d.sendas.map((s,si) => {
+        const sp = s.poderes.map(p =>
+          '<tr><td style="color:var(--red-light);font-size:12px">'+p.n+'</td>'+
+          '<td style="font-size:12px">'+p.nom+'</td>'+
+          '<td style="color:#e88;font-style:italic;font-size:11px">'+p.pool+'</td>'+
+          '<td style="font-size:12px">'+p.dif+'</td></tr>'+
+          '<tr><td colspan="4" style="font-size:11px;color:var(--text3);padding-bottom:5px">'+p.ef+'</td></tr>'
+        ).join('');
+        return '<div class="card" style="margin-bottom:.4rem;background:var(--surface3)">'+
+          '<div class="coll-header" onclick="toggleColl(this.dataset.id,this)" data-id="ds'+i+'_'+si+'" style="border:none;padding:.4rem 0">'+
+          '<span style="font-size:13px;color:var(--text);font-family:var(--font-title)">'+s.nombre+'</span>'+
+          '<span class="coll-arrow" style="font-size:10px">&#9660;</span></div>'+
+          '<div class="coll-body" id="ds'+i+'_'+si+'">'+
+          '<table style="margin-top:.4rem"><tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>'+sp+'</table></div></div>';
+      }).join('');
+      sendasHtml = '<div style="margin-top:.75rem;border-top:1px solid var(--border);padding-top:.6rem">'+
+        '<div style="font-size:11px;color:var(--gold-dim);font-family:var(--font-title);letter-spacing:.08em;margin-bottom:.4rem">SENDAS DISPONIBLES</div>'+
+        sendaCards+'</div>';
+    }
+    return '<div class="card" style="margin-bottom:.5rem">'+
+      '<div class="coll-header" onclick="toggleColl(this.dataset.id,this)" data-id="dc'+i+'" >'+
+      '<div><div style="font-size:15px;color:var(--text);font-family:var(--font-title)">'+d.name+'</div>'+
+      '<div style="font-size:12px;color:var(--text3)">'+d.clanes+'</div></div>'+
+      '<span class="coll-arrow">&#9660;</span></div>'+
+      '<div class="coll-body" id="dc'+i+'">'+
+      '<p style="font-size:13px;margin-bottom:.5rem">'+d.desc+'</p>'+
+      (d.sendas?'<div style="font-size:11px;color:var(--gold-dim);font-family:var(--font-title);letter-spacing:.08em;margin-bottom:.3rem">PODERES PRINCIPALES</div>':'')+
+      '<table><tr><th>Niv.</th><th>Poder</th><th>Pool</th><th>Dif.</th></tr>'+
+      powerRows+'</table>'+sendasHtml+'</div></div>';
   }).join('') || '<p style="color:var(--text3);font-size:14px">Sin resultados.</p>';
 }
 
